@@ -21,7 +21,7 @@ cniConfig:
   name: none
 
 nodes:
-  - hostname: "kube1"
+  - hostname: "wkube1"
     ipAddress: "10.0.0.41"
     installDisk: "/dev/sda"
     talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
