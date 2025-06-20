@@ -8,4 +8,4 @@ spec:
   interval: 5m0s
   url: oci://registry-1.docker.io/bitnamicharts/wordpress
   ref:
-    tag: 24.2.9
+    tag: 24.2.11
