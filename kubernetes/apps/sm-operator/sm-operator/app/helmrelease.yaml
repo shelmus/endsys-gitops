@@ -1,13 +1,4 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrepository-source-v1.json
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
-metadata:
-  name: sm-operator
-spec:
-  interval: 1h
-  url: https://charts.bitwarden.com/
----
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -17,7 +8,7 @@ spec:
   interval: 1h
   chart:
     spec:
-      chart: bitwarden/sm-operator
+      chart: sm-operator
       sourceRef:
         kind: HelmRepository
         name: bitwarden
