@@ -55,6 +55,8 @@ spec:
   dependsOn:
     - name: rook-ceph
       namespace: *namespace
+    - name: snapshot-controller
+      namespace: kube-system
     # - name: volsync
     #   namespace: volsync-system
   healthChecks:
