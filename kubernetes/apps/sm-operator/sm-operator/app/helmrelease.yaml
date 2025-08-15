@@ -30,3 +30,31 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+  values:
+    containers:
+      manager:
+        image:
+          # NOTE:  This should be updated before the final PR
+          repository: ghcr.io/bitwarden/sm-operator
+          # Will default to the Chart's AppVersion, but you can override here.
+          tag:
+        # The pod resource requirements.  You can adjust these up and down for your environment
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+      kubeRbacProxy:
+        image:
+          repository: gcr.io/kubebuilder/kube-rbac-proxy
+          tag: v0.14.1
+        # The pod resource requirements.  You can adjust these up and down for your environment
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 5m
+            memory: 64Mi
