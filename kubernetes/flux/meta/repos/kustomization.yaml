@@ -7,3 +7,4 @@ resources:
   - ./bitwarden.yaml
   - ./rook-ceph.yaml
   - ./piraeus.yaml
+  - ./kube-prometheus-stack.yaml
