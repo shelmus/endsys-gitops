@@ -48,10 +48,10 @@ spec:
               namespace: kube-system
               sectionName: https
     prometheus:
-      ingress:
-        enabled: true
-        ingressClassName: internal
-        hosts:
-          - prometheus.endsys.cloud
-        paths:
-          - /
+      route:
+        app:
+          hostnames: ["prometheus.endsys.cloud"]
+          parentRefs:
+            - name: internal
+              namespace: kube-system
+              sectionName: https
