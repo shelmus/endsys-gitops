@@ -31,7 +31,8 @@ spec:
   values:
     alertmanger:
       route:
-        app:
+        main:
+          enabled: true
           hostnames: ["alertmanager.endsys.cloud"]
           parentRefs:
             - name: internal
@@ -41,7 +42,8 @@ spec:
       enabled: true
       defaultDashboardsTimezone: browsers
       route:
-        app:
+        main:
+          enabled: true
           hostnames: ["grafana.endsys.cloud"]
           parentRefs:
             - name: internal
@@ -49,7 +51,8 @@ spec:
               sectionName: https
     prometheus:
       route:
-        app:
+        main:
+          enabled: true
           hostnames: ["prometheus.endsys.cloud"]
           parentRefs:
             - name: internal
