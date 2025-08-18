@@ -46,7 +46,8 @@ spec:
       # Change this to the actual address of your Pi-hole web server
       - --pihole-server=http://10.127.0.3
     triggerLoopOnEvent: true
-    # policy: sync
+    policy: sync
+    registry: noop
     # sources: ["gateway-httproute", "service"]
     # txtOwnerId: main
     # txtPrefix: k8s.main.
