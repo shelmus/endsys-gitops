@@ -31,21 +31,21 @@ spec:
           secretKeyRef:
             name: &secret pihole-password-secret
             key: pihole-password
-    args:
-      - --source=service
-      - --source=gateway-httproute
+    extraArgs:
+      # - --source=service
+      # - --source=gateway-httproute
       # Pihole only supports A/CNAME records so there is no mechanism to track ownership.
       # You don't need to set this flag, but if you leave it unset, you will receive warning
       # logs when ExternalDNS attempts to create TXT records.
       # - --registry=noop
       # IMPORTANT: If you have records that you manage manually in Pi-hole, set
       # the policy to upsert-only so they do not get deleted.
-      - --policy=upsert-only
-      - --provider=pihole
+      # - --policy=upsert-only
+      # - --provider=pihole
       # Change this to the actual address of your Pi-hole web server
       - --pihole-server=http://10.127.0.3
     triggerLoopOnEvent: true
-    policy: sync
+    policy: upsert-only
     registry: noop
     sources: ["gateway-httproute", "service"]
     # txtOwnerId: main
