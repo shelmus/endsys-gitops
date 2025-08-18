@@ -25,14 +25,13 @@ spec:
   values:
     fullnameOverride: *app
     provider: pihole
-    args: []
     extraEnv:
       - name: EXTERNAL_DNS_PIHOLE_PASSWORD
         valueFrom:
           secretKeyRef:
             name: &secret pihole-password-secret
             key: pihole-password
-    extraArgs:
+    args:
       - --source=service
       - --source=gateway-httproute
       # Pihole only supports A/CNAME records so there is no mechanism to track ownership.
@@ -48,7 +47,7 @@ spec:
     triggerLoopOnEvent: true
     policy: sync
     registry: noop
-    # sources: ["gateway-httproute", "service"]
+    sources: ["gateway-httproute", "service"]
     # txtOwnerId: main
     # txtPrefix: k8s.main.
     domainFilters: ["${SECRET_DOMAIN}"]
