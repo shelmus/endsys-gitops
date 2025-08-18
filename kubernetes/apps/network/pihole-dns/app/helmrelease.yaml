@@ -25,6 +25,7 @@ spec:
   values:
     fullnameOverride: *app
     provider: pihole
+    args: []
     extraEnv:
       - name: EXTERNAL_DNS_PIHOLE_PASSWORD
         valueFrom:
