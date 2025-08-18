@@ -30,22 +30,23 @@ spec:
   #     valuesKey: values.yaml
   values:
     alertmanger:
-      ingress:
-        enabled: true
-        ingressClassName: internal
-        hosts:
-          - alertmanger.endsys.cloud
-        paths:
-          - /
+      route:
+        app:
+          hostnames: ["{{ .Release.Name }}.turbo.ac"]
+          parentRefs:
+            - name: internal
+              namespace: kube-system
+              sectionName: https
     grafana:
       enabled: true
       defaultDashboardsTimezone: browsers
-      ingress:
-        enabled: true
-        ingressClassName: internal
-        hosts:
-          - grafana.endsys.cloud
-        path: /
+      route:
+        app:
+          hostnames: ["{{ .Release.Name }}.turbo.ac"]
+          parentRefs:
+            - name: internal
+              namespace: kube-system
+              sectionName: https
     prometheus:
       ingress:
         enabled: true
