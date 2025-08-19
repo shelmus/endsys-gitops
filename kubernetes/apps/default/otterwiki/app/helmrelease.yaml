@@ -1,0 +1,31 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: otterwiki
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: otterwiki
+      version: 0.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: otterwiki
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    image:
+      repository: redimp/otterwiki
+      pullPolicy: IfNotPresent
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: "2.13"
+    persistence:
+      enabled: false
+      size: 5Gi

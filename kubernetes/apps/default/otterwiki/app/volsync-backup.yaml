@@ -1,0 +1,18 @@
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: otterwiki-backup
+  namespace: default
+spec:
+  sourcePVC: otterwiki
+  trigger:
+    schedule: "0 * * * *"  # hourly backup
+  restic:
+    repository: otterwiki-restic-secret
+    copyMethod: Snapshot
+    retain:
+      hourly: 24
+      daily: 7
+      weekly: 4
+    pruneIntervalDays: 3
