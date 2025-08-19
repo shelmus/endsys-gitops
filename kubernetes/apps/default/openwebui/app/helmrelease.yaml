@@ -21,9 +21,9 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
-  dependsOn:
-    - name: cloudflared
-      namespace: network
+  # dependsOn:
+  #   - name: cloudflared
+  #     namespace: network
   values:
     route:
       app:
@@ -35,7 +35,7 @@ spec:
         rules:
           - backendRefs:
               - identifier: app
-                port: *port
+                port: 80
     # ingress:
     #   enabled: true
     #   class: internal
