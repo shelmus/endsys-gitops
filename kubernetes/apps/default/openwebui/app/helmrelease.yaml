@@ -42,10 +42,10 @@ spec:
       #   secretKeyRef:
       #     name: pipelines-api-key
       #     key: api-key
-      # - name: OPENAI_API_KEY
-      #   valueFrom:
-      #     secretKeyRef:
-      #       name: openai-api-key
-      #       key: api-key
+      - name: OPENAI_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: openai-api-key
+            key: api-key
       # - name: OLLAMA_DEBUG
       #   value: "1"
