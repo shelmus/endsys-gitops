@@ -46,6 +46,6 @@ spec:
         valueFrom:
           secretKeyRef:
             name: openai-api-key
-            key: api-key
+            key: openai-api-key
       # - name: OLLAMA_DEBUG
       #   value: "1"
