@@ -30,6 +30,7 @@ spec:
   #     valuesKey: values.yaml
   values:
     alertmanger:
+      enabled: true
       route:
         main:
           enabled: true
