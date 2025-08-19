@@ -1,0 +1,77 @@
+# https://artifacthub.io/packages/helm/open-webui/open-webui?modal=values
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: authelia
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: authelia
+      version: 0.10.42
+      sourceRef:
+        kind: HelmRepository
+        name: authelia
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    pod:
+      kind: Deployment
+    ingress:
+      enabled: true
+      rulesOverride:
+        - backendRefs:
+            - name: authelia
+              port: 80
+      gatewayAPI:
+        enabled: true
+        hostnamesOverride: ["auth.endsys.cloud"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+    configMap:
+      session:
+        # Must be the cookie domain you’ll serve Authelia and protected apps from
+        cookies:
+          - domain: auth.endsys.cloud
+      storage:
+        # Simple local storage for quick start (no HA). For HA use postgres.
+        local:
+          enabled: true
+      notifier:
+        # Writes “emails” to a file in the pod; swap to SMTP in production
+        filesystem:
+          enabled: true
+      authentication_backend:
+        file:
+          enabled: true
+          path: /config/users_database.yml
+      access_control:
+        default_policy: deny
+        rules:
+          - domain: "auth.endsys.cloud"
+            policy: bypass
+          - domain: "*.endsys.cloud"
+            subject: ["group:admins"]
+            policy: one_factor
+    # Mount the users database secret at /config/users_database.yml
+    extraVolumeMounts:
+      - name: users-db
+        mountPath: /config/users_database.yml
+        subPath: users_database.yml
+        readOnly: true
+    extraVolumes:
+      - name: users-db
+        secret:
+          secretName: authelia-users
+    # Use your own crypto keys instead of auto-generated ones
+    secret:
+      existingSecret: authelia-secrets

@@ -11,3 +11,4 @@ resources:
   - ./openwebui.yaml
   - ./n8n.yaml
   - ./otterwiki.yaml
+  - ./authelia.yaml
