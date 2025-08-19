@@ -55,3 +55,10 @@ spec:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
             - "[STATUS] == 404"
+        - name: minecraft-vanilla
+          enabled: true
+          group: external
+          url: tcp://games.endsys.cloud:25566
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
