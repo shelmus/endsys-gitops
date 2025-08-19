@@ -27,6 +27,7 @@ spec:
     - config:
         endpoints:
           - name: echo-server
+            enabled: true
             group: external
             url: https://echo.endsys.cloud
             interval: 1m
@@ -35,6 +36,7 @@ spec:
             conditions:
               - '[STATUS] == 200'
           - name: flux-webhook
+            enabled: true
             group: external
             url: https://flux-webhook.endsys.cloud
             interval: 1m
