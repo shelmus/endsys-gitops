@@ -9,3 +9,4 @@ resources:
   - ./piraeus.yaml
   - ./kube-prometheus-stack.yaml
   - ./openwebui.yaml
+  - ./n8n.yaml
