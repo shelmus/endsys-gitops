@@ -32,7 +32,7 @@ spec:
           secretKeyRef:
             name: &secret pihole-password-secret
             key: pihole-password
-    eztraArgs:
+    extraArgs:
       # - --source=service
       # - --source=gateway-httproute
       # Pihole only supports A/CNAME records so there is no mechanism to track ownership.
