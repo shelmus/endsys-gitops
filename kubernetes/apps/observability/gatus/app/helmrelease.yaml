@@ -24,34 +24,34 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    - config:
-        metrics: true
-        ui:
-          title: Status | Gatus
-          header: Status
-          logo: https://avatars.githubusercontent.com/u/7853316
-          link: https://github.com/shelmus
-          buttons:
-            - name: Github
-              link: https://github.com/shelmus
-            - name: Homelab
-              link: https://github.com/shelmus/endsys-gitops
-        endpoints:
-          - name: echo-server
-            enabled: true
-            group: external
-            url: https://echo.endsys.cloud
-            interval: 1m
-            client:
-              dns-resolver: tcp://1.1.1.1:53
-            conditions:
-              - '[STATUS] == 200'
-          - name: flux-webhook
-            enabled: true
-            group: external
-            url: https://flux-webhook.endsys.cloud
-            interval: 1m
-            client:
-              dns-resolver: tcp://1.1.1.1:53
-            conditions:
-              - "[STATUS] == 404"
+    config:
+      metrics: true
+      ui:
+        title: Status | Gatus
+        header: Status
+        logo: https://avatars.githubusercontent.com/u/7853316
+        link: https://github.com/shelmus
+        buttons:
+          - name: Github
+            link: https://github.com/shelmus
+          - name: Homelab
+            link: https://github.com/shelmus/endsys-gitops
+      endpoints:
+        - name: echo-server
+          enabled: true
+          group: external
+          url: https://echo.endsys.cloud
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - '[STATUS] == 200'
+        - name: flux-webhook
+          enabled: true
+          group: external
+          url: https://flux-webhook.endsys.cloud
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - "[STATUS] == 404"
