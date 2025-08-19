@@ -3,8 +3,6 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: n8n
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: n8n.endsys.cloud
 spec:
   interval: 1h
   chartRef:
@@ -46,6 +44,8 @@ spec:
     ingress:
       enabled: true
       className: internal
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: n8n.endsys.cloud
       hosts:
         - host: n8n.endsys.cloud
           paths:
