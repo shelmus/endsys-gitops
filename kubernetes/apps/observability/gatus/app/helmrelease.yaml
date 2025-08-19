@@ -62,3 +62,10 @@ spec:
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
+        - name: minecraft-creative
+          enabled: true
+          group: external
+          url: tcp://games.endsys.cloud:25565
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
