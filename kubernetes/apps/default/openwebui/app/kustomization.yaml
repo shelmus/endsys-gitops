@@ -5,6 +5,6 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./httproute.yaml
-  - ./bitwardensecret.yaml
+  # - ./bitwardensecret.yaml
   # - ./volsync-backup.yaml
   - ./secret.sops.yaml
