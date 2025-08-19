@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: twin/gatus
-      version: v1.17.7
+      version: v5.20.0
       sourceRef:
         kind: HelmRepository
         name: rook-ceph
