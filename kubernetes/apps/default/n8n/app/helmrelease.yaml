@@ -1,0 +1,58 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: n8n
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: n8n-helm
+    namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  dependsOn:
+    - name: cloudflared
+      namespace: network
+  values:
+    image:
+      repository: n8nio/n8n
+      pullPolicy: IfNotPresent
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: "1.106.0"
+
+    imagePullSecrets: [ ]
+    nameOverride: ""
+    fullnameOverride: ""
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 80
+    # ingress:
+    #   enabled: true
+    #   className: internal
+    #   hosts:
+    #     - host: n8n.endsys.cloud
+    #       paths:
+    #         - /
+      # tls: [ ]
+      # #  - secretName: chart-example-tls
+      # #    hosts:
+      # #      - chart-example.local
+    main:
+      persistence:
+        enabled: false
+        type: dynamic
+        size: 5Gi
