@@ -1,0 +1,62 @@
+# https://artifacthub.io/packages/helm/open-webui/open-webui?modal=values
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: openwebui
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: open-webui
+      version: 7.2.0
+      sourceRef:
+        kind: HelmRepository
+        name: openwebui
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  dependsOn:
+    - name: cloudflared
+      namespace: network
+  values:
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    # ingress:
+    #   enabled: true
+    #   class: internal
+    #   host: ai.endsys.cloud
+    persistence:
+      enabled: false
+      size: 10Gi
+      storageClass: ceph-block
+    # -- Env vars added to the Open WebUI deployment. Most up-to-date environment variables can be found here: https://docs.openwebui.com/getting-started/env-configuration/
+    extraEnvVars:
+      # -- Default API key value for Pipelines. Should be updated in a production deployment, or be changed to the required API key if not using Pipelines
+      - name: OPENAI_API_KEY
+        value: "0p3n-w3bu!"
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: pipelines-api-key
+      #     key: api-key
+      # - name: OPENAI_API_KEY
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: openai-api-key
+      #       key: api-key
+      # - name: OLLAMA_DEBUG
+      #   value: "1"
