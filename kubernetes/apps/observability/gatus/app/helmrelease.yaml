@@ -1,0 +1,45 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gatus
+spec:
+  interval: 1h
+  timeout: 15m
+  chart:
+    spec:
+      chart: twin/gatus
+      version: v1.17.7
+      sourceRef:
+        kind: HelmRepository
+        name: rook-ceph
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    - persistence:
+        enabled: false
+    - config:
+        storage:
+          type: sqlite
+          path: /data/data.db
+        endpoints:
+          - name: Example
+            url: https://echo.endsys.cloud
+            conditions:
+              - '[STATUS] == 200'
+          - name: flux-webhook
+            group: external
+            url: https://flux-webhook.endsys.cloud
+            interval: 1m
+            client:
+              dns-resolver: tcp://1.1.1.1:53
+            conditions:
+              - "[STATUS] == 404"

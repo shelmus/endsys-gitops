@@ -12,3 +12,4 @@ resources:
   - ./n8n.yaml
   - ./otterwiki.yaml
   - ./authelia.yaml
+  - ./twin.yaml
