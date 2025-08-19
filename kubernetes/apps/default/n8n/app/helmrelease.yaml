@@ -31,7 +31,7 @@ spec:
     fullnameOverride: ""
     route:
       main:
-        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
+        hostnames: ["n8n.endsys.cloud"]
         parentRefs:
           - name: internal
             namespace: kube-system
