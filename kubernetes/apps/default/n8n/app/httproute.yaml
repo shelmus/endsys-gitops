@@ -11,5 +11,5 @@ spec:
   hostnames: ["n8n.endsys.cloud"]
   rules:
     - backendRefs:
-        - identifier: app
+        - name: n8n
           port: 80
