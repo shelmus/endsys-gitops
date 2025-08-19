@@ -24,14 +24,15 @@ spec:
       retries: 3
   values:
     fullnameOverride: *app
-    provider: pihole
-    extraEnv:
+    provider: 
+      name: pihole
+    env:
       - name: EXTERNAL_DNS_PIHOLE_PASSWORD
         valueFrom:
           secretKeyRef:
             name: &secret pihole-password-secret
             key: pihole-password
-    extraArgs:
+    args:
       # - --source=service
       # - --source=gateway-httproute
       # Pihole only supports A/CNAME records so there is no mechanism to track ownership.
