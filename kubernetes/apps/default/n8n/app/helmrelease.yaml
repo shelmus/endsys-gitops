@@ -41,15 +41,15 @@ spec:
         #   - backendRefs:
         #       - identifier: app
         #         port: 80
-    ingress:
-      enabled: true
-      className: internal
-      annotations:
-        external-dns.alpha.kubernetes.io/hostname: n8n.endsys.cloud
-      hosts:
-        - host: n8n.endsys.cloud
-          paths:
-            - /
+    # ingress:
+    #   enabled: true
+    #   className: internal
+    #   annotations:
+    #     external-dns.alpha.kubernetes.io/hostname: n8n.endsys.cloud
+    #   hosts:
+    #     - host: n8n.endsys.cloud
+    #       paths:
+    #         - /
       # tls: [ ]
       # #  - secretName: chart-example-tls
       # #    hosts:
