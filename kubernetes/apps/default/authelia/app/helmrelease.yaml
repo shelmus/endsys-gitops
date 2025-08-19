@@ -24,6 +24,16 @@ spec:
   values:
     pod:
       kind: Deployment
+    # Mount the users database secret at /config/users_database.yml
+      extraVolumeMounts:
+        - name: users-db
+          mountPath: /config/users_database.yml
+          subPath: users_database.yml
+          readOnly: true
+      extraVolumes:
+        - name: users-db
+          secret:
+            secretName: authelia-users
     ingress:
       enabled: true
       rulesOverride:
@@ -62,16 +72,6 @@ spec:
           - domain: "*.endsys.cloud"
             subject: ["group:admins"]
             policy: one_factor
-    # Mount the users database secret at /config/users_database.yml
-    extraVolumeMounts:
-      - name: users-db
-        mountPath: /config/users_database.yml
-        subPath: users_database.yml
-        readOnly: true
-    extraVolumes:
-      - name: users-db
-        secret:
-          secretName: authelia-users
     # Use your own crypto keys instead of auto-generated ones
     secret:
       existingSecret: authelia-secrets
