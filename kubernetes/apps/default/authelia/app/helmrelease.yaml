@@ -36,10 +36,10 @@ spec:
             secretName: authelia-users
     ingress:
       enabled: true
-      rulesOverride:
-        - backendRefs:
-            - name: authelia
-              port: 80
+      rulesOverride: []
+        # - backendRefs:
+        #     - name: authelia
+        #       port: 80
       gatewayAPI:
         enabled: true
         hostnamesOverride: ["auth.endsys.cloud"]
