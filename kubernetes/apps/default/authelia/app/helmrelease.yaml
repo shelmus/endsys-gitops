@@ -34,15 +34,14 @@ spec:
         - name: users-db
           secret:
             secretName: authelia-users
-    ingress:
-      gatewayAPI:
-        enabled: true
-        hostnamesOverride: ["auth.endsys.cloud"]
-        parentRefs:
-          - name: internal
-            namespace: kube-system
-            sectionName: https
-            port: 80
+    # ingress:
+    #   gatewayAPI:
+    #     enabled: true
+    #     hostnamesOverride: ["auth.endsys.cloud"]
+    #     parentRefs:
+    #       - name: internal
+    #         namespace: kube-system
+    #         sectionName: https
     configMap:
       session:
         # Must be the cookie domain you’ll serve Authelia and protected apps from
