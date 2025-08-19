@@ -45,6 +45,8 @@ spec:
       # - --provider=pihole
       # Change this to the actual address of your Pi-hole web server
       - --pihole-server=http://10.127.0.3
+      # API lvl 6
+      - --pihole-api-version=6
     triggerLoopOnEvent: true
     policy: upsert-only
     registry: noop
