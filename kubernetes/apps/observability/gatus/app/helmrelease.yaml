@@ -25,6 +25,17 @@ spec:
       retries: 3
   values:
     - config:
+        metrics: true
+        ui:
+          title: Status | Gatus
+          header: Status
+          logo: https://avatars.githubusercontent.com/u/7853316
+          link: https://github.com/shelmus
+          buttons:
+            - name: Github
+              link: https://github.com/shelmus
+            - name: Homelab
+              link: https://github.com/shelmus/endsys-gitops
         endpoints:
           - name: echo-server
             enabled: true
