@@ -25,19 +25,8 @@ spec:
   #   - name: cloudflared
   #     namespace: network
   values:
-    route:
-      app:
-        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
-        parentRefs:
-          - name: external
-            namespace: kube-system
-            sectionName: https
-        rules:
-          - backendRefs:
-              - identifier: app
-                port: 80
     # ingress:
-    #   enabled: true
+    #   enabled: false
     #   class: internal
     #   host: ai.endsys.cloud
     persistence:

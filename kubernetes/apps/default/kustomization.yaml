@@ -7,5 +7,5 @@ components:
   - ../../components/common
 resources:
   - ./echo/ks.yaml
-  # - ./openwebui/ks.yaml
+  - ./openwebui/ks.yaml
   - ./n8n/ks.yaml
