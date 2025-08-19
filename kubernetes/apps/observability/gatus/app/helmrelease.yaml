@@ -24,14 +24,9 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    - persistence:
-        enabled: false
     - config:
-        storage:
-          type: sqlite
-          path: /data/data.db
         endpoints:
-          - name: Example
+          - name: echo-server
             url: https://echo.endsys.cloud
             conditions:
               - '[STATUS] == 200'
