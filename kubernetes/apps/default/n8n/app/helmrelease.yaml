@@ -30,7 +30,7 @@ spec:
     nameOverride: ""
     fullnameOverride: ""
     route:
-      app:
+      main:
         hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
         parentRefs:
           - name: internal
