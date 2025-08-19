@@ -1,0 +1,15 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: gatus
+spec:
+  parentRefs:
+  - name: external         # your existing Gateway
+    namespace: kube-system
+    sectionName: https             # if it lives elsewhere
+  hostnames: ["status.endsys.cloud"]
+  rules:
+    - backendRefs:
+        - name: gatus
+          port: 80
