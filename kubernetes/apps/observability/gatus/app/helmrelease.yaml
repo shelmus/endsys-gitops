@@ -58,7 +58,7 @@ spec:
         - name: minecraft-vanilla
           enabled: true
           group: external
-          url: tcp://games.endsys.cloud:25566
+          url: tcp://games.endsys.cloud:25567
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
