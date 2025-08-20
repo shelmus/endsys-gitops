@@ -25,10 +25,8 @@ spec:
   #   - name: cloudflared
   #     namespace: network
   values:
-    # ingress:
-    #   enabled: false
-    #   class: internal
-    #   host: ai.endsys.cloud
+    pipelines:
+      enabled: false
     persistence:
       enabled: false
       size: 10Gi
