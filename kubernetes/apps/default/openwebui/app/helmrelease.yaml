@@ -22,8 +22,6 @@ spec:
     remediation:
       retries: 3
   values:
-    pipelines:
-      enabled: false
     persistence:
       enabled: false
       size: 10Gi
