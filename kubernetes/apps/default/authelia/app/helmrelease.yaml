@@ -34,14 +34,8 @@ spec:
         - name: users-db
           secret:
             secretName: authelia-users
-    # ingress:
-    #   gatewayAPI:
-    #     enabled: true
-    #     hostnamesOverride: ["auth.endsys.cloud"]
-    #     parentRefs:
-    #       - name: internal
-    #         namespace: kube-system
-    #         sectionName: https
+    secret:
+      existingSecret: authelia-secrets
     configMap:
       session:
         # Must be the cookie domain you’ll serve Authelia and protected apps from
@@ -68,5 +62,27 @@ spec:
             subject: ["group:admins"]
             policy: one_factor
     # Use your own crypto keys instead of auto-generated ones
-    secret:
-      existingSecret: authelia-secrets
+      identity_providers:
+        oidc:
+          enabled: true
+          clients:
+            - client_id: openwebui
+              client_name: "Openwebui"
+              public: false
+              authorization_policy: 'two_factor'
+              require_pkce: false
+              pkce_challenge_method: ''
+              redirect_uris:
+                - 'https://ai.endsys.cloud/oauth/oidc/callback'
+              scopes:
+                - 'openid'
+                - 'profile'
+                - 'groups'
+                - 'email'
+              response_types:
+                - 'code'
+              grant_types:
+                - 'authorization_code'
+              access_token_signed_response_alg: 'none'
+              userinfo_signed_response_alg: 'none'
+              token_endpoint_auth_method: 'client_secret_basic'
