@@ -67,6 +67,7 @@ spec:
           enabled: true
           clients:
             - client_id: openwebui
+              client_secret: ""
               client_name: "Openwebui"
               public: false
               authorization_policy: 'two_factor'
@@ -86,4 +87,8 @@ spec:
               access_token_signed_response_alg: 'none'
               userinfo_signed_response_alg: 'none'
               token_endpoint_auth_method: 'client_secret_basic'
-              
+  valuesFrom:
+    - kind: Secret
+      name: authelia-oidc-client           # <- the Secret Flux decrypts
+      valuesKey: client_secret             # <- key inside the Secret
+      targetPath: identity_providers.oidc.clients[0].client_secret
