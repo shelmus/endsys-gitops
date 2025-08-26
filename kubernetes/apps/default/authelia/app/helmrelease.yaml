@@ -69,7 +69,26 @@ spec:
               algorithm: 'RS256'
               use: 'sig'
               key: ""
-              certificate_chain: ""
+              certificate_chain: |
+                -----BEGIN CERTIFICATE-----
+                MIIDHjCCAgagAwIBAgIRAIGHyGZvnC2+8Lf1b0Ff5BgwDQYJKoZIhvcNAQELBQAw
+                LzERMA8GA1UEChMIQXV0aGVsaWExGjAYBgNVBAMTEWF1dGguZW5kc3lzLmNsb3Vk
+                MB4XDTI1MDgyNTIwNDcxOVoXDTI2MDgyNTIwNDcxOVowLzERMA8GA1UEChMIQXV0
+                aGVsaWExGjAYBgNVBAMTEWF1dGguZW5kc3lzLmNsb3VkMIIBIjANBgkqhkiG9w0B
+                AQEFAAOCAQ8AMIIBCgKCAQEAuCX9R2iwSjcMo7MbGqu8pnIxOipKWuYWnaSyZjnl
+                ZF2IQ1FejZFtSJhCecVBatlYsXAs/JcKVLPe+pY5lhdAewkV82tDM5n29zkXmDcm
+                YmiC7HgajaiNpmtwHedsdFtZtFetWWcElivUpC3kWf03I8o972t7LhZnpqR9gDQ0
+                kYTZMv7mWhBkvpRxMutefN0UR4sZJKhxArliDZtNULHADGwA/XX+xDaJdq9BCt/1
+                jHfrbjg0FpWqztWOofygYE9frqtUVkCf+vRrfaB4x2BFzEUbGUchMqlUTBPyZsOy
+                ufijBuc/3Rc39eG50Hid76zCF3VUi2F1Q6gTDlOsDJsYYQIDAQABozUwMzAOBgNV
+                HQ8BAf8EBAMCBaAwEwYDVR0lBAwwCgYIKwYBBQUHAwEwDAYDVR0TAQH/BAIwADAN
+                BgkqhkiG9w0BAQsFAAOCAQEAKTo2wtHTJCsix/TNNTSgq2LzTpTcuP4jyy2SQiVl
+                H98fMj2XncVd4Bj095x8KKlaST3mLjxfyW3d5PvOIP29TFSloYl/7iRsvD+6oj1B
+                rxSQeKth4SFSpFALHPGl2Z0ZnMm9BgyeTdIU4g9xYji9GMsEziO/QqaDNv+87FO4
+                dNWH6ivbTMbliDETC+uiN8xOj5zGdqIcvJYCi0beoukY8Gqs99KVG1tiUOupqL/s
+                q2MFUpqfiVm+4+9ZlY1VmLVwf+6BoBuZQHgkW6L9dan4ebafE7ZxUs9UEPJ9Tw65
+                NB0JIATZDvxKIkDcq0sn4MDciAjNAHmWVCX4Y8RmKze7xg==
+                -----END CERTIFICATE-----
           enabled: true
           clients:
             - client_id: openwebui
@@ -97,11 +116,11 @@ spec:
     - kind: Secret
       name: authelia-oidc-jwks
       valuesKey: jwk_private_key
-      targetPath: configMap.identity_providers.oidc.jwks[0].key
-    - kind: Secret     # you can use ConfigMap if you consider it non-sensitive
-      name: authelia-oidc-jwks
-      valuesKey: jwk_certificate_chain
-      targetPath: configMap.identity_providers.oidc.jwks[0].certificate_chain
+      targetPath: configMap.identity_providers.oidc.jwks[0].key.value
+    # - kind: Secret     # you can use ConfigMap if you consider it non-sensitive
+    #   name: authelia-oidc-jwks
+    #   valuesKey: jwk_certificate_chain
+    #   targetPath: configMap.identity_providers.oidc.jwks[0].certificate_chain
     - kind: Secret
       name: authelia-oidc-client           # <- the Secret Flux decrypts
       valuesKey: client_secret             # <- key inside the Secret
