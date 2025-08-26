@@ -6,6 +6,9 @@ metadata:
   name: &app openwebui
   namespace: &namespace default
 spec:
+  dependsOn:
+    - name: authelia
+      namespace: default
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
