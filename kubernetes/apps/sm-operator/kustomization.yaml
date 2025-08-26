@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: sm-operator
 components:
   - ../../components/common
-resources:
-  - ./sm-operator/ks.yaml
+resources: []
+  # - ./sm-operator/ks.yaml
