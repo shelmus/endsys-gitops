@@ -105,4 +105,4 @@ spec:
     - kind: Secret
       name: authelia-oidc-client           # <- the Secret Flux decrypts
       valuesKey: client_secret             # <- key inside the Secret
-      targetPath: configMap.identity_providers.oidc.clients[0].client_secret.secret
+      targetPath: configMap.identity_providers.oidc.clients[0].client_secret
