@@ -13,9 +13,9 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
-  dependsOn:
-    - name: sm-operator
-      namespace: sm-operator
+  # dependsOn:
+  #   - name: sm-operator
+  #     namespace: sm-operator
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease

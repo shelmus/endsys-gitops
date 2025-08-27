@@ -34,7 +34,7 @@ spec:
           name: rook.endsys.cloud
           path: /
     toolbox:
-      enabled: true
+      enabled: false
     cephClusterSpec:
       crashCollector:
         disable: false
@@ -42,7 +42,7 @@ spec:
         readAffinity:
           enabled: true
       dashboard:
-        enabled: true
+        enabled: false
         urlPrefix: /
         ssl: true
         # prometheusEndpoint: http://prometheus-operated.observability.svc.cluster.local:9090
