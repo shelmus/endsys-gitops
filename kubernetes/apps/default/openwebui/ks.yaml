@@ -9,8 +9,8 @@ spec:
   dependsOn:
     - name: authelia
       namespace: default
-    - name: rook-ceph
-      namespace: rook-ceph
+    - name: longhorn
+      namespace: longhorn-system
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
