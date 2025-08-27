@@ -10,6 +10,10 @@ spec:
     sectionName: https             # if it lives elsewhere
   hostnames: ["ai.endsys.cloud"]
   rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
     - backendRefs:
         - name: openwebui
           port: 80
