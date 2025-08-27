@@ -13,4 +13,4 @@ resources:
   - ./otterwiki.yaml
   - ./authelia.yaml
   - ./twin.yaml
-  # - ./longhorn.yaml
+  - ./longhorn.yaml
