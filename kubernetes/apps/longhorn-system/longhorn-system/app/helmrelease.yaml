@@ -29,7 +29,7 @@ spec:
         # -- Service type for Longhorn UI. (Options: "ClusterIP", "NodePort", "LoadBalancer", "Rancher-Proxy")
         type: ClusterIP
         # -- NodePort port number for Longhorn UI. When unspecified, Longhorn selects a free port between 30000 and 32767.
-        nodePort: 80
+        nodePort: null
     persistence:
       defaultClass: true
       defaultFsType: ext4
