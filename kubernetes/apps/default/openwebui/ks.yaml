@@ -9,6 +9,8 @@ spec:
   dependsOn:
     - name: authelia
       namespace: default
+    - name: rook-ceph
+      namespace: rook-ceph
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app

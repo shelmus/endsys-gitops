@@ -23,7 +23,7 @@ spec:
       retries: 3
   values:
     persistence:
-      enabled: false
+      enabled: true
       size: 10Gi
       storageClass: ceph-block
     # -- Env vars added to the Open WebUI deployment. Most up-to-date environment variables can be found here: https://docs.openwebui.com/getting-started/env-configuration/
