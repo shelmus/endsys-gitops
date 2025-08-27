@@ -116,7 +116,7 @@ spec:
     - kind: Secret
       name: authelia-oidc-jwks
       valuesKey: jwk_private_key
-      targetPath: configMap.identity_providers.oidc.jwks[0].key.value
+      targetPath: configMap.identity_providers.oidc.jwks[0].key
     # - kind: Secret     # you can use ConfigMap if you consider it non-sensitive
     #   name: authelia-oidc-jwks
     #   valuesKey: jwk_certificate_chain
