@@ -11,5 +11,5 @@ spec:
   hostnames: ["lh.endsys.cloud"]
   rules:
     - backendRefs:
-        - name: ui
+        - name: longhorn-frontend
           port: 80
