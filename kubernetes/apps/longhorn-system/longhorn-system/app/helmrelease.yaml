@@ -24,21 +24,17 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    # service:
-    #   ui:
-    #     # -- Service type for Longhorn UI. (Options: "ClusterIP", "NodePort", "LoadBalancer", "Rancher-Proxy")
-    #     type: ClusterIP
-    #     # -- NodePort port number for Longhorn UI. When unspecified, Longhorn selects a free port between 30000 and 32767.
-    #     nodePort: null
+    defaultSettings:
+      defaultDataPath: "/dev/nvme0n1"
     persistence:
       defaultClass: true
       defaultFsType: ext4
       defaultClassReplicaCount: 3
       relaimPolicy: Delete
       volumeBindingMode: "Immediate"
-      defaultDiskSelector:
-        enable: true
-        selector: "nvme"
+      # defaultDiskSelector:
+      #   enable: true
+      #   selector: "nvme"
     metrics:
       serviceMonitor:
         enabled: true
