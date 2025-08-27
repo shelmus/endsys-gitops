@@ -24,8 +24,8 @@ spec:
   values:
     persistence:
       enabled: true
-      size: 10Gi
-      storageClass: ceph-block
+      size: 2Gi
+      storageClass: longhorn
     # -- Env vars added to the Open WebUI deployment. Most up-to-date environment variables can be found here: https://docs.openwebui.com/getting-started/env-configuration/
     extraEnvVars:
       - name: WEBUI_URL
