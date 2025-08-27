@@ -28,31 +28,31 @@ spec:
       storageClass: longhorn
     # -- Env vars added to the Open WebUI deployment. Most up-to-date environment variables can be found here: https://docs.openwebui.com/getting-started/env-configuration/
     extraEnvVars:
-      - name: ENABLE_OAUTH_SIGNUP
-        value: 'true'
-      - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
-        value: 'true'
-      - name: OAUTH_CLIENT_ID
-        value: 'openwebui'
-      - name: OAUTH_CLIENT_SECRET
-        valueFrom:
-          secretKeyRef:
-            name: authelia-oidc-client
-            key: client_secret
-      - name: OPENID_PROVIDER_URL
-        value: 'https://auth.endsys.cloud/.well-known/openid-configuration'
-      - name: OAUTH_PROVIDER_NAME
-        value: 'Authelia'
-      - name: OAUTH_SCOPES
-        value: 'openid email profile groups'
-      - name: ENABLE_OAUTH_ROLE_MANAGEMENT
-        value: 'true'
-      - name: OAUTH_ALLOWED_ROLES
-        value: 'openwebui,openwebui-admin'
-      - name: OAUTH_ADMIN_ROLES
-        value: 'openwebui-admin'
-      - name: OAUTH_ROLES_CLAIM
-        value: 'groups'
+      # - name: ENABLE_OAUTH_SIGNUP
+      #   value: 'true'
+      # - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+      #   value: 'true'
+      # - name: OAUTH_CLIENT_ID
+      #   value: 'openwebui'
+      # - name: OAUTH_CLIENT_SECRET
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: authelia-oidc-client
+      #       key: client_secret
+      # - name: OPENID_PROVIDER_URL
+      #   value: 'https://auth.endsys.cloud/.well-known/openid-configuration'
+      # - name: OAUTH_PROVIDER_NAME
+      #   value: 'Authelia'
+      # - name: OAUTH_SCOPES
+      #   value: 'openid email profile groups'
+      # - name: ENABLE_OAUTH_ROLE_MANAGEMENT
+      #   value: 'true'
+      # - name: OAUTH_ALLOWED_ROLES
+      #   value: 'openwebui,openwebui-admin'
+      # - name: OAUTH_ADMIN_ROLES
+      #   value: 'openwebui-admin'
+      # - name: OAUTH_ROLES_CLAIM
+      #   value: 'groups'
       # -- Default API key value for Pipelines. Should be updated in a production deployment, or be changed to the required API key if not using Pipelines
       - name: OPENAI_API_KEY
         value: "0p3n-w3bu!"
