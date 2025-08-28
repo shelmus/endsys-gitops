@@ -29,8 +29,8 @@ spec:
       enabled: true
       enableSignup: true
       mergeAccountsByEmail: true
-      enableRoleManagement: true
-      enableGroupManagement: true
+      enableRoleManagement: false
+      enableGroupManagement: false
       oidc:
         enabled: true
         clientId: "openwebui"
