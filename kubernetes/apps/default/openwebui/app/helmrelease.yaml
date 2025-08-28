@@ -25,19 +25,34 @@ spec:
     persistence:
       enabled: true
       size: 2Gi
+    sso:
+      enabled: true
+      enableSignup: true
+      mergeAccountsByEmail: true
+      enableRoleManagement: true
+      enableGroupManagement: true
+      oidc:
+        enabled: true
+        clientId: "openwebui"
+        # clientSecret: ""
+        clientExistingSecret: openwebui-sso-client-secret
+        clientExistingSecretKey: client_secret
+        providerUrl: ""
+        providerName: "Authelia"
+        scopes: "openid email profile"
     # -- Env vars added to the Open WebUI deployment. Most up-to-date environment variables can be found here: https://docs.openwebui.com/getting-started/env-configuration/
     extraEnvVars:
       # -- Default API key value for Pipelines. Should be updated in a production deployment, or be changed to the required API key if not using Pipelines
-      - name: OPENAI_API_KEY
-        value: "0p3n-w3bu!"
+      # - name: OPENAI_API_KEY
+      #   value: "0p3n-w3bu!"
       # valueFrom:
       #   secretKeyRef:
       #     name: pipelines-api-key
       #     key: api-key
-      # - name: OPENAI_API_KEY
-      #   valueFrom:
-      #     secretKeyRef:
-      #       name: openai-api-key
-      #       key: api-key
+      - name: OPENAI_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: openai-api-key
+            key: api-key
       # - name: OLLAMA_DEBUG
       #   value: "1"

@@ -10,4 +10,4 @@ resources:
   - ./openwebui/ks.yaml
   # - ./n8n/ks.yaml
   # - ./otterwiki/ks.yaml
-  # - ./authelia/ks.yaml
+  - ./authelia/ks.yaml
