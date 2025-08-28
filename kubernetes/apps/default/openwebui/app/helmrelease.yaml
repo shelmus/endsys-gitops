@@ -37,9 +37,9 @@ spec:
         # clientSecret: ""
         clientExistingSecret: openwebui-sso-client-secret
         clientExistingSecretKey: client_secret
-        providerUrl: https://auth.endsys.cloud
+        providerUrl: "https://auth.endsys.cloud"
         providerName: "Authelia"
-        scopes: "openid email profile"
+        scopes: "openid email groups profile"
     # -- Env vars added to the Open WebUI deployment. Most up-to-date environment variables can be found here: https://docs.openwebui.com/getting-started/env-configuration/
     extraEnvVars:
       # -- Default API key value for Pipelines. Should be updated in a production deployment, or be changed to the required API key if not using Pipelines
