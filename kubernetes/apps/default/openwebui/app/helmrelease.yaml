@@ -37,7 +37,7 @@ spec:
         # clientSecret: ""
         clientExistingSecret: openwebui-sso-client-secret
         clientExistingSecretKey: client_secret
-        providerUrl: "auth.endsys.cloud"
+        providerUrl: "https://auth.endsys.cloud/.well-known/openid-configuration"
         providerName: "Authelia"
         scopes: "openid email groups profile"
     # -- Env vars added to the Open WebUI deployment. Most up-to-date environment variables can be found here: https://docs.openwebui.com/getting-started/env-configuration/
