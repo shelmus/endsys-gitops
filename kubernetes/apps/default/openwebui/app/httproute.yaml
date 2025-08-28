@@ -11,5 +11,5 @@ spec:
   hostnames: ["ai.endsys.cloud"]
   rules:
     - backendRefs:
-        - name: openwebui
+        - name: open-webui
           port: 80
