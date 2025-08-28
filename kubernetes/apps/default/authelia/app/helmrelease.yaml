@@ -37,6 +37,9 @@ spec:
     secret:
       existingSecret: authelia-secrets
     configMap:
+      totp:
+        disable: false
+        issuer: 'Homelab'
       session:
         # Must be the cookie domain you’ll serve Authelia and protected apps from
         cookies:
