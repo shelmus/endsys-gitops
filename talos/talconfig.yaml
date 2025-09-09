@@ -21,10 +21,10 @@ cniConfig:
 nodes:
   - hostname: "kube1"
     ipAddress: "10.127.0.41"
-    installDisk: "/pci0000:00/0000:00:17.0/ata1/host1/target1:0:0/1:0:0:0"
+    installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+    talosImageURL: factory.talos.dev/installer/65cf8364cd0de4cf7b851dc7067a2db83d0ba04f11d8635c6cd3334be6ffb825
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -40,10 +40,10 @@ nodes:
           ip: "10.127.0.40"
   - hostname: "kube2"
     ipAddress: "10.127.0.42"
-    installDisk: "/pci0000:00/0000:00:17.0/ata1/host1/target1:0:0/1:0:0:0"
+    installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+    talosImageURL: factory.talos.dev/installer/65cf8364cd0de4cf7b851dc7067a2db83d0ba04f11d8635c6cd3334be6ffb825
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -59,10 +59,10 @@ nodes:
           ip: "10.127.0.40"
   - hostname: "kube3"
     ipAddress: "10.127.0.43"
-    installDisk: "/pci0000:00/0000:00:17.0/ata1/host1/target1:0:0/1:0:0:0"
+    installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+    talosImageURL: factory.talos.dev/installer/65cf8364cd0de4cf7b851dc7067a2db83d0ba04f11d8635c6cd3334be6ffb825
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
