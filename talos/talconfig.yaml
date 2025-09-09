@@ -21,59 +21,65 @@ cniConfig:
 nodes:
   - hostname: "kube1"
     ipAddress: "10.127.0.41"
-    installDisk: "/dev/nvme0n1"
+    installDiskSelector:
+      serial: "24374AFF58D1"
+    # installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
     talosImageURL: factory.talos.dev/installer/65cf8364cd0de4cf7b851dc7067a2db83d0ba04f11d8635c6cd3334be6ffb825
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
-          hardwareAddr: "6c:4b:90:52:1f:3c"
+          hardwareAddr: "38:05:25:30:c5:ed"
         dhcp: false
         addresses:
           - "10.127.0.41/24"
         routes:
           - network: "0.0.0.0/0"
             gateway: "10.127.0.1"
-        mtu: 1500
+        mtu: 9000
         vip:
           ip: "10.127.0.40"
   - hostname: "kube2"
     ipAddress: "10.127.0.42"
-    installDisk: "/dev/nvme0n1"
+    installDiskSelector:
+      serial: "2417485DE2C9"
+    # installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
     talosImageURL: factory.talos.dev/installer/65cf8364cd0de4cf7b851dc7067a2db83d0ba04f11d8635c6cd3334be6ffb825
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
-          hardwareAddr: "6c:4b:90:50:ff:a3"
+          hardwareAddr: "38:05:25:30:c3:be"
         dhcp: false
         addresses:
           - "10.127.0.42/24"
         routes:
           - network: "0.0.0.0/0"
             gateway: "10.127.0.1"
-        mtu: 1500
+        mtu: 9000
         vip:
           ip: "10.127.0.40"
   - hostname: "kube3"
     ipAddress: "10.127.0.43"
-    installDisk: "/dev/nvme0n1"
+    installDiskSelector:
+      serial: "2410480AE482"
+    # installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
     talosImageURL: factory.talos.dev/installer/65cf8364cd0de4cf7b851dc7067a2db83d0ba04f11d8635c6cd3334be6ffb825
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
-          hardwareAddr: "00:23:24:f2:35:02"
+          hardwareAddr: "38:05:25:30:c5:26"
         dhcp: false
         addresses:
           - "10.127.0.43/24"
         routes:
           - network: "0.0.0.0/0"
             gateway: "10.127.0.1"
-        mtu: 1500
+        mtu: 9000
         vip:
           ip: "10.127.0.40"
 

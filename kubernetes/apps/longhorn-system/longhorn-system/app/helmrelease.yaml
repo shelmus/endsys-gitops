@@ -24,8 +24,8 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    defaultSettings:
-      defaultDataPath: "/dev/nvme0n1"
+    # defaultSettings:
+    #   defaultDataPath: "/dev/nvme0n1"
     persistence:
       defaultClass: true
       defaultFsType: ext4
