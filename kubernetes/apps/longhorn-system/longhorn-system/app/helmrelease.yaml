@@ -24,7 +24,8 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    # defaultSettings:
+    defaultSettings:
+      deletingConfirmationFlag: true
     #   defaultDataPath: "/dev/nvme0n1"
     persistence:
       defaultClass: true
