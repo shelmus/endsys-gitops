@@ -25,7 +25,7 @@ spec:
       retries: 3
   values:
     defaultSettings:
-      deletingConfirmationFlag: true
+      deletingConfirmationFlag: "true"
     #   defaultDataPath: "/dev/nvme0n1"
     persistence:
       defaultClass: true
