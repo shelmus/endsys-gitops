@@ -24,7 +24,7 @@ spec:
       repository: n8nio/n8n
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: "1.106.0"
+      # tag: "1.106.0"
 
     imagePullSecrets: [ ]
     nameOverride: ""
@@ -56,6 +56,6 @@ spec:
       # #      - chart-example.local
     main:
       persistence:
-        enabled: false
+        enabled: true
         type: dynamic
         size: 5Gi

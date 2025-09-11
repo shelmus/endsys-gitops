@@ -8,6 +8,6 @@ components:
 resources:
   - ./echo/ks.yaml
   - ./openwebui/ks.yaml
-  # - ./n8n/ks.yaml
+  - ./n8n/ks.yaml
   # - ./otterwiki/ks.yaml
   - ./authelia/ks.yaml
