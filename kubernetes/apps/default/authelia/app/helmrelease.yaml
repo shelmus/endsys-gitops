@@ -36,7 +36,7 @@ spec:
             secretName: authelia-users
     secret:
       existingSecret: authelia-secrets
-    configMap:
+    configMap: 
       totp:
         disable: false
         issuer: 'Homelab'
@@ -49,9 +49,16 @@ spec:
         local:
           enabled: true
       notifier:
-        # Writes “emails” to a file in the pod; swap to SMTP in production
-        filesystem:
+        smtp:
           enabled: true
+          address: 'submission://smtp.protonmail.ch:587'
+          sender: 'Authelia <infra@endsys.cloud>'
+          username: 'infra@endsys.cloud'
+          # password:
+          #   secret_name: authelia-smtp-password
+          #   value:
+        # filesystem:
+        #   enabled: false
       authentication_backend:
         file:
           enabled: true
