@@ -56,7 +56,7 @@ spec:
           username: 'infra@endsys.cloud'
           password:
             secret_name: authelia-smtp-password
-            # value: smtp-password
+            value: password
         # filesystem:
         #   enabled: false
       authentication_backend:
