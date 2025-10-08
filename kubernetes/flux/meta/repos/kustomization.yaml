@@ -15,3 +15,4 @@ resources:
   - ./twin.yaml
   - ./longhorn.yaml
   - ./backube.yaml
+  - ./csi-driver-nfs.yaml
