@@ -1,6 +1,6 @@
 ---
 apiVersion: minio.min.io/v2
-kind: Bucket
+kind: Buckets
 metadata:
   name: velero
   namespace: minio
