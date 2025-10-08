@@ -14,3 +14,4 @@ resources:
   - ./authelia.yaml
   - ./twin.yaml
   - ./longhorn.yaml
+  - ./backube.yaml
