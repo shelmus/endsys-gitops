@@ -16,3 +16,5 @@ resources:
   - ./longhorn.yaml
   - ./backube.yaml
   - ./csi-driver-nfs.yaml
+  - ./minio.yaml
+  - ./vmware-tanzu.yaml
