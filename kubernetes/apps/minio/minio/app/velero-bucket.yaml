@@ -1,0 +1,9 @@
+---
+apiVersion: minio.min.io/v2
+kind: Bucket
+metadata:
+  name: velero
+  namespace: minio
+spec:
+  name: velero
+  tenant: minio
