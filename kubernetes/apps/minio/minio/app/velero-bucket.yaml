@@ -26,7 +26,7 @@ spec:
         - -c
         - |
           echo "Waiting for MinIO service to be ready..."
-          until mc alias set minio http://minio.velero.svc.cluster.local:9000 $(MINIO_ROOT_USER) $(MINIO_ROOT_PASSWORD); do
+          until mc alias set minio http://minio.minio.svc.cluster.local:9000 $(MINIO_ROOT_USER) $(MINIO_ROOT_PASSWORD); do
             echo "MinIO not ready yet, retrying in 5s..."
             sleep 5
           done
