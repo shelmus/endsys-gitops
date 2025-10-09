@@ -22,6 +22,24 @@ spec:
     remediation:
       retries: 3
   values:
+    ollama:
+      enabled: true
+      fullnameOverride: "localai"
+      # -- Example Ollama configuration with nvidia GPU enabled, automatically downloading a model, and deploying a PVC for model persistence
+      ollama:
+        gpu:
+          enabled: true
+          type: 'amd'
+          number: 1
+        models:
+          pull:
+            - llama3
+          run:
+            - llama3
+      runtimeClassName: nvidia
+      persistentVolume:
+        enabled: true
+        # volumeName: "example-pre-existing-pv-created-by-smb-csi"
     persistence:
       enabled: true
       size: 20Gi
