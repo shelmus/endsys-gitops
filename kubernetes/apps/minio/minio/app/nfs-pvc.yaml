@@ -4,7 +4,7 @@ metadata:
   name: minio-nfs-pv
 spec:
   capacity:
-    storage: 500Gi # Adjust size
+    storage: 1Ti # Adjust size
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -24,4 +24,4 @@ spec:
   volumeName: minio-nfs-pv
   resources:
     requests:
-      storage: 500Gi
+      storage: 1Ti
