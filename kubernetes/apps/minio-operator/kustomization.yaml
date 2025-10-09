@@ -6,4 +6,4 @@ namespace: minio
 components:
   - ../../components/common
 resources:
-  - ./minio/ks.yaml
+  - ./minio-operator/ks.yaml
