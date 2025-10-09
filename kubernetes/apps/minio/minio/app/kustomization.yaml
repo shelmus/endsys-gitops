@@ -6,5 +6,5 @@ resources:
   - ./helmrelease.yaml
   - ./nfs-pvc.yaml
   # - ./tenant.yaml
-  # - ./velero-bucket.yaml
+  - ./velero-bucket.yaml
   - ./secret.sops.yaml
