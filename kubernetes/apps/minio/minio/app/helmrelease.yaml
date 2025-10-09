@@ -28,6 +28,6 @@ spec:
     existingSecret: "minio-password"
     persistence:
       enabled: true
-      size: 100Gi
+      existingClaim: "minio-nfs-pvc"
     service:
       type: ClusterIP
