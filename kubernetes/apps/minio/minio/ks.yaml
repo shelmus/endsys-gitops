@@ -13,9 +13,9 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
-  dependsOn:
-    - name: minio-operator
-      namespace: minio-operator
+  # dependsOn:
+  #   - name: minio-operator
+  #     namespace: minio-operator
   interval: 1h
   path: ./kubernetes/apps/minio/minio/app
   postBuild:
