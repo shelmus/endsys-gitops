@@ -41,10 +41,10 @@ spec:
         - name: MINIO_ROOT_USER
           valueFrom:
             secretKeyRef:
-              name: minio-creds
+              name: minio-password
               key: rootUser
         - name: MINIO_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: minio-creds
+              name: minio-password
               key: rootPassword
