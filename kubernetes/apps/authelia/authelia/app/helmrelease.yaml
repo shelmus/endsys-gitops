@@ -55,7 +55,7 @@ spec:
           sender: 'Authelia <infra@endsys.cloud>'
           username: 'infra@endsys.cloud'
           password:
-            secret_name: authelia-smtp-password
+            secret_name: authelia-secrets
             # value: password
         filesystem:
           enabled: false
