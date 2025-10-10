@@ -54,8 +54,8 @@ spec:
           address: 'submission://smtp.protonmail.ch:587'
           sender: 'Authelia <infra@endsys.cloud>'
           username: 'infra@endsys.cloud'
-          password: $smtp-password
-            # secret_name: authelia-smtp-password
+          password:
+            secret_name: authelia-smtp-password
             # value: password
         filesystem:
           enabled: false
