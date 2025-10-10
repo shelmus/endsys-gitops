@@ -57,6 +57,12 @@ spec:
           # password:
           #   secret_name: authelia-secrets
             # value: password
+          disable_require_tls: false
+          disable_html_emails: false
+          tls:
+            server_name: smtp.protonmail.ch
+            skip_verify: false
+            minimum_version: TLS1.2
         filesystem:
           enabled: false
       authentication_backend:
