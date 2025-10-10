@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: authelia
 components:
   - ../../components/common
-resources: []
-  # - ./authelia/ks.yaml
+resources:
+  - ./authelia/ks.yaml
