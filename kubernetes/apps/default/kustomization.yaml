@@ -5,9 +5,9 @@ kind: Kustomization
 namespace: default
 components:
   - ../../components/common
-resources:
-  - ./echo/ks.yaml
-  - ./openwebui/ks.yaml
-  - ./n8n/ks.yaml
+resources: []
+  # - ./echo/ks.yaml
+  # - ./openwebui/ks.yaml
+  # - ./n8n/ks.yaml
   # - ./otterwiki/ks.yaml
-  - ./authelia/ks.yaml
+  # - ./authelia/ks.yaml
