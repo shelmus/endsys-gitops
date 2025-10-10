@@ -3,14 +3,9 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app openwebui
-  namespace: &namespace default
+  name: &app authelia
+  namespace: &namespace authelia
 spec:
-  dependsOn:
-    - name: authelia
-      namespace: default
-    - name: longhorn
-      namespace: longhorn-system
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -19,7 +14,7 @@ spec:
     secretRef:
       name: sops-age
   interval: 1h
-  path: ./kubernetes/apps/default/openwebui/app
+  path: ./kubernetes/apps/authelia/authelia/app
   postBuild:
     substituteFrom:
       - name: cluster-secrets
