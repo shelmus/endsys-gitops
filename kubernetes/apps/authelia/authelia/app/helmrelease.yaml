@@ -48,17 +48,17 @@ spec:
         # Simple local storage for quick start (no HA). For HA use postgres.
         local:
           enabled: true
-      # notifier:
-      #   smtp:
-      #     enabled: true
-      #     address: 'submission://smtp.protonmail.ch:587'
-      #     sender: 'Authelia <infra@endsys.cloud>'
-      #     username: 'infra@endsys.cloud'
-      #     password:
-      #       secret_name: authelia-smtp-password
+      notifier:
+        smtp:
+          enabled: true
+          address: 'submission://smtp.protonmail.ch:587'
+          sender: 'Authelia <infra@endsys.cloud>'
+          username: 'infra@endsys.cloud'
+          password: ${smtp-password}
+            # secret_name: authelia-smtp-password
             # value: password
-        # filesystem:
-        #   enabled: false
+        filesystem:
+          enabled: false
       authentication_backend:
         file:
           enabled: true
