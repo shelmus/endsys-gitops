@@ -18,3 +18,4 @@ resources:
   - ./csi-driver-nfs.yaml
   - ./minio.yaml
   - ./vmware-tanzu.yaml
+  - ./rocm-k8s-plugin

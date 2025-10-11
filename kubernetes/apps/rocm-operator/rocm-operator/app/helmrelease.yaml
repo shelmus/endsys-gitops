@@ -1,0 +1,23 @@
+# https://artifacthub.io/packages/helm/open-webui/open-webui?modal=values
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: openwebui
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: amd-gpu-operator
+      version: 
+      sourceRef:
+        kind: HelmRepository
+        name: rocm
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
