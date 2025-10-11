@@ -36,7 +36,7 @@ spec:
             - gemma3:1b
           run:
             - gemma3:1b
-      runtimeClassName: amd
+      # runtimeClassName: amd
       persistentVolume:
         enabled: true
         # volumeName: "example-pre-existing-pv-created-by-smb-csi"
