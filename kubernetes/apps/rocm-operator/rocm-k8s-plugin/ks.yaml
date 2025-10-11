@@ -14,7 +14,7 @@ spec:
     secretRef:
       name: sops-age
   interval: 1h
-  path: ./kubernetes/apps/rocm-operator/rocm-k8s-operator/app
+  path: ./kubernetes/apps/rocm-operator/rocm-k8s-plugin/app
   postBuild:
     substituteFrom:
       - name: cluster-secrets
