@@ -33,9 +33,9 @@ spec:
           number: 1
         models:
           pull:
-            - llama3
+            - gemma3:1b
           run:
-            - llama3
+            - gemma3:1b
       runtimeClassName: amd
       persistentVolume:
         enabled: true
