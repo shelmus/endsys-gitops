@@ -19,3 +19,4 @@ resources:
   - ./minio.yaml
   - ./vmware-tanzu.yaml
   - ./rocm-k8s-plugin.yaml
+  - ./rocm-operator.yaml
