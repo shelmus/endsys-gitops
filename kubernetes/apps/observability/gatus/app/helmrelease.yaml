@@ -69,3 +69,24 @@ spec:
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
+        - name: kube1
+          enabled: true
+          group: internal
+          url: tcp://10.127.0.41:50000
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+        - name: kube2
+          enabled: true
+          group: internal
+          url: tcp://10.127.0.42:50000
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+        - name: kube3
+          enabled: true
+          group: internal
+          url: tcp://10.127.0.43:50000
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
