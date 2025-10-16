@@ -29,8 +29,8 @@ spec:
       ollama:
         gpu:
           enabled: true
-          type: 'amdgpu'
-          number: 1
+          type: 'amd'
+          # number: 1
         models:
           pull:
             - gemma3:1b
