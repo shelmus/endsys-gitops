@@ -10,6 +10,17 @@ spec:
     sectionName: https
   hostnames: ["pelican.endsys.cloud"]
   rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /
+      filters:
+        # equivalent to nginx.ingress.kubernetes.io/rewrite-target: /
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
     - backendRefs:
         - name: pelican-panel
           port: 80

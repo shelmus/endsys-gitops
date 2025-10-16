@@ -7,7 +7,7 @@ data:
     {
         admin off
         servers {
-            trusted_proxies static 10.127.0.51 10.127.0.41 10.127.0.42 10.127.0.43 10.127.0.50
+            trusted_proxies static 10.127.0.0/24
         }
     }
 
