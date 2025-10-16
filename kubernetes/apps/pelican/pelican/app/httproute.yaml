@@ -11,18 +11,18 @@ spec:
   hostnames: ["pelican.endsys.cloud"]
   rules:
     - match:
-    - headers:
-        x-real-ip:
-          regex: ".*" #Match any value - equivalent to passing through
-    - headers:
-        host:
-          regex: ".*"
-    - headers:
-        x-forwarded-for:
-          regex: ".*"
-    - headers:
-        x-forwarded-proto:
-          regex: ".*"
+      - headers:
+          x-real-ip:
+            regex: ".*" #Match any value - equivalent to passing through
+      - headers:
+          host:
+            regex: ".*"
+      - headers:
+          x-forwarded-for:
+            regex: ".*"
+      - headers:
+          x-forwarded-proto:
+            regex: ".*"
     - backendRefs:
         - name: pelican-panel
           port: 80
