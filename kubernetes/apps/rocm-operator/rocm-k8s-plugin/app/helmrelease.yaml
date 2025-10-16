@@ -23,10 +23,10 @@ spec:
       retries: 3
   values:
     nfd:
-      enabled: false
+      enabled: true
 
     labeller:
-      enabled: false
+      enabled: true
 
     dp:
       image:
