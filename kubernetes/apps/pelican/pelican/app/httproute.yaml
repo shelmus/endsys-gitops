@@ -11,5 +11,5 @@ spec:
   hostnames: ["pelican.endsys.cloud"]
   rules:
     - backendRefs:
-        - name: open-webui # needs to be with the dash
+        - name: pelican-panel
           port: 80
