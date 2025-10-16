@@ -10,12 +10,6 @@ spec:
     sectionName: https
   hostnames: ["pelican.endsys.cloud"]
   rules:
-    - matches:
-      - headers:
-          x-real-ip: ".*"
-          host: ".*"
-          x-forwarded-for: ".*"
-          x-forwarded-proto: ".*"
     - backendRefs:
         - name: pelican-panel
           port: 80
