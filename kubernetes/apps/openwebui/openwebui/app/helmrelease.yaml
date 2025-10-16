@@ -33,9 +33,9 @@ spec:
           # number: 1
         models:
           pull:
-            - gemma3:1b
+            - gpt-oss:latest
           run:
-            - gemma3:1b
+            - gpt-oss:latest
       # runtimeClassName: amd
       persistentVolume:
         enabled: true
