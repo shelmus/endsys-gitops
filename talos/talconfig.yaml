@@ -83,6 +83,28 @@ nodes:
         vip:
           ip: "10.127.0.40"
 
+  # - hostname: "kube4"
+  #   ipAddress: "10.127.0.44"
+  #   installDiskSelector:
+  #     serial: ""
+  #   # installDisk: "/dev/nvme0n1"
+  #   machineSpec:
+  #     secureboot: false
+  #   talosImageURL: factory.talos.dev/installer/65cf8364cd0de4cf7b851dc7067a2db83d0ba04f11d8635c6cd3334be6ffb825
+  #   controlPlane: true
+  #   networkInterfaces:
+  #     - deviceSelector:
+  #         hardwareAddr: "38:05:25:30:c5:26"
+  #       dhcp: false
+  #       addresses:
+  #         - "10.127.0.44/24"
+  #       routes:
+  #         - network: "0.0.0.0/0"
+  #           gateway: "10.127.0.1"
+  #       mtu: 9000
+  #       vip:
+  #         ip: "10.127.0.40"
+
 # Global patches
 patches:
   - "@./patches/global/machine-files.yaml"

@@ -29,7 +29,7 @@ spec:
       ollama:
         gpu:
           enabled: true
-          type: 'amd'
+          type: 'amdgpu'
           number: 1
         models:
           pull:
