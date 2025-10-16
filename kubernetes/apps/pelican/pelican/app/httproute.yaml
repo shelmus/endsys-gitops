@@ -10,7 +10,7 @@ spec:
     sectionName: https
   hostnames: ["pelican.endsys.cloud"]
   rules:
-    - match:
+    - matches:
       - headers:
           x-real-ip:
             regex: ".*" #Match any value - equivalent to passing through
