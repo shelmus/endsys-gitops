@@ -2,5 +2,20 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: default
+configMapGenerator:
+  - name: caddy-config
+    behavior: replace
+    files:
+      - Caddyfile
+generatorOptions:
+  disableNameSuffixHash: true
 resources:
-  - ./helmrelease.yaml
+  - ./httproute.yaml
+  - ./panel-deployment.yaml
+  - ./panel-pvc.yaml
+  - ./panel-service.yaml
+  # - ./pelican-ingress.yaml
+  - ./configmap.yaml
+  # - ./secret.sops.yaml
+  # - ./volsync-backup.yaml

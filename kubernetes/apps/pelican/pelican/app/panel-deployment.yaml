@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pelican-panel
+  labels:
+    app: pelican-panel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pelican-panel
+  template:
+    metadata:
+      labels:
+        app: pelican-panel
+    spec:
+      securityContext:
+        runAsUser: 82
+        runAsGroup: 82
+        fsGroup: 82
+      containers:
+        - name: pelican-panel
+          image: ghcr.io/pelican-dev/panel:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: pelican-data
+              mountPath: /pelican-data
+            - name: pelican-logs
+              mountPath: /var/www/html/storage/logs
+            - name: caddy-config
+              mountPath: /etc/caddy/Caddyfile
+              subPath: Caddyfile
+          env:
+            - name: XDG_DATA_HOME
+              value: /pelican-data
+            - name: APP_URL
+              value: https://pelican.endsys.cloud
+            - name: ADMIN_EMAIL
+              value: admin@endsys.cloud
+            # - name: SKIP_CADDY
+            #   value: "true"
+      volumes:
+        - name: pelican-data
+          persistentVolumeClaim:
+            claimName: pelican-data
+        - name: pelican-logs
+          persistentVolumeClaim:
+            claimName: pelican-logs
+        - name: caddy-config
+          configMap:
+            name: caddy-config
