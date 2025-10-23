@@ -30,7 +30,7 @@ spec:
         gpu:
           enabled: true
           type: 'amd'
-          # number: 1
+          number: 1
         models:
           pull:
             - gpt-oss:latest
