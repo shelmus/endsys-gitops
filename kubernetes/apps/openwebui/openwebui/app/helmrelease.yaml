@@ -23,8 +23,8 @@ spec:
       retries: 3
   values:
     ollama:
-      enabled: true
-      fullnameOverride: "localai"
+      enabled: false
+      fullnameOverride: "cleon"
       # -- Example Ollama configuration with nvidia GPU enabled, automatically downloading a model, and deploying a PVC for model persistence
       ollama:
         gpu:
