@@ -38,5 +38,4 @@ spec:
       enabled: true
       size: 30Gi
     nodeSelector:
-      amd.com/gpu.device-id-enabled: "164e"
-
+      amd.com/gpu.device-id-enabled: 164e
