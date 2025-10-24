@@ -23,7 +23,7 @@ spec:
       retries: 3
   values:
     ollama:
-      enabled: false 
+      enabled: true 
       nodeSelector:
         kubernetes.io/hostname: "kube3"
       fullnameOverride: "cleon"
