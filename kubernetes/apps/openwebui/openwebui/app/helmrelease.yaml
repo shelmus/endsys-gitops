@@ -23,7 +23,11 @@ spec:
       retries: 3
   values:
     ollama:
-      enabled: true 
+      enabled: true
+      image:
+        repository: ollama/ollama
+        pullPolicy: IfNotPresent
+        tag: "0.12.6-rocm"
       nodeSelector:
         kubernetes.io/hostname: "kube3"
       fullnameOverride: "cleon"
