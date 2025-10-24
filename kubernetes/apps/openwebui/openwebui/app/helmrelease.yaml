@@ -49,6 +49,10 @@ spec:
       extraEnv:
         - name: HSA_OVERRIDE_GFX_VERSION
           value: "10.3.0"
+        - name: GPU_MAX_HW_QUEUES
+          value: "4"
+        - name: OLLAMA_MAX_LOADED_MODELS
+          value: "1"
     persistence:
       enabled: true
       size: 20Gi
