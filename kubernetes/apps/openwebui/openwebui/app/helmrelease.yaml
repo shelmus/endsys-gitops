@@ -23,7 +23,9 @@ spec:
       retries: 3
   values:
     ollama:
-      enabled: false  
+      enabled: true 
+      nodeSelector:
+        kubernetes.io/hostname: "kube3"
       fullnameOverride: "cleon"
       # -- Example Ollama configuration with nvidia GPU enabled, automatically downloading a model, and deploying a PVC for model persistence
       ollama:
@@ -60,8 +62,8 @@ spec:
         scopes: "openid email groups profile"
     # -- Env vars added to the Open WebUI deployment. Most up-to-date environment variables can be found here: https://docs.openwebui.com/getting-started/env-configuration/
     extraEnvVars:
-      - name: OLLAMA_BASE_URL
-        value: http://cleon-ollama.ollama.svc.cluster.local:11434
+      # - name: OLLAMA_BASE_URL
+      #   value: http://cleon-ollama.ollama.svc.cluster.local:11434
       # -- Default API key value for Pipelines. Should be updated in a production deployment, or be changed to the required API key if not using Pipelines
       # - name: OPENAI_API_KEY
       #   value: "0p3n-w3bu!"
