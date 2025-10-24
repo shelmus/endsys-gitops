@@ -22,6 +22,11 @@ spec:
     remediation:
       retries: 3
   values:
+    # Docker image
+    image:
+      repository: ollama/ollama
+      pullPolicy: IfNotPresent
+      tag: "0.12.6-rocm"
     # Ollama parameters
     ollama:
       port: 11434
