@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: gpu-operator-charts
-      version: 
+      # version: 
       sourceRef:
         kind: HelmRepository
         name: rocm-operator
