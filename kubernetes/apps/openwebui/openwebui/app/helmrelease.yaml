@@ -42,6 +42,9 @@ spec:
       persistentVolume:
         enabled: true
         # volumeName: "example-pre-existing-pv-created-by-smb-csi"
+      extraEnv:
+        - name: HSA_OVERRIDE_GFX_VERSION
+          value: "10.3.0"
     persistence:
       enabled: true
       size: 20Gi
