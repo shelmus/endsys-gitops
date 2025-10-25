@@ -25,7 +25,7 @@ spec:
     image:
       repository: ollama/ollama
       pullPolicy: IfNotPresent
-      tag: "0.12.3-rocm"
+      tag: "0.12.6-rocm"
     ollama:
       port: 11434
       gpu:
