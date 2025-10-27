@@ -21,3 +21,4 @@ resources:
   - ./rocm-k8s-plugin.yaml
   - ./rocm-operator.yaml
   - ./ollama.yaml
+  - ./seaweedfs.yaml
