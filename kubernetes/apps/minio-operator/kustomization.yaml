@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: minio-operator
 components:
   - ../../components/common
-resources: []
-  # - ./minio-operator/ks.yaml
+resources:
+  - ./minio-operator/ks.yaml
