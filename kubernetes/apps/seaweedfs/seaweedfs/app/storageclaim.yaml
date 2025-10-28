@@ -1,16 +1,16 @@
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: seaweedfs-nfs-pv
-spec:
-  capacity:
-    storage: 1Ti
-  accessModes:
-    - ReadWriteMany
-  nfs:
-    path: "/srv/nfs/kube"
-    server: 10.127.0.214
-  persistentVolumeReclaimPolicy: Retain
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: seaweedfs-nfs-pv
+# spec:
+#   capacity:
+#     storage: 1Ti
+#   accessModes:
+#     - ReadWriteMany
+#   nfs:
+#     path: "/srv/nfs/kube"
+#     server: 10.127.0.214
+#   persistentVolumeReclaimPolicy: Retain
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -19,7 +19,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: "" # Important: No storage class to bind to the PV
+  storageClassName: "nfs-csi" # Important: No storage class to bind to the PV
   volumeName: seaweedfs-nfs-pv
   resources:
     requests:
