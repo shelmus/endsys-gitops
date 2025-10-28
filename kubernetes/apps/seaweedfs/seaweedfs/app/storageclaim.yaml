@@ -8,7 +8,7 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    path: /srv/nfs/kube
+    path: "/srv/nfs/kube"
     server: 10.127.0.214
   persistentVolumeReclaimPolicy: Retain
 ---
