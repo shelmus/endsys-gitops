@@ -22,10 +22,10 @@ spec:
     remediation:
       retries: 3
   values:
-    image:
-      repository: ollama/ollama
-      pullPolicy: IfNotPresent
-      tag: "0.12.3-rocm"
+    # image:
+    #   repository: ollama/ollama
+    #   pullPolicy: IfNotPresent
+    #   tag: "0.12.3-rocm"
     ollama:
       port: 11434
       gpu:
@@ -40,6 +40,24 @@ spec:
         clean: true
     persistentVolume:
       enabled: true
-      existingClaim: "cleon-data"
+      size: 30Gi
+      # existingClaim: "cleon-data"
+    resources:
+      limits:
+        amd.com/gpu: 1
+        memory: 18Gi
+        cpu: "8"
+      requests:
+        amd.com/gpu: 1
+        memory: 16Gi
+        cpu: "4"
     nodeSelector:
       kubernetes.io/hostname: "kube3"
+    extraEnv:
+        - name: HSA_OVERRIDE_GFX_VERSION
+          value: "10.3.0"
+        - name: OLLAMA_KEEP_ALIVE
+          value: "24h"
+        - name: OLLAMA_NUM_PARALLEL
+          value: "4"
+
