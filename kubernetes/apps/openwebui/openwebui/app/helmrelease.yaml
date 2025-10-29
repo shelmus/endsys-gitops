@@ -46,13 +46,22 @@ spec:
       persistentVolume:
         enabled: true
         # volumeName: "example-pre-existing-pv-created-by-smb-csi"
+      resources:
+        limits:
+          amd.com/gpu: 1
+          # memory: 16Gi
+          # cpu: "8"
+        requests:
+          amd.com/gpu: 1
+          # memory: 16Gi
+          # cpu: "4"
       extraEnv:
-        - name: HSA_OVERRIDE_GFX_VERSION
-          value: "10.3.0"
-      #   - name: GPU_MAX_HW_QUEUES
-      #     value: "4"
-      #   - name: OLLAMA_MAX_LOADED_MODELS
-      #     value: "1"
+          - name: HSA_OVERRIDE_GFX_VERSION
+            value: "10.3.0"
+          - name: OLLAMA_KEEP_ALIVE
+            value: "24h"
+          - name: OLLAMA_NUM_PARALLEL
+            value: "4"
     persistence:
       enabled: true
       size: 20Gi
