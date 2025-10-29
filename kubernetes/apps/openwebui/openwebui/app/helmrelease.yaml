@@ -56,8 +56,8 @@ spec:
           # memory: 16Gi
           # cpu: "4"
       extraEnv:
-          - name: HSA_OVERRIDE_GFX_VERSION
-            value: "10.3.0"
+          # - name: HSA_OVERRIDE_GFX_VERSION
+          #   value: "10.3.0"
           - name: OLLAMA_KEEP_ALIVE
             value: "24h"
           - name: OLLAMA_NUM_PARALLEL
