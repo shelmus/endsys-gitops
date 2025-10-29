@@ -27,7 +27,7 @@ spec:
       image:
         repository: ollama/ollama
         pullPolicy: IfNotPresent
-        tag: "0.12.6-rocm"
+        tag: "0.12.7-rocm"
       nodeSelector:
         kubernetes.io/hostname: "kube3"
       fullnameOverride: "cleon"
