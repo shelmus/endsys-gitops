@@ -23,7 +23,7 @@ spec:
       retries: 3
   values:
     ollama:
-      enabled: true
+      enabled: false
       # image:
       #   repository: ollama/ollama
       #   pullPolicy: IfNotPresent
