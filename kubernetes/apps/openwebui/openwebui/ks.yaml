@@ -7,8 +7,8 @@ metadata:
   namespace: &namespace openwebui
 spec:
   dependsOn:
-    - name: authelia
-      namespace: authelia
+    # - name: authelia
+    #   namespace: authelia
     - name: longhorn
       namespace: longhorn-system
   commonMetadata:
