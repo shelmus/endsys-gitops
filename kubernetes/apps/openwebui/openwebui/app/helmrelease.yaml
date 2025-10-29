@@ -24,10 +24,10 @@ spec:
   values:
     ollama:
       enabled: true
-      # image:
-      #   repository: ollama/ollama
-      #   pullPolicy: IfNotPresent
-      #   tag: "0.12.6-rocm"
+      image:
+        repository: ollama/ollama
+        pullPolicy: IfNotPresent
+        tag: "0.12.6-rocm"
       nodeSelector:
         kubernetes.io/hostname: "kube3"
       fullnameOverride: "cleon"
