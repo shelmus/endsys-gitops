@@ -23,7 +23,7 @@ spec:
       retries: 3
   values:
     ollama:
-      enabled: false
+      enabled: true
       # image:
       #   repository: ollama/ollama
       #   pullPolicy: IfNotPresent
@@ -46,9 +46,9 @@ spec:
       persistentVolume:
         enabled: true
         # volumeName: "example-pre-existing-pv-created-by-smb-csi"
-      extraEnv:
-        - name: HSA_OVERRIDE_GFX_VERSION
-          value: "10.3.0"
+      # extraEnv:
+      #   - name: HSA_OVERRIDE_GFX_VERSION
+      #     value: "10.3.0"
       #   - name: GPU_MAX_HW_QUEUES
       #     value: "4"
       #   - name: OLLAMA_MAX_LOADED_MODELS
