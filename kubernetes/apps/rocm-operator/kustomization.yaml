@@ -5,6 +5,6 @@ kind: Kustomization
 namespace: rocm-operator
 components:
   - ../../components/common
-resources: []
-  # - ./rocm-operator/ks.yaml
-  # - ./rocm-k8s-plugin/ks.yaml
+resources:
+  - ./rocm-operator/ks.yaml
+  - ./rocm-k8s-plugin/ks.yaml
