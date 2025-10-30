@@ -49,19 +49,27 @@ spec:
       resources:
         limits:
           amd.com/gpu: 1
-          # memory: 16Gi
-          # cpu: "8"
+          memory: 16Gi
+          cpu: "8"
         requests:
           amd.com/gpu: 1
-          # memory: 16Gi
-          # cpu: "4"
+          memory: 16Gi
+          cpu: "4"
       extraEnv:
           - name: HSA_OVERRIDE_GFX_VERSION
             value: "10.3.0"
           - name: OLLAMA_KEEP_ALIVE
-            value: "24h"
+            value: "24h"   # keep model cached between calls
           - name: OLLAMA_NUM_PARALLEL
             value: "4"
+          - name: OMP_NUM_THREADS
+            value: "8"     # match CPU cores allocated
+          - name: OMP_WAIT_POLICY
+            value: "PASSIVE"
+          - name: HSA_ENABLE_SDMA
+            value: "0"     # reduce PCIe DMA stalls on some GPUs
+          - name: HSA_FORCE_FINE_GRAIN_PCIE
+            value: "1"     # ensure fine-grained GPU/CPU sharing
           - name: AMD_LOG_LEVEL
             value: "3"
           - name: OLLAMA_DEBUG
