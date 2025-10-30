@@ -68,7 +68,7 @@ spec:
     nodeSelector:
       kubernetes.io/hostname: "kube3"
     sso:
-      enabled: true
+      enabled: false
       enableSignup: true
       mergeAccountsByEmail: true
       enableRoleManagement: false
