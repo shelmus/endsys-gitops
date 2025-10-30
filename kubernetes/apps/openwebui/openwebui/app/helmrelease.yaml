@@ -53,7 +53,7 @@ spec:
           cpu: "8"
         requests:
           amd.com/gpu: 1
-          memory: 16Gi
+          memory: 8Gi
           cpu: "4"
       extraEnv:
           - name: HSA_OVERRIDE_GFX_VERSION
