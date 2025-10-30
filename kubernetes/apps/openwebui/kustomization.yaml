@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: openwebui
 components:
   - ../../components/common
-resources: []
-  # - ./openwebui/ks.yaml
+resources:
+  - ./openwebui/ks.yaml
