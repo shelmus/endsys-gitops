@@ -23,7 +23,7 @@ spec:
       retries: 3
   values:
     ollama:
-      enabled: false
+      enabled: true
       image:
         repository: ollama/ollama
         pullPolicy: IfNotPresent
@@ -50,11 +50,11 @@ spec:
         limits:
           amd.com/gpu: 1
           # memory: 16Gi
-          # cpu: "8"
+          cpu: "8"
         requests:
           amd.com/gpu: 1
           # memory: 8Gi
-          # cpu: "4"
+          cpu: "4"
       extraEnv:
           - name: HSA_OVERRIDE_GFX_VERSION
             value: "10.3.0"
