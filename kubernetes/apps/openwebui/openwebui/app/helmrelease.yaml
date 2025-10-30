@@ -34,7 +34,7 @@ spec:
       # -- Example Ollama configuration with nvidia GPU enabled, automatically downloading a model, and deploying a PVC for model persistence
       ollama:
         gpu:
-          enabled: true
+          enabled: false
           type: 'amd'
           # number: 1
         models:
