@@ -65,6 +65,8 @@ spec:
     persistence:
       enabled: true
       size: 20Gi
+    nodeSelector:
+      kubernetes.io/hostname: "kube3"
     sso:
       enabled: true
       enableSignup: true
