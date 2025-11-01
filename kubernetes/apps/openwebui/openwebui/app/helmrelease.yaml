@@ -23,7 +23,7 @@ spec:
       retries: 3
   values:
     ollama:
-      enabled: true
+      enabled: false
       image:
         repository: ollama/ollama
         pullPolicy: IfNotPresent
@@ -66,8 +66,8 @@ spec:
           #   value: "8"     # match CPU cores allocated
           - name: OMP_WAIT_POLICY
             value: "PASSIVE"
-          - name: HSA_ENABLE_SDMA
-            value: "0"     # reduce PCIe DMA stalls on some GPUs
+          # - name: HSA_ENABLE_SDMA
+          #   value: "0"     # reduce PCIe DMA stalls on some GPUs
           # - name: HSA_FORCE_FINE_GRAIN_PCIE
           #   value: "1"     # ensure fine-grained GPU/CPU sharing
           - name: AMD_LOG_LEVEL
