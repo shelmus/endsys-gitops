@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: pelican
 components:
   - ../../components/common
-resources:
-  - ./pelican/ks.yaml
+resources: []
+  # - ./pelican/ks.yaml
