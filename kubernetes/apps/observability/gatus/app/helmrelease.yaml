@@ -72,6 +72,27 @@ spec:
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
+        - name: vaulthunters
+          enabled: true
+          group: external
+          url: tcp://games.endsys.cloud:25566
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+        - name: vaulthunters sky
+          enabled: true
+          group: external
+          url: tcp://games.endsys.cloud:25570
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+        - name: TerraFermaGreg
+          enabled: true
+          group: external
+          url: tcp://games.endsys.cloud:25569
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
         - name: kube1
           enabled: true
           group: internal
