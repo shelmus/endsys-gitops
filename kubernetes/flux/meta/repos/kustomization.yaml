@@ -22,3 +22,5 @@ resources:
   - ./rocm-operator.yaml
   - ./ollama.yaml
   - ./seaweedfs.yaml
+  - ./immich.yaml
+  - ./external-secrets.yaml
