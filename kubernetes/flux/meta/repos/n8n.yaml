@@ -8,4 +8,4 @@ spec:
   interval: 5m0s
   url: oci://8gears.container-registry.com/library/n8n
   ref:
-    tag: 1.1.0
+    tag: 2.0.1
