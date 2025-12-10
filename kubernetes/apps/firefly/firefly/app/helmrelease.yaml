@@ -31,8 +31,8 @@ spec:
         pullPolicy: IfNotPresent
 
       storage:
-        class: ~
-        accessModes: ~  # Change as needed for your storageClass https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+        class: longhorn
+        # accessModes: ~  # Change as needed for your storageClass https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
         dataSize: 1Gi
 
       # environment variables
