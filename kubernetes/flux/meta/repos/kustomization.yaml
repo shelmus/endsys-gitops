@@ -24,3 +24,4 @@ resources:
   - ./seaweedfs.yaml
   # - ./immich.yaml
   - ./external-secrets.yaml
+  - ./firefly.yaml
