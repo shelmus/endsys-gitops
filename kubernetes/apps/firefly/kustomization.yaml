@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: firefly
 components:
   - ../../components/common
-resources:
-  - ./firefly/ks.yaml
+resources: []
+  # - ./firefly/ks.yaml
