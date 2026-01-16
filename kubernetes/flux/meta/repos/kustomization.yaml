@@ -16,12 +16,9 @@ resources:
   - ./longhorn.yaml
   - ./backube.yaml
   - ./csi-driver-nfs.yaml
-  - ./minio.yaml
   - ./vmware-tanzu.yaml
   - ./rocm-k8s-plugin.yaml
   - ./rocm-operator.yaml
-  - ./ollama.yaml
   - ./seaweedfs.yaml
   # - ./immich.yaml
   - ./external-secrets.yaml
-  - ./firefly.yaml
