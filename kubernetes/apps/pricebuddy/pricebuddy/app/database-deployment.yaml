@@ -1,0 +1,83 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pricebuddy-database
+  labels:
+    app.kubernetes.io/name: pricebuddy
+    app.kubernetes.io/instance: pricebuddy-database
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: pricebuddy
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pricebuddy
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pricebuddy
+        app.kubernetes.io/instance: pricebuddy-database
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: pricebuddy
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.2
+          ports:
+            - containerPort: 3306
+              name: mysql
+          env:
+            - name: MYSQL_DATABASE
+              value: pricebuddy
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: pricebuddy-secrets
+                  key: db-username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pricebuddy-secrets
+                  key: db-password
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pricebuddy-secrets
+                  key: db-root-password
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: pricebuddy-mysql-data
