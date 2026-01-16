@@ -38,6 +38,7 @@ This is a GitOps-managed Kubernetes cluster using FluxCD for continuous deployme
     - openwebui
 
 ## Common Commands
+NOTE: DO NOT COMMIT TO MAIN BRANCH, Flux and kubectl commands are not needed because it pulls from GitHub
 
 ### Flux Management
 ```bash
