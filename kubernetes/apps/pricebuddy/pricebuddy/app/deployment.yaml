@@ -45,11 +45,20 @@ spec:
           env:
             - name: APP_URL
               value: https://pricebuddy.endsys.cloud
+            # ASSET_URL is required for Laravel to generate correct asset paths
+            # when behind a reverse proxy. Without this, CSS/JS may load from
+            # incorrect URLs even with APP_URL and TRUSTED_PROXIES configured.
+            - name: ASSET_URL
+              value: https://pricebuddy.endsys.cloud
             # Laravel requires TRUSTED_PROXIES to properly handle X-Forwarded headers
             # from the reverse proxy (Gateway API). Without this, asset URLs use http://
             # instead of https://, causing CSS/JS to fail loading.
             - name: TRUSTED_PROXIES
               value: "*"
+            # Force HTTPS URL generation in Laravel regardless of the incoming
+            # request protocol. This ensures all generated URLs use https://.
+            - name: APP_FORCE_HTTPS
+              value: "true"
             - name: DB_CONNECTION
               value: mysql
             - name: DB_HOST
