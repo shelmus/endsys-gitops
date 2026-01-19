@@ -49,6 +49,7 @@ spec:
       conversion:
         # -- Conversion is disabled by default as we stopped supporting v1alpha1.
         enabled: false
-    # bitwarden-sdk-server:
-    #   enabled: false
-    #   namespaceOverride: ""
+    # Bitwarden SDK Server is required for the Bitwarden Secrets Manager provider
+    # This runs as a separate service providing a REST API wrapper around the Bitwarden Rust SDK
+    bitwarden-sdk-server:
+      enabled: true
