@@ -9,10 +9,10 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  decryption:
-    provider: sops
-    secretRef:
-      name: sops-age
+  # Depends on external-secrets-stores for ClusterSecretStore availability
+  dependsOn:
+    - name: external-secrets-stores
+      namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/pricebuddy/pricebuddy/app
   postBuild:
