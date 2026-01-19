@@ -3,14 +3,12 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app openwebui
-  namespace: &namespace openwebui
+  name: &app bitwarden-store
+  namespace: &namespace external-secrets
 spec:
   dependsOn:
-    # - name: authelia
-    #   namespace: authelia
-    - name: longhorn
-      namespace: longhorn-system
+    - name: external-secrets
+      namespace: external-secrets
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -19,7 +17,7 @@ spec:
     secretRef:
       name: sops-age
   interval: 1h
-  path: ./kubernetes/apps/openwebui/openwebui/app
+  path: ./kubernetes/apps/external-secrets/bitwarden-store/app
   postBuild:
     substituteFrom:
       - name: cluster-secrets
@@ -32,4 +30,4 @@ spec:
     namespace: flux-system
   targetNamespace: *namespace
   timeout: 5m
-  wait: false
+  wait: true

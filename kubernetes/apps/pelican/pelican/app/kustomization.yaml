@@ -15,7 +15,4 @@ resources:
   - ./panel-deployment.yaml
   - ./panel-pvc.yaml
   - ./panel-service.yaml
-  # - ./pelican-ingress.yaml
   - ./configmap.yaml
-  # - ./secret.sops.yaml
-  # - ./volsync-backup.yaml

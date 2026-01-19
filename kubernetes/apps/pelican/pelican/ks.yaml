@@ -6,6 +6,9 @@ metadata:
   name: &app pelican
   namespace: &namespace pelican
 spec:
+  dependsOn:
+    - name: bitwarden-store
+      namespace: external-secrets
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app

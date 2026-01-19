@@ -9,4 +9,6 @@ resources:
   - ./service.yaml
   - ./pvc.yaml
   - ./httproute.yaml
-  - ./secret.sops.yaml
+  - ./externalsecret.yaml
+  # SOPS secrets migrated to Bitwarden External Secrets
+  # - ./secret.sops.yaml
