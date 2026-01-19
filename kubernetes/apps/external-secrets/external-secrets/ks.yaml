@@ -1,0 +1,84 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app external-secrets
+  namespace: &namespace external-secrets
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  # Depends on cert-manager for TLS certificate generation
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+  # Health checks ensure ESO and Bitwarden SDK server are running before proceeding
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: *app
+      namespace: *namespace
+  interval: 1h
+  path: ./kubernetes/apps/external-secrets/external-secrets/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *namespace
+  timeout: 5m
+  wait: true
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: external-secrets-stores
+  namespace: external-secrets
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: external-secrets-stores
+  # Depends on ESO being fully deployed with CRDs installed
+  dependsOn:
+    - name: external-secrets
+      namespace: external-secrets
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+  # Health check ensures ClusterSecretStore is ready
+  healthChecks:
+    - apiVersion: external-secrets.io/v1beta1
+      kind: ClusterSecretStore
+      name: bitwarden-secretsmanager
+  healthCheckExprs:
+    - apiVersion: external-secrets.io/v1beta1
+      kind: ClusterSecretStore
+      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+  interval: 1h
+  path: ./kubernetes/apps/external-secrets/external-secrets/stores
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: external-secrets
+  timeout: 5m
+  wait: false

@@ -1,0 +1,60 @@
+---
+# Self-signed ClusterIssuer for Bitwarden SDK Server internal TLS
+# This creates certificates for internal cluster communication only
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: bitwarden-sdk-selfsigned
+spec:
+  selfSigned: {}
+---
+# CA Certificate for Bitwarden SDK Server
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bitwarden-sdk-ca
+spec:
+  isCA: true
+  commonName: bitwarden-sdk-ca
+  secretName: bitwarden-sdk-ca-secret
+  duration: 87600h  # 10 years
+  renewBefore: 8760h  # 1 year
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: bitwarden-sdk-selfsigned
+    kind: Issuer
+    group: cert-manager.io
+---
+# Issuer using the CA certificate
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: bitwarden-sdk-ca-issuer
+spec:
+  ca:
+    secretName: bitwarden-sdk-ca-secret
+---
+# TLS Certificate for Bitwarden SDK Server
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bitwarden-sdk-tls
+spec:
+  secretName: bitwarden-sdk-tls-certs
+  duration: 8760h  # 1 year
+  renewBefore: 720h  # 30 days
+  commonName: bitwarden-sdk-server
+  dnsNames:
+    - bitwarden-sdk-server
+    - bitwarden-sdk-server.external-secrets
+    - bitwarden-sdk-server.external-secrets.svc
+    - bitwarden-sdk-server.external-secrets.svc.cluster.local
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: bitwarden-sdk-ca-issuer
+    kind: Issuer
+    group: cert-manager.io
