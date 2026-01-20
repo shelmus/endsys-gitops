@@ -81,18 +81,13 @@ spec:
               value: http://pricebuddy-scraper:3000
             - name: ENABLE_AFFILIATE_FEATURE
               value: "false"
-            # Admin seeding credentials
-            - name: SEED_ADMIN_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: pricebuddy-secrets
-                  key: admin-name
-            - name: SEED_ADMIN_EMAIL
+            # Admin seeding credentials (used when database is first initialized)
+            - name: APP_USER_EMAIL
               valueFrom:
                 secretKeyRef:
                   name: pricebuddy-secrets
                   key: admin-email
-            - name: SEED_ADMIN_PASSWORD
+            - name: APP_USER_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: pricebuddy-secrets
