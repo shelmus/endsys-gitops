@@ -1,0 +1,70 @@
+---
+# Velero Schedule for pricebuddy namespace backup
+# Backs up all resources including PVCs (pricebuddy-storage, pricebuddy-mysql-data)
+# Uses file-system backup via Restic/Kopia for PVC data
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: pricebuddy-daily
+  namespace: velero
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/component: backup-schedule
+    app.kubernetes.io/part-of: pricebuddy
+spec:
+  # Run daily at 2:00 AM UTC
+  schedule: "0 2 * * *"
+  # Keep backups for 30 days
+  template:
+    # Include only the pricebuddy namespace
+    includedNamespaces:
+      - pricebuddy
+    # Include all resources in the namespace
+    includedResources:
+      - '*'
+    # Enable file-system backup for PVCs via Restic/Kopia
+    # This is required since snapshotsEnabled is false in the Velero config
+    defaultVolumesToFsBackup: true
+    # Storage location configured in Velero HelmRelease
+    storageLocation: default
+    # Retain backups for 30 days (720 hours)
+    ttl: 720h0m0s
+    # Include cluster-scoped resources owned by namespace resources
+    includeClusterResources: true
+    # Hooks for MySQL database consistency
+    # Pre-backup hook to flush tables and lock for consistent backup
+    hooks:
+      resources:
+        - name: mysql-backup-hook
+          includedNamespaces:
+            - pricebuddy
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: database
+          pre:
+            - exec:
+                container: mysql
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH TABLES WITH READ LOCK; SELECT SLEEP(5);" &
+                    sleep 2
+                onError: Continue
+                timeout: 30s
+          post:
+            - exec:
+                container: mysql
+                command:
+                  - /bin/sh
+                  - -c
+                  - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "UNLOCK TABLES;"
+                onError: Continue
+                timeout: 30s
+    # Metadata labels for backup identification
+    metadata:
+      labels:
+        app.kubernetes.io/name: pricebuddy
+        backup-type: scheduled
+  # Use the default template for unscheduled/manual backups
+  useOwnerReferencesInBackup: false
