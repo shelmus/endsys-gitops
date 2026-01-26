@@ -144,7 +144,7 @@ kubectl create secret generic <name> --from-literal=key=value --dry-run=client -
 - Pin Helm chart versions
 
 ## System Defaults
-- System uses httproute as the ingress replacement, use the following as a template for that yaml. "internal" can be switched with "external" as a choice to the user.
+- System uses httproute as the ingress replacement, use the following as a template for that yaml. "internal" can be switched with "external" as a choice to the user. "internal" route is internal to the home network and "external" means it will be exposed outside to the internet. By default all apps should be internal to reduce the risk of security issues.
 ```
 ---
 apiVersion: gateway.networking.k8s.io/v1
