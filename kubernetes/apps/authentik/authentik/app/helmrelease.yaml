@@ -39,14 +39,6 @@ spec:
       valuesKey: redis-password
       targetPath: redis.auth.password
   values:
-    # Global settings
-    global:
-      # Standard labels applied to all resources
-      additionalLabels:
-        app.kubernetes.io/name: authentik
-        app.kubernetes.io/instance: authentik
-        app.kubernetes.io/part-of: authentik
-
     # Authentik configuration
     authentik:
       # Error reporting (disabled by default for privacy)
