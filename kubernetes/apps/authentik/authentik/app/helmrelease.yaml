@@ -30,14 +30,26 @@ spec:
       name: authentik-secrets
       valuesKey: secret-key
       targetPath: authentik.secret_key
+    # PostgreSQL password for Bitnami subchart
     - kind: Secret
       name: authentik-secrets
       valuesKey: postgresql-password
       targetPath: postgresql.auth.password
+    # PostgreSQL password for Authentik to connect
+    - kind: Secret
+      name: authentik-secrets
+      valuesKey: postgresql-password
+      targetPath: authentik.postgresql.password
+    # Redis password for Bitnami subchart
     - kind: Secret
       name: authentik-secrets
       valuesKey: redis-password
       targetPath: redis.auth.password
+    # Redis password for Authentik to connect
+    - kind: Secret
+      name: authentik-secrets
+      valuesKey: redis-password
+      targetPath: authentik.redis.password
   values:
     # Authentik configuration
     authentik:
@@ -46,6 +58,14 @@ spec:
         enabled: false
       # Log level
       log_level: info
+      # PostgreSQL connection (bundled)
+      postgresql:
+        host: authentik-postgresql
+        user: authentik
+        name: authentik
+      # Redis connection (bundled)
+      redis:
+        host: authentik-redis-master
 
     # Server component (handles HTTP/HTTPS traffic)
     server:
