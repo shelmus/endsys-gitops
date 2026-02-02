@@ -25,7 +25,7 @@ spec:
   values:
     replicaCount: 1
     extraArgs:
-      - --proactor_threads=2
+      - --proactor_threads=1
     storage:
       enabled: true
       requests: 2Gi
