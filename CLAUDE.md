@@ -22,6 +22,8 @@ kubernetes/
 - **Ingress**: Cloudflare Tunnels (cloudflared)
 - **Certs**: cert-manager with Let's Encrypt
 - **DNS**: external-dns
+- **Database**: CloudNativePG (CNPG) for PostgreSQL clusters
+- **Cache**: Dragonfly as Redis-compatible cache
 
 ## Your Role
 
@@ -106,6 +108,10 @@ talosctl -n {node} dmesg | tail -50
 2. **dependsOn chains**: infrastructure → configs → apps
 3. **Secrets before apps**: ExternalSecrets must sync before HelmReleases that need them
 4. **Suspend before delete**: Suspend HelmReleases before removing to avoid finalizer issues
+5. **Operator before CRs**: Deploy operators (CNPG, etc.) in separate namespaces before app Kustomizations that use their CRDs
+6. **External databases over subcharts**: Prefer CNPG Cluster CRs over embedded PostgreSQL subcharts for production workloads
+7. **Dragonfly over Redis**: Use Dragonfly as a drop-in Redis replacement for better performance
+8. **CNPG auto-secrets**: CNPG creates `{cluster-name}-app` secrets automatically with DB credentials
 
 ## Session End Protocol
 

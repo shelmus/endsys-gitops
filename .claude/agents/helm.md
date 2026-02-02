@@ -281,3 +281,63 @@ values:
           name: app-secret  # Created by ExternalSecret
           key: api-key
 ```
+
+## External Database/Cache Patterns
+
+### Using CNPG PostgreSQL instead of subchart
+
+When migrating from a Helm chart's built-in PostgreSQL to CNPG:
+
+1. Disable the subchart:
+```yaml
+values:
+  postgresql:
+    enabled: false
+```
+
+2. Reference external CNPG cluster:
+```yaml
+values:
+  env:
+    DB_HOSTNAME: {cluster-name}-rw  # CNPG creates this service
+    DB_PORT: "5432"
+    DB_USERNAME: {db-user}
+    DB_DATABASE_NAME: {db-name}
+  envFrom:
+    - secretRef:
+        name: {cluster-name}-app  # CNPG auto-generated secret
+```
+
+**Note**: CNPG automatically creates a secret named `{cluster-name}-app` containing:
+- `username`
+- `password`
+- `dbname`
+- `host`
+- `port`
+- `uri` (full connection string)
+
+### Using Dragonfly instead of Redis subchart
+
+1. Disable the Redis subchart:
+```yaml
+values:
+  redis:
+    enabled: false
+```
+
+2. Reference external Dragonfly:
+```yaml
+values:
+  env:
+    REDIS_HOSTNAME: dragonfly
+    REDIS_PORT: "6379"
+```
+
+3. Deploy Dragonfly in the same namespace (see `@k8s` agent for CNPG/Dragonfly patterns)
+
+## Common HelmRepositories
+
+| Name | URL | Type | Used For |
+|------|-----|------|----------|
+| cnpg | https://cloudnative-pg.github.io/charts | HTTP | CloudNativePG operator |
+| dragonfly | oci://ghcr.io/dragonflydb/dragonfly/helm | OCI | Dragonfly Redis replacement |

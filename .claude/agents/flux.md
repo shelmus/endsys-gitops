@@ -159,6 +159,7 @@ infrastructure
 ├── cilium (CNI first)
 ├── cert-manager
 ├── external-secrets
+├── cnpg-operator      # Operator deployments
 └── cloudflared
 
 configs
@@ -168,6 +169,7 @@ configs
 apps
 └── [all user applications]
     └── dependsOn: external-secrets-stores (if using secrets)
+    └── dependsOn: cnpg-operator (if using CNPG Cluster CRs)
 ```
 
 ## Creating New Apps
@@ -178,6 +180,28 @@ When asked to create a new app's Flux resources:
 2. Ensure namespace Kustomization exists or create one
 3. Add appropriate `dependsOn` entries
 4. Verify source exists in `kubernetes/flux/meta/`
+
+## Operator CRD Dependencies
+
+When an app uses CRDs from an operator (e.g., CNPG Cluster, Dragonfly), the app's Kustomization must depend on the operator's Kustomization:
+
+```yaml
+# In app's ks.yaml
+spec:
+  dependsOn:
+    - name: cnpg-operator
+      namespace: cnpg-system
+```
+
+This ensures the CRD exists before the app's resources are applied.
+
+### Common Operator Dependencies
+
+| CRD | Operator Kustomization |
+|-----|------------------------|
+| `Cluster` (postgresql.cnpg.io) | `cnpg-operator` in `cnpg-system` |
+| `Certificate` (cert-manager.io) | `cert-manager` in `cert-manager` |
+| `ExternalSecret` | `external-secrets` in `external-secrets` |
 
 ## Deletion Protocol
 

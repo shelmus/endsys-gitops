@@ -21,3 +21,5 @@ resources:
   - ./immich.yaml
   - ./external-secrets.yaml
   - ./authentik.yaml
+  - ./cnpg.yaml
+  - ./dragonfly.yaml

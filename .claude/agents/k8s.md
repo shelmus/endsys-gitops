@@ -10,6 +10,8 @@ You are the Kubernetes fundamentals specialist for the endsys-gitops cluster. Yo
 - RBAC, NetworkPolicies, resource quotas
 - Finalizer removal for stuck resources
 - Direct kubectl operations
+- CloudNativePG (CNPG) Cluster CRs and debugging
+- Dragonfly deployment and configuration
 
 ## When to Engage
 
@@ -276,4 +278,89 @@ kubectl get ns
 # Resource quotas
 kubectl get resourcequotas -A
 kubectl describe resourcequota -n {namespace}
+```
+
+## CloudNativePG (CNPG) Patterns
+
+### CNPG Cluster with extensions (e.g., pgvector/vectorchord)
+```yaml
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {app}-postgres
+spec:
+  instances: 1
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16.9-0.4.3
+  postgresql:
+    shared_preload_libraries:
+      - "vchord.so"
+  bootstrap:
+    initdb:
+      database: {dbname}
+      owner: {dbuser}
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
+        - CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
+  storage:
+    size: 20Gi
+```
+
+**Key points**:
+- Use custom images from tensorchord for vector extensions
+- `shared_preload_libraries` for extensions requiring preload
+- `postInitApplicationSQL` runs after database creation
+- Creates services: `{name}-rw` (read-write), `{name}-r` (read replicas), `{name}-ro` (read-only)
+- Creates secret: `{name}-app` with credentials
+
+### Dragonfly (Redis replacement)
+```yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: dragonfly
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: dragonfly
+      version: v1.26.0
+      sourceRef:
+        kind: HelmRepository
+        name: dragonfly
+        namespace: flux-system
+  values:
+    replicaCount: 1
+    storage:
+      enabled: true
+      requests: 2Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+```
+
+**Note**: Deploy Dragonfly in the application namespace, not a shared infrastructure namespace. Service is available at `dragonfly:6379`.
+
+## Debugging CNPG
+
+```bash
+# Check cluster status
+kubectl get clusters -n {namespace}
+kubectl describe cluster {name} -n {namespace}
+
+# Check CNPG pods
+kubectl get pods -n {namespace} -l cnpg.io/cluster={name}
+
+# Check auto-generated secrets
+kubectl get secret {cluster-name}-app -n {namespace} -o yaml
+
+# Connect to database
+kubectl exec -it {cluster-name}-1 -n {namespace} -- psql -U {user} -d {database}
+
+# Check CNPG operator logs
+kubectl logs -n cnpg-system -l app.kubernetes.io/name=cloudnative-pg
 ```

@@ -27,6 +27,19 @@ spec:
         library:
           existingClaim: immich-library
 
+    env:
+      DB_HOSTNAME: immich-postgres-rw
+      DB_PORT: "5432"
+      DB_USERNAME: immich
+      DB_DATABASE_NAME: immich
+      DB_VECTOR_EXTENSION: vectorchord
+      REDIS_HOSTNAME: dragonfly
+      REDIS_PORT: "6379"
+
+    envFrom:
+      - secretRef:
+          name: immich-postgres-app
+
     server:
       enabled: true
 
@@ -34,24 +47,6 @@ spec:
       enabled: true
       persistence:
         cache:
-          type: persistentVolumeClaim
-          accessMode: ReadWriteOnce
-          size: 10Gi
-
-    redis:
-      enabled: true
-      architecture: standalone
-      auth:
-        enabled: false
-
-    postgresql:
-      enabled: true
-      global:
-        postgresql:
-          auth:
-            username: immich
-            database: immich
-      primary:
-        persistence:
           enabled: true
-          size: 10Gi
+          type: emptyDir
+          sizeLimit: 10Gi

@@ -3,23 +3,19 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app immich
-  namespace: &namespace immich
+  name: &app cnpg-operator
+  namespace: &namespace cnpg-system
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  dependsOn:
-    - name: csi-driver-nfs
-      namespace: kube-system
-    - name: cnpg-operator
-      namespace: cnpg-system
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: *app
+      namespace: *namespace
   interval: 1h
-  path: ./kubernetes/apps/immich/immich/app
-  postBuild:
-    substituteFrom:
-      - name: cluster-secrets
-        kind: Secret
+  path: ./kubernetes/apps/cnpg-system/cnpg-operator/app
   prune: true
   retryInterval: 2m
   sourceRef:
@@ -28,4 +24,4 @@ spec:
     namespace: flux-system
   targetNamespace: *namespace
   timeout: 5m
-  wait: false
+  wait: true
