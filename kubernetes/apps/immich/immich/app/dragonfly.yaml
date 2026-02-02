@@ -24,6 +24,8 @@ spec:
       retries: 3
   values:
     replicaCount: 1
+    extraArgs:
+      - --proactor_threads=2
     storage:
       enabled: true
       requests: 2Gi
