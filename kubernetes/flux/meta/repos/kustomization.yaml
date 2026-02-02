@@ -18,6 +18,6 @@ resources:
   - ./rocm-k8s-plugin.yaml
   - ./rocm-operator.yaml
   - ./seaweedfs.yaml
-  # - ./immich.yaml
+  - ./immich.yaml
   - ./external-secrets.yaml
   - ./authentik.yaml
