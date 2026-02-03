@@ -27,6 +27,7 @@ spec:
     extraArgs:
       - --proactor_threads=1
       - --cluster_mode=emulated
+      - --default_lua_flags=allow-undeclared-keys
     storage:
       enabled: true
       requests: 2Gi
