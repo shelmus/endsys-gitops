@@ -32,6 +32,7 @@ spec:
         containers:
           main:
             env:
+              # Database
               DB_HOSTNAME: immich-postgres-rw
               DB_PORT: "5432"
               DB_USERNAME: immich
@@ -42,8 +43,21 @@ spec:
                     name: immich-postgres-app
                     key: password
               DB_VECTOR_EXTENSION: vectorchord
+              # Redis
               REDIS_HOSTNAME: dragonfly
               REDIS_PORT: "6379"
+              # OAuth with Authentik
+              IMMICH_OAUTH_ENABLED: "true"
+              IMMICH_OAUTH_ISSUER_URL: https://authentik.endsys.cloud/application/o/immich/
+              IMMICH_OAUTH_CLIENT_ID: immich
+              IMMICH_OAUTH_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: immich-oauth
+                    key: client-secret
+              IMMICH_OAUTH_SCOPE: "openid email profile"
+              IMMICH_OAUTH_AUTO_REGISTER: "true"
+              IMMICH_OAUTH_BUTTON_TEXT: "Login with Authentik"
 
     server:
       enabled: true

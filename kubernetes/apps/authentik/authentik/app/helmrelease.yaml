@@ -50,6 +50,16 @@ spec:
       name: authentik-secrets
       valuesKey: redis-password
       targetPath: authentik.redis.password
+    # Immich OAuth client secret for blueprint
+    - kind: Secret
+      name: authentik-secrets
+      valuesKey: immich-oauth-client-secret
+      targetPath: worker.env.IMMICH_OAUTH_CLIENT_SECRET
+    # User password for sean (for blueprint)
+    - kind: Secret
+      name: authentik-secrets
+      valuesKey: user-sean-password
+      targetPath: worker.env.AUTHENTIK_USER_SEAN_PASSWORD
   values:
     # Authentik configuration
     authentik:
@@ -89,11 +99,17 @@ spec:
       volumeMounts:
         - name: dshm
           mountPath: /dev/shm
+        - name: blueprints-immich
+          mountPath: /blueprints/custom/immich.yaml
+          subPath: immich.yaml
       volumes:
         - name: dshm
           emptyDir:
             medium: Memory
             sizeLimit: 128Mi
+        - name: blueprints-immich
+          configMap:
+            name: authentik-blueprint-immich
 
     # Bundled PostgreSQL - using the built-in for simplicity
     # For production, consider using an external database

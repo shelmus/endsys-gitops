@@ -9,3 +9,4 @@ resources:
   - ./library-pvc.yaml
   - ./postgres-cluster.yaml
   - ./dragonfly.yaml
+  - ./externalsecret.yaml

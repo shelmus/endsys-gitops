@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprint-immich
+  labels:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/component: blueprint
+data:
+  immich.yaml: |
+    version: 1
+    metadata:
+      name: Immich OAuth Provider
+    entries:
+      # User account
+      - model: authentik_core.user
+        id: user-sean
+        state: present
+        attrs:
+          username: sean
+          name: Sean
+          email: sean@endsys.cloud
+          is_active: true
+          password: !Env [AUTHENTIK_USER_SEAN_PASSWORD]
+          groups:
+            - !Find [authentik_core.group, [name, authentik Admins]]
+      # OAuth2 Provider for Immich
+      - model: authentik_providers_oauth2.oauth2provider
+        id: immich-provider
+        state: present
+        attrs:
+          name: Immich
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          client_type: confidential
+          client_id: immich
+          client_secret: !Env [IMMICH_OAUTH_CLIENT_SECRET]
+          redirect_uris: |
+            https://immich.endsys.cloud/auth/login
+            https://immich.endsys.cloud/api/oauth/mobile-redirect
+            app.immich:///oauth-callback
+          property_mappings:
+            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
+            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
+            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-profile]]
+      # Application for Immich
+      - model: authentik_core.application
+        state: present
+        attrs:
+          name: Immich
+          slug: immich
+          provider: !KeyOf immich-provider
+          meta_launch_url: https://immich.endsys.cloud
+          meta_icon: https://immich.app/img/immich-logo.svg
+          policy_engine_mode: any
