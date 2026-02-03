@@ -26,6 +26,7 @@ spec:
     replicaCount: 1
     extraArgs:
       - --proactor_threads=1
+      - --cluster_mode=emulated
     storage:
       enabled: true
       requests: 2Gi
