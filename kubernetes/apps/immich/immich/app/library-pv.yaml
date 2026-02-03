@@ -11,5 +11,5 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   nfs:
-    path: /srv/nfs/photos
-    server: 10.127.0.214
+    path: /data/photos
+    server: 10.127.0.5
