@@ -50,16 +50,6 @@ spec:
       name: authentik-secrets
       valuesKey: redis-password
       targetPath: authentik.redis.password
-    # Immich OAuth client secret for blueprint
-    - kind: Secret
-      name: authentik-secrets
-      valuesKey: immich-oauth-client-secret
-      targetPath: worker.env.IMMICH_OAUTH_CLIENT_SECRET
-    # User password for sean (for blueprint)
-    - kind: Secret
-      name: authentik-secrets
-      valuesKey: user-sean-password
-      targetPath: worker.env.AUTHENTIK_USER_SEAN_PASSWORD
   values:
     # Authentik configuration
     authentik:
@@ -96,6 +86,17 @@ spec:
           memory: 512Mi
         limits:
           memory: 1Gi
+      env:
+        - name: IMMICH_OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: authentik-secrets
+              key: immich-oauth-client-secret
+        - name: AUTHENTIK_USER_SEAN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: authentik-secrets
+              key: user-sean-password
       volumeMounts:
         - name: dshm
           mountPath: /dev/shm
