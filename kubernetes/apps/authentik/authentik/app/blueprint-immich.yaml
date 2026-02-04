@@ -21,7 +21,7 @@ data:
           name: Sean
           email: sean@endsys.cloud
           is_active: true
-          password: !Env [AUTHENTIK_USER_SEAN_PASSWORD]
+          password: !Env AUTHENTIK_USER_SEAN_PASSWORD
           groups:
             - !Find [authentik_core.group, [name, authentik Admins]]
       # OAuth2 Provider for Immich
@@ -33,7 +33,7 @@ data:
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
           client_type: confidential
           client_id: immich
-          client_secret: !Env [IMMICH_OAUTH_CLIENT_SECRET]
+          client_secret: !Env IMMICH_OAUTH_CLIENT_SECRET
           redirect_uris: |
             https://immich.endsys.cloud/auth/login
             https://immich.endsys.cloud/api/oauth/mobile-redirect
