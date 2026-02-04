@@ -195,6 +195,70 @@ kubernetes/apps/my-app/my-app/
     └── postgres-cluster.yaml  # CNPG PostgreSQL cluster
 ```
 
+## Storage Patterns
+
+### NFS-backed PVC (Shared Media)
+
+For large media libraries (photos, videos) using pre-provisioned NFS storage:
+
+```yaml
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {app}-library
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes: [ReadWriteMany]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  nfs:
+    server: 10.127.0.5
+    path: /data/{app}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {app}-library
+spec:
+  accessModes: [ReadWriteMany]
+  resources:
+    requests:
+      storage: 1Ti
+  storageClassName: ""
+  volumeName: {app}-library
+```
+
+### Longhorn PVC (Block Storage)
+
+For application data requiring block storage:
+
+```yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {app}-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn
+```
+
+### Storage in HelmRelease
+
+Reference existing PVC:
+
+```yaml
+values:
+  persistence:
+    data:
+      existingClaim: {app}-library
+```
+
 ## Adding a New Application
 
 1. Create directory structure under `kubernetes/apps/{namespace}/{app}/`
@@ -203,5 +267,27 @@ kubernetes/apps/my-app/my-app/
 4. Create `app/helmrelease.yaml` or raw manifests
 5. Create `app/httproute.yaml` if external access needed
 6. Create `app/externalsecret.yaml` if secrets needed
-7. Add `ks.yaml` reference to namespace `kustomization.yaml`
-8. Commit and push - Flux will reconcile automatically
+7. Create PVC files if storage needed
+8. Add `ks.yaml` reference to namespace `kustomization.yaml`
+9. Commit and push - Flux will reconcile automatically
+
+## Decision History
+
+### Why ks.yaml + app/ Pattern?
+
+- **Separation of concerns**: Flux orchestration (`ks.yaml`) separate from Kustomize resources (`app/`)
+- **Dependency ordering**: `dependsOn` at Flux level without polluting app resources
+- **Namespace aggregation**: Easy to list all apps in a namespace via `kustomization.yaml`
+
+### Why Common Component?
+
+- **DRY namespace creation**: Single definition shared across 17+ apps
+- **Consistent labeling**: Standard annotations applied everywhere
+- **Cluster-wide substitutions**: Variables from `cluster-secrets.sops.yaml` available to all apps
+
+### Why HTTPRoute over Ingress?
+
+- **Gateway API standard**: Future-proof Kubernetes routing
+- **Role separation**: Gateway (infra) vs HTTPRoute (app) ownership
+- **Cilium native**: Direct integration with cluster CNI
+- **Better extensibility**: Filters, weights, header manipulation

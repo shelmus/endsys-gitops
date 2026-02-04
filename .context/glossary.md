@@ -24,6 +24,9 @@ Project-specific terminology for the endsys-gitops repository.
 | **HTTPRoute** | Gateway API resource defining HTTP routing rules |
 | **Talos** | Immutable Linux OS designed for Kubernetes |
 | **Cilium** | eBPF-based CNI providing networking and security |
+| **VolSync** | Kubernetes operator for PVC replication/backup |
+| **BullMQ** | Node.js queue library (requires Dragonfly `--allow-undeclared-keys` flag) |
+| **Caddy** | Web server/reverse proxy (used by Pelican) |
 
 ## App Structure Terms
 
@@ -61,9 +64,21 @@ Project-specific terminology for the endsys-gitops repository.
 |------|------------|
 | **Cluster CR** | CNPG Cluster Custom Resource |
 | **{name}-rw** | CNPG read-write service endpoint |
+| **{name}-ro** | CNPG read-only service endpoint (replicas) |
 | **{name}-app** | CNPG auto-generated secret with credentials |
-| **vectorchord** | PostgreSQL extension for AI vector embeddings |
+| **vectorchord** | PostgreSQL extension for AI vector similarity search |
+| **earthdistance** | PostgreSQL extension for geographic distance calculations |
 | **postInitApplicationSQL** | SQL run after CNPG database creation |
+| **shared_preload_libraries** | PostgreSQL config for extensions loaded at startup |
+
+## Backup Terms
+
+| Term | Definition |
+|------|------------|
+| **VolSync** | Operator for PVC replication and backup |
+| **ReplicationSource** | VolSync CR defining what to backup and when |
+| **Velero** | Kubernetes backup tool for cluster resources |
+| **Restic** | Deduplication backup program (used by VolSync) |
 
 ## Domain Conventions
 

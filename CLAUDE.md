@@ -1,167 +1,83 @@
-# Claude Code Configuration
-
-This file is the entry point for Claude Code users. Claude Code automatically reads this file and uses it to understand how to work with this project.
-
-## About This Project
-
-This repository teaches the **.context method** (Substrate Methodology), a documentation-as-code-as-context approach. The actual documentation lives in the `.context/` folder. This `CLAUDE.md` file tells Claude Code how to use it.
-
-## How This Works
-
-```
-┌─────────────────────────────────────────────────────┐
-│                  .context/ folder                    │
-│         (Your structured documentation)              │
-│                                                      │
-│  substrate.md, architecture/, auth/, api/, etc.     │
-└─────────────────────────────────────────────────────┘
-                         ▲
-                         │
-         ┌───────────────┴───────────────┐
-         │                               │
-    ┌────┴────┐                    ┌─────┴─────┐
-    │CLAUDE.md│                    │ agents.md │
-    │(you are │                    │           │
-    │  here)  │                    │  Other    │
-    │         │                    │ AI Tools  │
-    │(auto)   │                    │ (manual)  │
-    └─────────┘                    └───────────┘
-```
-
-**CLAUDE.md** (this file) is for Claude Code. It's auto-loaded at session start.
-
-**agents.md** is for other AI tools (ChatGPT, Cursor, Copilot). It explains how to manually include `.context/` files in prompts.
-
-Both point to the same `.context/` documentation.
-
 ## Documentation Index
 
 ### Entry Point
-- `.context/substrate.md` - **Start here.** Methodology overview and navigation guide.
+- `.context/substrate.md` - **Start here.** Repository overview, tech stack, and AI guidelines.
 
-### AI-Specific Context (Read These First)
+### Core Context Files
 | File | Purpose |
 |------|---------|
-| `.context/ai-rules.md` | Hard constraints and non-negotiable standards for code generation |
-| `.context/glossary.md` | Project-specific terminology to use consistently |
-| `.context/anti-patterns.md` | What NOT to do, with bad/good code examples |
-| `.context/boundaries.md` | What you should and should not modify |
+| `.context/glossary.md` | Project-specific terminology (Flux, CNPG, etc.) |
+| `.context/conventions.md` | Naming standards for files, resources, and secrets |
 | `.context/debt.md` | Known technical debt to avoid compounding |
+
+### Architecture
+| File | Purpose |
+|------|---------|
+| `.context/architecture/overview.md` | System design, dependency chain, Flux patterns |
+| `.context/architecture/app-structure.md` | Standard app deployment structure (ks.yaml + app/) |
+
+### Authentication & Secrets
+| File | Purpose |
+|------|---------|
+| `.context/auth/secrets.md` | External Secrets + Bitwarden integration |
+| `.context/auth/oauth.md` | Authentik OAuth/OIDC provider patterns |
+
+### Database & Cache
+| File | Purpose |
+|------|---------|
+| `.context/database/cnpg.md` | CloudNativePG cluster patterns and configuration |
+| `.context/cache/dragonfly.md` | Dragonfly (Redis-compatible) cache patterns |
 
 ### Architecture Decision Records
 | File | Purpose |
 |------|---------|
 | `.context/decisions/README.md` | ADR template and index |
-| `.context/decisions/001-jwt-authentication.md` | Why JWT was chosen |
-| `.context/decisions/002-repository-pattern.md` | Why repository pattern |
-| `.context/decisions/003-postgresql-database.md` | Why PostgreSQL |
-
-### Architecture Domain
-| File | Purpose |
-|------|---------|
-| `.context/architecture/overview.md` | System architecture, layered design, Mermaid diagrams |
-| `.context/architecture/dependencies.md` | Dependency injection patterns |
-| `.context/architecture/patterns.md` | Code organization, error handling, naming conventions |
-
-### Authentication Domain
-| File | Purpose |
-|------|---------|
-| `.context/auth/overview.md` | JWT auth flow, token strategy, RBAC model |
-| `.context/auth/integration.md` | HTTP middleware, framework integration |
-| `.context/auth/security.md` | Password hashing (Argon2id), threat mitigation |
-
-### API Domain
-| File | Purpose |
-|------|---------|
-| `.context/api/endpoints.md` | REST endpoint reference, request/response formats |
-| `.context/api/headers.md` | HTTP headers, CORS configuration |
-| `.context/api/examples.md` | Client implementation examples |
-
-### Database Domain
-| File | Purpose |
-|------|---------|
-| `.context/database/schema.md` | PostgreSQL schema, ERD diagrams, indexes |
-| `.context/database/models.md` | Data models, validation rules |
-| `.context/database/migrations.md` | Migration strategy, rollback procedures |
-
-### UI Domain
-| File | Purpose |
-|------|---------|
-| `.context/ui/overview.md` | Design tokens, component architecture, accessibility |
-| `.context/ui/patterns.md` | Component implementation, state management |
-
-### SEO Domain
-| File | Purpose |
-|------|---------|
-| `.context/seo/overview.md` | Meta tags, structured data schemas, Core Web Vitals |
-
-### Operational
-| File | Purpose |
-|------|---------|
-| `.context/workflows.md` | Step-by-step development guides |
-| `.context/env.md` | Environment variables documentation |
-| `.context/errors.md` | Error codes catalog |
-| `.context/testing.md` | Testing strategy and standards |
-| `.context/performance.md` | Performance budgets and guidelines |
-| `.context/dependencies.md` | Approved packages and libraries |
-| `.context/code-review.md` | Code review checklist |
-| `.context/monitoring.md` | Logging, metrics, observability |
-| `.context/events.md` | Domain events catalog |
-| `.context/feature-flags.md` | Feature flag patterns |
-| `.context/versioning.md` | API versioning strategy |
-| `.context/changelog.md` | Substrate evolution log |
-| `.context/guidelines.md` | Git workflow, testing, deployment |
-
-### Prompts
-Pre-built prompts in `.context/prompts/`:
-- `new-endpoint.md` - Adding API endpoints
-- `new-feature.md` - Implementing features
-- `fix-bug.md` - Debugging issues
-- `refactor.md` - Refactoring code
-- `review.md` - Code review
-- `security-audit.md` - Security review
-- `performance.md` - Performance optimization
-- `documentation.md` - Writing docs
 
 ## Instructions for Claude Code
 
-### Before Generating Code
+### Before Generating Manifests
 1. Read `.context/substrate.md` first for project orientation
-2. Read domain-specific files relevant to the task
-3. Follow patterns documented in `.context/architecture/patterns.md`
+2. Read `.context/conventions.md` for naming standards
+3. Check existing apps in `kubernetes/apps/` for reference patterns
 
 ### Task-Specific Context
 
-**Authentication work:**
-Read `.context/auth/overview.md`, `.context/auth/security.md`, `.context/auth/integration.md`
+**Adding a new application:**
+Read `.context/architecture/app-structure.md`, `.context/conventions.md`
 
-**API development:**
-Read `.context/api/endpoints.md`, `.context/api/examples.md`, `.context/architecture/patterns.md`
+**OAuth/SSO integration:**
+Read `.context/auth/oauth.md`, `.context/auth/secrets.md`
 
-**Database work:**
-Read `.context/database/schema.md`, `.context/database/models.md`
+**Secret management:**
+Read `.context/auth/secrets.md`
 
-**Frontend/UI work:**
-Read `.context/ui/overview.md`, `.context/ui/patterns.md`
+**PostgreSQL database setup:**
+Read `.context/database/cnpg.md`
 
-**SEO implementation:**
-Read `.context/seo/overview.md`
+**Redis/cache setup:**
+Read `.context/cache/dragonfly.md`
+
+**Understanding dependencies:**
+Read `.context/architecture/overview.md`
 
 ### Code Standards
-- Follow coding patterns from `.context/architecture/patterns.md`
-- Implement security measures from `.context/auth/security.md`
-- Use data models from `.context/database/models.md`
-- Match existing naming conventions in the codebase
-- Follow the test pyramid strategy from `.context/guidelines.md`
+- Follow naming conventions from `.context/conventions.md`
+- Use standard app structure from `.context/architecture/app-structure.md`
+- Reference the `common` component for namespace creation
+- Add appropriate `dependsOn` entries in Flux Kustomizations
+- Use HTTPRoute (not Ingress) for exposing services
+- Prefer CNPG Cluster CRs for PostgreSQL databases
+- Store secrets in Bitwarden, reference via ExternalSecret
 
 ### Do Not
-- Generate code without reading relevant context files first
-- Ignore security patterns and constraints
-- Create new architectural patterns without documentation
-- Assume implementation details not explicitly documented
-- Override established conventions without clear rationale
+- Generate manifests without checking similar existing apps first
+- Use Ingress resources (use HTTPRoute with Gateway API)
+- Embed databases in Helm charts (use CNPG operator)
+- Store secrets directly in Git (use External Secrets)
+- Skip `dependsOn` for resources that need prerequisites
+- Override established naming conventions without clear rationale
 
 ### When Making Changes
-- Update relevant `.context/` files when making architectural decisions
-- Document trade-offs and rationale in "Decision History" sections
-- Keep code examples in documentation current and functional
+- Update relevant `.context/` files when adding new patterns
+- Document architectural decisions in `.context/decisions/`
+- Keep examples in documentation current and functional

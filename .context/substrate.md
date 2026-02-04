@@ -15,6 +15,7 @@ This is a **FluxCD GitOps** repository managing a **Talos Linux** Kubernetes clu
 | [auth/secrets.md](auth/secrets.md) | Secret management strategy |
 | [auth/oauth.md](auth/oauth.md) | Authentik OAuth integration |
 | [database/cnpg.md](database/cnpg.md) | CloudNativePG patterns |
+| [cache/dragonfly.md](cache/dragonfly.md) | Dragonfly cache patterns |
 | [glossary.md](glossary.md) | Project terminology |
 | [debt.md](debt.md) | Known technical debt |
 | [conventions.md](conventions.md) | Naming and coding standards |

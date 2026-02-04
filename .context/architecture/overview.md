@@ -27,11 +27,17 @@ System design and infrastructure patterns for the endsys-gitops cluster.
               │ Immich  │    │Authentik│    │   n8n   │
               └────┬────┘    └────┬────┘    └────┬────┘
                    │              │              │
-                   ▼              ▼              ▼
-              ┌─────────┐    ┌─────────┐    ┌─────────┐
-              │  CNPG   │    │ Bitnami │    │  CNPG   │
-              │Postgres │    │Postgres │    │Postgres │
-              └─────────┘    └─────────┘    └─────────┘
+              ┌────┴────┐    ┌────┴────┐         │
+              │  CNPG   │    │ Bitnami │*        │
+              │Postgres │    │Postgres │         │
+              └─────────┘    └─────────┘         │
+                   │                             │
+              ┌────┴────┐                   ┌────┴────┐
+              │Dragonfly│                   │  (no    │
+              │ (cache) │                   │   DB)   │
+              └─────────┘                   └─────────┘
+
+* Authentik uses embedded Bitnami DBs - see debt.md TD-001 for migration plan
 ```
 
 ## Infrastructure Layers
@@ -59,10 +65,21 @@ System design and infrastructure patterns for the endsys-gitops cluster.
 - **Authentik**: Identity provider, OAuth2/OIDC
 
 ### Layer 5: Applications
-- Immich (photo management)
-- n8n (workflow automation)
-- Velero (backup)
-- And more...
+
+| App | Namespace | Purpose | Database |
+|-----|-----------|---------|----------|
+| Immich | immich | Photo management | CNPG + Dragonfly |
+| Authentik | authentik | Identity provider | Bitnami (embedded)* |
+| n8n | n8n | Workflow automation | - |
+| Velero | velero | Cluster backup | - |
+| Gatus | observability | Uptime monitoring | - |
+| Prometheus | observability | Metrics collection | - |
+| Pelican | pelican | Game server panel | - |
+| Pricebuddy | pricebuddy | Price tracking | MariaDB (embedded) |
+| Otterwiki | default | Wiki | SQLite |
+| SeaweedFS | seaweedfs | Object storage | - |
+
+*See [debt.md](../debt.md) TD-001 for migration plan
 
 ## Dependency Chain
 
@@ -73,18 +90,24 @@ flux-system (bootstrap)
 └── cluster-meta (HelmRepositories, OCIRepositories)
     └── cluster-apps
         ├── infrastructure
-        │   ├── cilium
-        │   ├── cert-manager
-        │   ├── cnpg-operator
-        │   └── external-secrets
+        │   ├── cilium (CNI + Gateway API)
+        │   ├── cert-manager (TLS certificates)
+        │   ├── cnpg-operator (PostgreSQL)
+        │   ├── external-secrets (secret sync)
+        │   └── csi-driver-nfs (NFS storage)
         ├── configs
         │   └── external-secrets-stores (ClusterSecretStore)
         └── apps
-            ├── authentik
+            ├── authentik (depends on: external-secrets-stores)
             ├── immich (depends on: cnpg-operator, external-secrets-stores, csi-driver-nfs)
-            ├── n8n
+            ├── observability/gatus
+            ├── observability/kube-prometheus-stack
+            ├── pelican
+            ├── pricebuddy
             └── ...
 ```
+
+**Key**: Apps declare dependencies via `dependsOn` in their `ks.yaml` to ensure prerequisites are ready.
 
 ## Network Architecture
 
@@ -120,10 +143,25 @@ flux-system (bootstrap)
   - `/data/seaweedfs` - Object storage
   - `/data/velero` - Backup storage
 
+## Helm Repositories
+
+**Location**: `kubernetes/flux/meta/repos/`
+
+| Name | Type | URL | Used By |
+|------|------|-----|---------|
+| authentik | HTTP | charts.goauthentik.io | Authentik |
+| cnpg | HTTP | cloudnative-pg.io/charts | CNPG operator |
+| dragonfly | OCI | ghcr.io/dragonflydb/dragonfly/helm | Dragonfly cache |
+| immich | OCI | ghcr.io/immich-app/immich-charts | Immich |
+| external-secrets | HTTP | charts.external-secrets.io | ESO |
+| longhorn | HTTP | charts.longhorn.io | Longhorn storage |
+| bitwarden | HTTP | charts.bitwarden.com | Bitwarden SDK |
+| prometheus | HTTP | prometheus-community.github.io/helm-charts | Monitoring |
+
 ## Key Design Decisions
 
 1. **Gateway API over Ingress**: Modern routing with better extensibility
 2. **CNPG over embedded databases**: Proper PostgreSQL lifecycle management
 3. **Dragonfly over Redis**: 25x performance, 80% less memory
-4. **External Secrets over SOPS**: Centralized secret management
+4. **External Secrets over SOPS**: Centralized secret management (migration in progress)
 5. **OCI over HTTP repos**: Better caching, signed artifacts

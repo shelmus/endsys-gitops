@@ -44,6 +44,23 @@ Examples:
 - `authentik.endsys.cloud`
 - `grafana.endsys.cloud`
 
+## Gateway Naming
+
+**Location**: `kubernetes/apps/kube-system/cilium/gateway/`
+
+| Gateway | Purpose | IP | Used For |
+|---------|---------|-----|----------|
+| `internal` | Private cluster access | 10.127.0.51 | Apps accessible only on local network |
+| `external` | Public via Cloudflare | 10.127.0.52 | Apps exposed to internet |
+
+HTTPRoute `parentRefs` reference:
+```yaml
+parentRefs:
+  - name: internal    # or 'external'
+    namespace: kube-system
+    sectionName: https
+```
+
 ## Label Standards
 
 Always include Kubernetes recommended labels:

@@ -10,6 +10,14 @@ CloudNativePG is a Kubernetes operator for managing PostgreSQL clusters with:
 - Rolling updates
 - Connection pooling
 
+## Current Deployments
+
+| Cluster | Namespace | Image | Extensions | Storage |
+|---------|-----------|-------|------------|---------|
+| immich-postgres | immich | tensorchord/cloudnative-vectorchord:16.9-0.4.3 | vchord, earthdistance | 20Gi |
+
+> **Note**: Authentik currently uses embedded Bitnami PostgreSQL. See [debt.md](../debt.md) TD-001 for migration plan.
+
 ## Architecture
 
 ```
@@ -31,23 +39,33 @@ CloudNativePG is a Kubernetes operator for managing PostgreSQL clusters with:
 
 ## Operator Deployment
 
-**Location**: `kubernetes/apps/cnpg-system/cnpg-operator/`
+**Location**: `kubernetes/apps/cnpg-system/cloudnative-pg/`
 
 ```yaml
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: cnpg-operator
+  name: cloudnative-pg
   namespace: cnpg-system
 spec:
   chart:
     spec:
       chart: cloudnative-pg
-      version: 0.23.0
+      version: 0.23.0  # Check for latest
       sourceRef:
         kind: HelmRepository
         name: cnpg
         namespace: flux-system
+```
+
+Apps depending on CNPG must wait for the operator:
+
+```yaml
+# In app's ks.yaml
+spec:
+  dependsOn:
+    - name: cloudnative-pg
+      namespace: cnpg-system
 ```
 
 ## Cluster Custom Resource

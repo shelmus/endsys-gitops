@@ -129,6 +129,61 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 
 ---
 
+### 9. Authentik Blueprint Syntax (2025.x)
+
+**Location**: `kubernetes/apps/authentik/authentik/app/blueprint-immich.yaml`
+
+**Issue**: Blueprint syntax was outdated for Authentik 2025.x:
+- `!Env [VAR]` → `!Env VAR`
+- Missing `identifiers` fields
+- Missing `invalidation_flow`
+- `redirect_uris` as strings → objects
+
+**Status**: Fixed 2026-02-04
+
+**Documentation**: See [auth/oauth.md](auth/oauth.md) for correct patterns.
+
+---
+
+### 10. VolSync Not Consistently Deployed
+
+**Location**: Only `kubernetes/apps/default/otterwiki/app/volsync-backup.yaml`
+
+**Issue**: VolSync backup only configured for otterwiki, not other stateful apps.
+
+**Risk**:
+- Immich library not replicated (relies on NFS)
+- Pricebuddy data not backed up via VolSync
+- No consistent backup strategy across apps
+
+**Recommended Fix**: Add VolSync ReplicationSource for all stateful PVCs.
+
+---
+
+### 11. SOPS Secrets Still Widely Used
+
+**Location**: 13 files across the cluster
+
+**Files**:
+- `kubernetes/components/common/sops/cluster-secrets.sops.yaml` (intentional - cluster vars)
+- `kubernetes/components/common/sops/sops-age.sops.yaml` (intentional - encryption key)
+- `kubernetes/apps/flux-system/flux-instance/app/secret.sops.yaml`
+- `kubernetes/apps/cert-manager/cert-manager/app/secret.sops.yaml`
+- `kubernetes/apps/network/cloudflare-dns/app/secret.sops.yaml`
+- `kubernetes/apps/network/cloudflare-tunnel/app/secret.sops.yaml`
+- `kubernetes/apps/network/pihole-dns/app/secret.sops.yaml`
+- `kubernetes/apps/longhorn-system/longhorn-system/app/secret.sops.yaml`
+- `kubernetes/apps/seaweedfs/seaweedfs/app/secret.sops.yaml`
+- `kubernetes/apps/velero/velero/app/secret.sops.yaml`
+- `kubernetes/apps/pricebuddy/pricebuddy/app/secret.sops.yaml`
+- `kubernetes/apps/default/otterwiki/app/secret.sops.yaml`
+- `kubernetes/apps/external-secrets/external-secrets/stores/secret.sops.yaml`
+
+**Note**: Some SOPS usage is intentional (cluster-secrets for variable substitution).
+Migration to External Secrets should focus on app-specific secrets, not cluster-wide vars.
+
+---
+
 ## Tracking
 
 | ID | Issue | Priority | Status |
@@ -138,6 +193,9 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 | TD-003 | Single-instance CNPG | Medium | Open |
 | TD-004 | Limited Velero schedules | Medium | Open |
 | TD-005 | Manual Immich PV | Medium | Open |
-| TD-006 | SOPS migration incomplete | Low | Open |
+| TD-006 | SOPS migration incomplete | Low | In Progress |
 | TD-007 | n8n HTTPRoute missing | Low | Open |
 | TD-008 | Pricebuddy init workaround | Low | Open |
+| TD-009 | Authentik blueprint syntax | High | **Fixed** |
+| TD-010 | VolSync not consistent | Medium | Open |
+| TD-011 | SOPS still widely used | Low | Open |
