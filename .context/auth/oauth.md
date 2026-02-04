@@ -53,6 +53,7 @@ data:
         attrs:
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
           invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          signing_key: !Find [authentik_crypto.certificatekeypair, [managed, goauthentik.io/crypto/jwt-managed]]
           client_type: confidential
           client_id: {app}
           client_secret: !Env APP_OAUTH_CLIENT_SECRET
@@ -81,6 +82,7 @@ data:
 |-------|----------|---------|
 | `identifiers` | **Yes** | Unique fields to find/update existing objects |
 | `invalidation_flow` | **Yes** | Required for OAuth2 providers |
+| `signing_key` | **Yes** | JWT signing certificate (prevents "unexpected alg" errors) |
 | `redirect_uris` | **Yes** | Must be list of objects with `url` and `matching_mode` |
 | `!Env VAR` | - | Scalar syntax (not `!Env [VAR]`) |
 
@@ -120,6 +122,7 @@ entries:
     attrs:
       authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
       invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+      signing_key: !Find [authentik_crypto.certificatekeypair, [managed, goauthentik.io/crypto/jwt-managed]]
       client_type: confidential
       client_id: immich
       client_secret: !Env IMMICH_OAUTH_CLIENT_SECRET
@@ -284,6 +287,28 @@ redirect_uris: |
 redirect_uris:
   - matching_mode: strict
     url: https://app.example.com/callback
+```
+
+### unexpected JWT "alg" header parameter
+
+**Cause**: Missing `signing_key` on OAuth2 provider - Immich requires RS256 signed JWTs
+
+**Fix**: Add signing key reference to the provider:
+```yaml
+attrs:
+  signing_key: !Find [authentik_crypto.certificatekeypair, [managed, goauthentik.io/crypto/jwt-managed]]
+```
+
+Or fix immediately via shell:
+```bash
+kubectl exec -n authentik deployment/authentik-worker -- ak shell -c "
+from authentik.providers.oauth2.models import OAuth2Provider
+from authentik.crypto.models import CertificateKeyPair
+jwt_cert = CertificateKeyPair.objects.get(managed='goauthentik.io/crypto/jwt-managed')
+provider = OAuth2Provider.objects.get(name='Immich')
+provider.signing_key = jwt_cert
+provider.save()
+"
 ```
 
 ### Blueprint status: error
