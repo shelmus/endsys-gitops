@@ -72,8 +72,8 @@ System design and infrastructure patterns for the endsys-gitops cluster.
 | Authentik | authentik | Identity provider | Bitnami (embedded)* |
 | n8n | n8n | Workflow automation | - |
 | Velero | velero | Cluster backup | - |
-| Gatus | observability | Uptime monitoring | - |
-| Prometheus | observability | Metrics collection | - |
+| Gatus | gatus | Uptime monitoring | - |
+| Prometheus | kube-prometheus-stack | Metrics collection | - |
 | Pelican | pelican | Game server panel | - |
 | Pricebuddy | pricebuddy | Price tracking | MariaDB (embedded) |
 | Otterwiki | default | Wiki | SQLite |
@@ -100,8 +100,8 @@ flux-system (bootstrap)
         └── apps
             ├── authentik (depends on: external-secrets-stores)
             ├── immich (depends on: cnpg-operator, external-secrets-stores, csi-driver-nfs)
-            ├── observability/gatus
-            ├── observability/kube-prometheus-stack
+            ├── gatus
+            ├── kube-prometheus-stack
             ├── pelican
             ├── pricebuddy
             └── ...

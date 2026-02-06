@@ -10,6 +10,10 @@ spec:
     sectionName: https             # if it lives elsewhere
   hostnames: ["status.endsys.cloud"]
   rules:
-    - backendRefs:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
         - name: gatus
           port: 80

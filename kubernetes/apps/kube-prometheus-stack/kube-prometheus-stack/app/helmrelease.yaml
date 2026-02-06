@@ -28,7 +28,7 @@ spec:
   #     name: grafana-login
   #     valuesKey: values.yaml
   values:
-    alertmanger:
+    alertmanager:
       enabled: true
       route:
         main:
