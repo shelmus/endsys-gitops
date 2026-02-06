@@ -12,10 +12,12 @@ This is a **FluxCD GitOps** repository managing a **Talos Linux** Kubernetes clu
 |----------|---------|
 | [architecture/overview.md](architecture/overview.md) | System design and patterns |
 | [architecture/app-structure.md](architecture/app-structure.md) | Standard app deployment pattern |
+| [architecture/networking.md](architecture/networking.md) | DNS, gateways, and ingress routing |
 | [auth/secrets.md](auth/secrets.md) | Secret management strategy |
 | [auth/oauth.md](auth/oauth.md) | Authentik OAuth integration |
 | [database/cnpg.md](database/cnpg.md) | CloudNativePG patterns |
 | [cache/dragonfly.md](cache/dragonfly.md) | Dragonfly cache patterns |
+| [monitoring/alerting.md](monitoring/alerting.md) | Prometheus alerts and Discord notifications |
 | [glossary.md](glossary.md) | Project terminology |
 | [debt.md](debt.md) | Known technical debt |
 | [conventions.md](conventions.md) | Naming and coding standards |

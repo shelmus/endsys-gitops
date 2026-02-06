@@ -56,15 +56,12 @@ Key fields:
 
 ### kustomization.yaml - Resource List
 
-Lists all resources to deploy. Uses common component for namespace creation.
+Lists all resources to deploy. Note: the common component is referenced at the **namespace level**, not here.
 
 ```yaml
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: my-app
-components:
-  - ../../../../components/common
 resources:
   - ./helmrelease.yaml
   - ./httproute.yaml
@@ -125,7 +122,7 @@ spec:
 
 ## Namespace-Level Kustomization
 
-Each namespace has a top-level kustomization that includes all apps:
+Each namespace has a top-level kustomization that includes all apps and references the **common component** for namespace creation:
 
 ```
 kubernetes/apps/{namespace}/
@@ -143,6 +140,8 @@ resources:
   - ./app-one/ks.yaml
   - ./app-two/ks.yaml
 ```
+
+> **Important**: The `components` reference to `common` goes here at the namespace level, **not** in the `app/kustomization.yaml`. The app-level kustomization only lists its own resource files.
 
 ## Common Component
 

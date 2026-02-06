@@ -73,11 +73,16 @@ System design and infrastructure patterns for the endsys-gitops cluster.
 | n8n | n8n | Workflow automation | - |
 | Velero | velero | Cluster backup | - |
 | Gatus | gatus | Uptime monitoring | - |
-| Prometheus | kube-prometheus-stack | Metrics collection | - |
+| kube-prometheus-stack | kube-prometheus-stack | Metrics, alerting, dashboards | - |
 | Pelican | pelican | Game server panel | - |
-| Pricebuddy | pricebuddy | Price tracking | MariaDB (embedded) |
+| Pricebuddy | pricebuddy | Price tracking | MySQL (embedded) |
 | Otterwiki | default | Wiki | SQLite |
 | SeaweedFS | seaweedfs | Object storage | - |
+| Cloudflare Tunnel | network | Public ingress via Cloudflare | - |
+| Cloudflare DNS | network | External DNS (Cloudflare) | - |
+| Pi-hole DNS | network | External DNS (Pi-hole) | - |
+| k8s-gateway | network | Internal DNS for *.endsys.cloud | - |
+| Echo | network | HTTP echo test server | - |
 
 *See [debt.md](../debt.md) TD-001 for migration plan
 
@@ -100,8 +105,8 @@ flux-system (bootstrap)
         └── apps
             ├── authentik (depends on: external-secrets-stores)
             ├── immich (depends on: cnpg-operator, external-secrets-stores, csi-driver-nfs)
+            ├── kube-prometheus-stack (depends on: external-secrets-stores)
             ├── gatus
-            ├── kube-prometheus-stack
             ├── pelican
             ├── pricebuddy
             └── ...
@@ -150,13 +155,20 @@ flux-system (bootstrap)
 | Name | Type | URL | Used By |
 |------|------|-----|---------|
 | authentik | HTTP | charts.goauthentik.io | Authentik |
-| cnpg | HTTP | cloudnative-pg.io/charts | CNPG operator |
-| dragonfly | OCI | ghcr.io/dragonflydb/dragonfly/helm | Dragonfly cache |
-| immich | OCI | ghcr.io/immich-app/immich-charts | Immich |
-| external-secrets | HTTP | charts.external-secrets.io | ESO |
-| longhorn | HTTP | charts.longhorn.io | Longhorn storage |
+| backube | HTTP | backube.github.io/helm-charts | VolSync |
 | bitwarden | HTTP | charts.bitwarden.com | Bitwarden SDK |
-| prometheus | HTTP | prometheus-community.github.io/helm-charts | Monitoring |
+| cnpg | HTTP | cloudnative-pg.io/charts | CNPG operator |
+| csi-driver-nfs | HTTP | raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs | NFS CSI |
+| dragonfly | OCI | ghcr.io/dragonflydb/dragonfly/helm | Dragonfly cache |
+| external-secrets | HTTP | charts.external-secrets.io | ESO |
+| immich | OCI | ghcr.io/immich-app/immich-charts | Immich |
+| kube-prometheus-stack | HTTP | prometheus-community.github.io/helm-charts | Monitoring |
+| longhorn | HTTP | charts.longhorn.io | Longhorn storage |
+| n8n | HTTP | community-charts.github.io/helm-charts | n8n |
+| otterwiki | HTTP | charts.otterwiki.com | Otterwiki |
+| seaweedfs | HTTP | seaweedfs.github.io/seaweedfs/helm | SeaweedFS |
+| twin | HTTP | twin.github.io/helm-charts | Gatus |
+| vmware-tanzu | HTTP | vmware-tanzu.github.io/helm-charts | Velero |
 
 ## Key Design Decisions
 

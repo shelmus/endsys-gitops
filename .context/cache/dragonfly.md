@@ -71,17 +71,17 @@ spec:
 
 ### With BullMQ Compatibility (Immich)
 
-BullMQ requires undeclared keys support:
+BullMQ requires undeclared keys support. Immich also uses emulated cluster mode and limits proactor threads for resource-constrained environments:
 
 ```yaml
 values:
   extraArgs:
+    - --proactor_threads=1
+    - --cluster_mode=emulated
     - --default_lua_flags=allow-undeclared-keys
   storage:
     enabled: true
     requests: 2Gi
-  proactor:
-    mode: epoll  # or iouring on supported kernels
 ```
 
 ## Current Deployments

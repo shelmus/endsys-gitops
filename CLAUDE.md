@@ -15,6 +15,7 @@
 |------|---------|
 | `.context/architecture/overview.md` | System design, dependency chain, Flux patterns |
 | `.context/architecture/app-structure.md` | Standard app deployment structure (ks.yaml + app/) |
+| `.context/architecture/networking.md` | DNS, gateways, Cloudflare tunnel, ingress routing |
 
 ### Authentication & Secrets
 | File | Purpose |
@@ -27,6 +28,11 @@
 |------|---------|
 | `.context/database/cnpg.md` | CloudNativePG cluster patterns and configuration |
 | `.context/cache/dragonfly.md` | Dragonfly (Redis-compatible) cache patterns |
+
+### Monitoring
+| File | Purpose |
+|------|---------|
+| `.context/monitoring/alerting.md` | Prometheus alerts, Alertmanager, Discord notifications |
 
 ### Architecture Decision Records
 | File | Purpose |
@@ -59,6 +65,12 @@ Read `.context/cache/dragonfly.md`
 
 **Understanding dependencies:**
 Read `.context/architecture/overview.md`
+
+**Networking, DNS, or ingress:**
+Read `.context/architecture/networking.md`
+
+**Monitoring or alerting:**
+Read `.context/monitoring/alerting.md`
 
 ### Code Standards
 - Follow naming conventions from `.context/conventions.md`
