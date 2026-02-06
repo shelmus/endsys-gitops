@@ -1,0 +1,42 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: app-alerts
+  labels:
+    app.kubernetes.io/name: kube-prometheus-stack
+    app.kubernetes.io/component: alerting
+spec:
+  groups:
+    - name: app-outages
+      rules:
+        - alert: AppPodNotReady
+          expr: |
+            kube_pod_status_ready{condition="true", namespace=~"immich|authentik|gatus|kube-prometheus-stack|n8n|pelican"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.pod }} is not ready"
+            description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been in a non-ready state for more than 5 minutes."
+
+        - alert: AppDeploymentUnavailable
+          expr: |
+            kube_deployment_status_replicas_available{namespace=~"immich|authentik|gatus|kube-prometheus-stack|n8n|pelican"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Deployment {{ $labels.deployment }} has no available replicas"
+            description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has had 0 available replicas for more than 5 minutes."
+
+        - alert: AppHelmReleaseFailed
+          expr: |
+            gotk_reconcile_condition{type="Ready", status="False", kind="HelmRelease", namespace=~"immich|authentik|gatus|kube-prometheus-stack|n8n|pelican"} == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "HelmRelease {{ $labels.name }} has failed"
+            description: "HelmRelease {{ $labels.name }} in namespace {{ $labels.namespace }} has been in a failed state for more than 5 minutes."
