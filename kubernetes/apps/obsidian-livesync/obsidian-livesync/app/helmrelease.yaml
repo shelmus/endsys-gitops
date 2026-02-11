@@ -43,10 +43,9 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:
-                    path: /_up
+                  tcpSocket:
                     port: &port 5984
-                  initialDelaySeconds: 0
+                  initialDelaySeconds: 5
                   periodSeconds: 10
                   timeoutSeconds: 1
                   failureThreshold: 3
