@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: obsidian-livesync
 components:
   - ../../components/common
-resources:
-  - ./obsidian-livesync/ks.yaml
+resources: []
+  # - ./obsidian-livesync/ks.yaml
