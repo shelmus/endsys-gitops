@@ -29,6 +29,11 @@
 | `.context/database/cnpg.md` | CloudNativePG cluster patterns and configuration |
 | `.context/cache/dragonfly.md` | Dragonfly (Redis-compatible) cache patterns |
 
+### Backup & Restore
+| File | Purpose |
+|------|---------|
+| `.context/backup-restore.md` | Velero backup strategy, restore procedures, disaster recovery |
+
 ### Monitoring
 | File | Purpose |
 |------|---------|
@@ -71,6 +76,9 @@ Read `.context/architecture/networking.md`
 
 **Monitoring or alerting:**
 Read `.context/monitoring/alerting.md`
+
+**Backup, restore, or disaster recovery:**
+Read `.context/backup-restore.md`
 
 ### Code Standards
 - Follow naming conventions from `.context/conventions.md`

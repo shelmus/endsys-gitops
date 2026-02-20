@@ -1,0 +1,26 @@
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: obsidian-livesync-daily
+  namespace: velero
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/component: backup-schedule
+    app.kubernetes.io/part-of: obsidian-livesync
+spec:
+  schedule: "0 2 * * *"
+  template:
+    includedNamespaces:
+      - obsidian-livesync
+    includedResources:
+      - '*'
+    defaultVolumesToFsBackup: true
+    storageLocation: default
+    ttl: 720h0m0s
+    includeClusterResources: true
+    metadata:
+      labels:
+        app.kubernetes.io/name: obsidian-livesync
+        backup-type: scheduled
+  useOwnerReferencesInBackup: false

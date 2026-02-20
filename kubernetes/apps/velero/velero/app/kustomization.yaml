@@ -7,3 +7,8 @@ resources:
   - ./secret.sops.yaml
   # Backup schedules for applications
   - ./schedules/pricebuddy-schedule.yaml
+  - ./schedules/n8n-schedule.yaml
+  - ./schedules/immich-schedule.yaml
+  - ./schedules/gatus-schedule.yaml
+  - ./schedules/obsidian-livesync-schedule.yaml
+  - ./schedules/pocket-id-schedule.yaml

@@ -18,6 +18,7 @@ This is a **FluxCD GitOps** repository managing a **Talos Linux** Kubernetes clu
 | [database/cnpg.md](database/cnpg.md) | CloudNativePG patterns |
 | [cache/dragonfly.md](cache/dragonfly.md) | Dragonfly cache patterns |
 | [monitoring/alerting.md](monitoring/alerting.md) | Prometheus alerts and Discord notifications |
+| [backup-restore.md](backup-restore.md) | Velero backup strategy and restore procedures |
 | [glossary.md](glossary.md) | Project terminology |
 | [debt.md](debt.md) | Known technical debt |
 | [conventions.md](conventions.md) | Naming and coding standards |

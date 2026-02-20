@@ -45,17 +45,9 @@ image: jez500/pricebuddy:latest
 
 ---
 
-### 4. Limited Velero Backup Schedules
+### 4. ~~Limited Velero Backup Schedules~~ — Resolved
 
-**Location**: `kubernetes/apps/velero/velero/app/schedules/`
-
-**Issue**: Only `pricebuddy-schedule.yaml` exists.
-
-**Risk**:
-- Other apps not backed up on schedule
-- Potential data loss
-
-**Recommended Fix**: Add backup schedules for all stateful apps (immich, pocket-id, n8n).
+**Status**: Resolved — Backup schedules added for all stateful apps (n8n, immich, gatus, obsidian-livesync, pocket-id).
 
 ---
 
@@ -165,7 +157,7 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 | TD-001 | Authentik embedded DBs | High | **Resolved** |
 | TD-002 | Pricebuddy latest tag | High | Open |
 | TD-003 | Single-instance CNPG | Medium | Open |
-| TD-004 | Limited Velero schedules | Medium | Open |
+| TD-004 | Limited Velero schedules | Medium | **Resolved** |
 | TD-005 | Manual Immich PV | Medium | Open |
 | TD-006 | SOPS migration incomplete | Low | In Progress |
 | TD-007 | n8n HTTPRoute missing | Low | Open |
