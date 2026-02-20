@@ -5,7 +5,7 @@ metadata:
   name: immich
 spec:
   parentRefs:
-    - name: internal
+    - name: external
       namespace: kube-system
       sectionName: https
   hostnames: ["immich.endsys.cloud"]
