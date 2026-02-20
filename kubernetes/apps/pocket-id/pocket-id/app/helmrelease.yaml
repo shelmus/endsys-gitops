@@ -40,6 +40,8 @@ spec:
         size: 5Gi
 
     pocketID:
+      image:
+        tag: "v2.2.0"
       resources:
         requests:
           cpu: 50m
