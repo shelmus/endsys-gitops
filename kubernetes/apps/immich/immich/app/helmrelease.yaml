@@ -51,7 +51,7 @@ spec:
               # OAuth with PocketID
               IMMICH_OAUTH_ENABLED: "true"
               IMMICH_OAUTH_ISSUER_URL: https://auth.endsys.cloud
-              IMMICH_OAUTH_CLIENT_ID: immich
+              IMMICH_OAUTH_CLIENT_ID: 283cfd30-43c3-43ab-86d0-cf3fdd41fcd8
               IMMICH_OAUTH_CLIENT_SECRET:
                 valueFrom:
                   secretKeyRef:
