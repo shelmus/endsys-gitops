@@ -13,7 +13,7 @@ spec:
       rules:
         - alert: AppPodNotReady
           expr: |
-            kube_pod_status_ready{condition="true", namespace=~"immich|authentik|gatus|kube-prometheus-stack|n8n|pelican"} == 0
+            kube_pod_status_ready{condition="true", namespace=~"immich|pocket-id|gatus|kube-prometheus-stack|n8n|pelican"} == 0
           for: 5m
           labels:
             severity: warning
@@ -23,7 +23,7 @@ spec:
 
         - alert: AppDeploymentUnavailable
           expr: |
-            kube_deployment_status_replicas_available{namespace=~"immich|authentik|gatus|kube-prometheus-stack|n8n|pelican"} == 0
+            kube_deployment_status_replicas_available{namespace=~"immich|pocket-id|gatus|kube-prometheus-stack|n8n|pelican"} == 0
           for: 5m
           labels:
             severity: critical
@@ -33,7 +33,7 @@ spec:
 
         - alert: AppHelmReleaseFailed
           expr: |
-            gotk_reconcile_condition{type="Ready", status="False", kind="HelmRelease", namespace=~"immich|authentik|gatus|kube-prometheus-stack|n8n|pelican"} == 1
+            gotk_reconcile_condition{type="Ready", status="False", kind="HelmRelease", namespace=~"immich|pocket-id|gatus|kube-prometheus-stack|n8n|pelican"} == 1
           for: 5m
           labels:
             severity: critical

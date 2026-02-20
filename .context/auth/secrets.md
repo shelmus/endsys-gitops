@@ -89,7 +89,7 @@ In Bitwarden Secrets Manager:
 2. Create new secret with naming convention: `{app}-{purpose}`
 3. Examples:
    - `immich-oauth-client-secret`
-   - `authentik-postgresql-password`
+   - `pocket-id-encryption-key`
    - `n8n-encryption-key`
 
 ### 2. Create ExternalSecret
@@ -145,10 +145,10 @@ valuesFrom:
 
 | Pattern | Example |
 |---------|---------|
-| `{app}-secrets` | `authentik-secrets` |
+| `{app}-secrets` | `pocket-id-secrets` |
 | `{app}-{purpose}` | `immich-oauth-client-secret` |
-| `{app}-{service}-password` | `authentik-postgresql-password` |
-| `{app}-secret-key` | `authentik-secret-key` |
+| `{app}-{service}-password` | `immich-postgresql-password` |
+| `{app}-{purpose}` | `pocket-id-encryption-key` |
 
 ## CNPG Auto-Generated Secrets
 

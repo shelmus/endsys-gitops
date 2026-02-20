@@ -20,6 +20,6 @@ resources:
   - ./seaweedfs.yaml
   - ./immich.yaml
   - ./external-secrets.yaml
-  - ./authentik.yaml
+  - ./anza-labs.yaml
   - ./cnpg.yaml
   - ./dragonfly.yaml

@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: pocket-id
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: pocket-id
+      version: 1.7.5
+      sourceRef:
+        kind: HelmRepository
+        name: anza-labs
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    host: auth.endsys.cloud
+
+    database:
+      provider: sqlite
+
+    # Use ExternalSecret-managed secret (includes ENCRYPTION_KEY, DB_CONNECTION_STRING)
+    secret:
+      create: false
+      name: pocket-id-secrets
+
+    persistence:
+      data:
+        enabled: true
+        storageClass: longhorn
+        size: 5Gi
+
+    pocketID:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 256Mi

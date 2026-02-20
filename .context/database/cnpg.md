@@ -16,7 +16,7 @@ CloudNativePG is a Kubernetes operator for managing PostgreSQL clusters with:
 |---------|-----------|-------|------------|---------|
 | immich-postgres | immich | ghcr.io/tensorchord/cloudnative-vectorchord:16.9-0.4.3 | vchord, earthdistance | 20Gi |
 
-> **Note**: Authentik currently uses embedded Bitnami PostgreSQL. See [debt.md](../debt.md) TD-001 for migration plan.
+> **Note**: PocketID uses SQLite (no PostgreSQL needed).
 
 ## Architecture
 

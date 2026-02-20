@@ -4,23 +4,9 @@ Known technical debt and areas requiring attention.
 
 ## High Priority
 
-### 1. Authentik Using Embedded Databases
+### 1. ~~Authentik Using Embedded Databases~~ — Resolved
 
-**Location**: `kubernetes/apps/authentik/authentik/app/helmrelease.yaml`
-
-**Issue**: Authentik bundles PostgreSQL and Redis as Helm subcharts instead of using CNPG and Dragonfly.
-
-**Risk**:
-- No automatic backups
-- No high availability
-- Inconsistent with cluster database strategy
-- Comments in code acknowledge this: "For production, consider using an external database"
-
-**Recommended Fix**:
-1. Deploy CNPG Cluster for Authentik PostgreSQL
-2. Deploy Dragonfly for Authentik Redis
-3. Migrate data from embedded databases
-4. Update HelmRelease to use external services
+**Status**: Resolved — Authentik replaced with PocketID (uses SQLite, no embedded DBs).
 
 ---
 
@@ -69,7 +55,7 @@ image: jez500/pricebuddy:latest
 - Other apps not backed up on schedule
 - Potential data loss
 
-**Recommended Fix**: Add backup schedules for all stateful apps (immich, authentik, n8n).
+**Recommended Fix**: Add backup schedules for all stateful apps (immich, pocket-id, n8n).
 
 ---
 
@@ -98,8 +84,6 @@ image: jez500/pricebuddy:latest
 
 **Files**:
 - `kubernetes/apps/velero/velero/app/secret.sops.yaml`
-- `kubernetes/apps/authentik/authentik/app/externalsecret.yaml` (references SOPS)
-
 **Recommended Fix**: Complete migration to ExternalSecrets, remove SOPS files.
 
 ---
@@ -129,19 +113,9 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 
 ---
 
-### 9. Authentik Blueprint Syntax (2025.x)
+### 9. ~~Authentik Blueprint Syntax (2025.x)~~ — Resolved
 
-**Location**: `kubernetes/apps/authentik/authentik/app/blueprint-immich.yaml`
-
-**Issue**: Blueprint syntax was outdated for Authentik 2025.x:
-- `!Env [VAR]` → `!Env VAR`
-- Missing `identifiers` fields
-- Missing `invalidation_flow`
-- `redirect_uris` as strings → objects
-
-**Status**: Fixed 2026-02-04
-
-**Documentation**: See [auth/oauth.md](auth/oauth.md) for correct patterns.
+**Status**: Resolved — Authentik replaced with PocketID (no blueprints needed).
 
 ---
 
@@ -188,7 +162,7 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 
 | ID | Issue | Priority | Status |
 |----|-------|----------|--------|
-| TD-001 | Authentik embedded DBs | High | Open |
+| TD-001 | Authentik embedded DBs | High | **Resolved** |
 | TD-002 | Pricebuddy latest tag | High | Open |
 | TD-003 | Single-instance CNPG | Medium | Open |
 | TD-004 | Limited Velero schedules | Medium | Open |
@@ -196,6 +170,6 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 | TD-006 | SOPS migration incomplete | Low | In Progress |
 | TD-007 | n8n HTTPRoute missing | Low | Open |
 | TD-008 | Pricebuddy init workaround | Low | Open |
-| TD-009 | Authentik blueprint syntax | High | **Fixed** |
+| TD-009 | Authentik blueprint syntax | High | **Resolved** |
 | TD-010 | VolSync not consistent | Medium | Open |
 | TD-011 | SOPS still widely used | Low | Open |

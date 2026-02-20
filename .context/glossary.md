@@ -84,6 +84,6 @@ Project-specific terminology for the endsys-gitops repository.
 
 | Pattern | Example |
 |---------|---------|
-| `{app}.endsys.cloud` | `immich.endsys.cloud`, `authentik.endsys.cloud` |
+| `{app}.endsys.cloud` | `immich.endsys.cloud`, `auth.endsys.cloud` |
 | Internal DNS | Resolved by k8s-gateway |
 | External DNS | Managed by external-dns + Cloudflare |

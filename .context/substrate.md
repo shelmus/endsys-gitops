@@ -14,7 +14,7 @@ This is a **FluxCD GitOps** repository managing a **Talos Linux** Kubernetes clu
 | [architecture/app-structure.md](architecture/app-structure.md) | Standard app deployment pattern |
 | [architecture/networking.md](architecture/networking.md) | DNS, gateways, and ingress routing |
 | [auth/secrets.md](auth/secrets.md) | Secret management strategy |
-| [auth/oauth.md](auth/oauth.md) | Authentik OAuth integration |
+| [auth/oauth.md](auth/oauth.md) | PocketID OIDC integration |
 | [database/cnpg.md](database/cnpg.md) | CloudNativePG patterns |
 | [cache/dragonfly.md](cache/dragonfly.md) | Dragonfly cache patterns |
 | [monitoring/alerting.md](monitoring/alerting.md) | Prometheus alerts and Discord notifications |
@@ -58,7 +58,7 @@ flux-system
     └── cluster-apps
         ├── infrastructure (cilium, cert-manager, cnpg-operator)
         ├── configs (external-secrets-stores)
-        └── apps (immich, authentik, etc.)
+        └── apps (immich, pocket-id, etc.)
 ```
 
 ## Key Patterns

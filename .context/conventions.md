@@ -4,7 +4,7 @@
 
 - Lowercase, hyphenated
 - System namespaces end with `-system`: `kube-system`, `flux-system`, `cnpg-system`
-- App namespaces match app name: `immich`, `authentik`, `n8n`
+- App namespaces match app name: `immich`, `pocket-id`, `n8n`
 
 ## File Naming
 
@@ -24,14 +24,14 @@
 
 | Resource | Pattern | Example |
 |----------|---------|---------|
-| HelmRelease | `{app-name}` | `immich`, `authentik` |
+| HelmRelease | `{app-name}` | `immich`, `pocket-id` |
 | Kustomization | `{app-name}` | `immich`, `cluster-meta` |
 | CNPG Cluster | `{app}-postgres` | `immich-postgres` |
-| Secret (general) | `{app}-secrets` | `authentik-secrets` |
+| Secret (general) | `{app}-secrets` | `pocket-id-secrets` |
 | Secret (OAuth) | `{app}-oauth` | `immich-oauth` |
 | Secret (CNPG auto) | `{cluster}-app` | `immich-postgres-app` |
 | Service | `{app}` or `{app}-{component}` | `immich-server` |
-| ConfigMap | `{app}-config` or `{app}-{purpose}` | `authentik-blueprint-immich` |
+| ConfigMap | `{app}-config` or `{app}-{purpose}` | `pocket-id-config` |
 
 ## Domain Naming
 
@@ -41,7 +41,7 @@
 
 Examples:
 - `immich.endsys.cloud`
-- `authentik.endsys.cloud`
+- `auth.endsys.cloud`
 - `grafana.endsys.cloud`
 
 ## Gateway Naming
@@ -127,5 +127,5 @@ Secrets in Bitwarden Secrets Manager:
 | Pattern | Example |
 |---------|---------|
 | `{app}-{purpose}` | `immich-oauth-client-secret` |
-| `{app}-{service}-password` | `authentik-postgresql-password` |
-| `{app}-secret-key` | `authentik-secret-key` |
+| `{app}-{service}-password` | `immich-postgresql-password` |
+| `{app}-{purpose}` | `pocket-id-encryption-key` |

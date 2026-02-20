@@ -24,20 +24,18 @@ System design and infrastructure patterns for the endsys-gitops cluster.
                     ┌───────────────┼───────────────┐
                     ▼               ▼               ▼
               ┌─────────┐    ┌─────────┐    ┌─────────┐
-              │ Immich  │    │Authentik│    │   n8n   │
+              │ Immich  │    │PocketID │    │   n8n   │
               └────┬────┘    └────┬────┘    └────┬────┘
                    │              │              │
               ┌────┴────┐    ┌────┴────┐         │
-              │  CNPG   │    │ Bitnami │*        │
-              │Postgres │    │Postgres │         │
+              │  CNPG   │    │ SQLite  │         │
+              │Postgres │    │(Longhorn│         │
               └─────────┘    └─────────┘         │
                    │                             │
               ┌────┴────┐                   ┌────┴────┐
               │Dragonfly│                   │  (no    │
               │ (cache) │                   │   DB)   │
               └─────────┘                   └─────────┘
-
-* Authentik uses embedded Bitnami DBs - see debt.md TD-001 for migration plan
 ```
 
 ## Infrastructure Layers
@@ -62,14 +60,14 @@ System design and infrastructure patterns for the endsys-gitops cluster.
 
 ### Layer 4: Security
 - **External Secrets Operator**: Syncs secrets from Bitwarden
-- **Authentik**: Identity provider, OAuth2/OIDC
+- **PocketID**: Lightweight OIDC provider (passkey-based)
 
 ### Layer 5: Applications
 
 | App | Namespace | Purpose | Database |
 |-----|-----------|---------|----------|
 | Immich | immich | Photo management | CNPG + Dragonfly |
-| Authentik | authentik | Identity provider | Bitnami (embedded)* |
+| PocketID | pocket-id | OIDC identity provider | SQLite (Longhorn PVC) |
 | n8n | n8n | Workflow automation | - |
 | Velero | velero | Cluster backup | - |
 | Gatus | gatus | Uptime monitoring | - |
@@ -83,8 +81,6 @@ System design and infrastructure patterns for the endsys-gitops cluster.
 | Pi-hole DNS | network | External DNS (Pi-hole) | - |
 | k8s-gateway | network | Internal DNS for *.endsys.cloud | - |
 | Echo | network | HTTP echo test server | - |
-
-*See [debt.md](../debt.md) TD-001 for migration plan
 
 ## Dependency Chain
 
@@ -103,7 +99,7 @@ flux-system (bootstrap)
         ├── configs
         │   └── external-secrets-stores (ClusterSecretStore)
         └── apps
-            ├── authentik (depends on: external-secrets-stores)
+            ├── pocket-id (depends on: external-secrets-stores)
             ├── immich (depends on: cnpg-operator, external-secrets-stores, csi-driver-nfs)
             ├── kube-prometheus-stack (depends on: external-secrets-stores)
             ├── gatus
@@ -154,7 +150,7 @@ flux-system (bootstrap)
 
 | Name | Type | URL | Used By |
 |------|------|-----|---------|
-| authentik | HTTP | charts.goauthentik.io | Authentik |
+| anza-labs | HTTP | anza-labs.github.io/charts | PocketID |
 | backube | HTTP | backube.github.io/helm-charts | VolSync |
 | bitwarden | HTTP | charts.bitwarden.com | Bitwarden SDK |
 | cnpg | HTTP | cloudnative-pg.io/charts | CNPG operator |

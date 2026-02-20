@@ -71,7 +71,7 @@ Alerts display with status indicators:
 
 ### App Outage Alerts (`prometheusrule-apps.yaml`)
 
-Monitors namespaces: `immich`, `authentik`, `gatus`, `kube-prometheus-stack`, `n8n`, `pelican`
+Monitors namespaces: `immich`, `pocket-id`, `gatus`, `kube-prometheus-stack`, `n8n`, `pelican`
 
 | Alert | Condition | Severity | For |
 |-------|-----------|----------|-----|
@@ -134,7 +134,7 @@ spec:
 To include a new app namespace in the outage alerts, update the namespace regex in `prometheusrule-apps.yaml`:
 
 ```yaml
-namespace=~"immich|authentik|gatus|kube-prometheus-stack|n8n|pelican|new-app"
+namespace=~"immich|pocket-id|gatus|kube-prometheus-stack|n8n|pelican|new-app"
 ```
 
 ## Dependencies
