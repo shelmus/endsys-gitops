@@ -51,7 +51,7 @@ spec:
         database: matrix_authentication_service
         password:
           secret: matrix-secrets
-          secretKey: mas-db-password
+          secretKey: MAS_DB_PASSWORD
         sslMode: prefer
       additional:
         upstream-oauth.yaml:
