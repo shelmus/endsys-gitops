@@ -3,6 +3,37 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: matrix-secrets
+  namespace: &namespace matrix
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: matrix
+  dependsOn:
+    - name: cnpg-operator
+      namespace: cnpg-system
+    - name: external-secrets-stores
+      namespace: external-secrets
+  interval: 1h
+  path: ./kubernetes/apps/matrix/matrix/secrets
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *namespace
+  timeout: 5m
+  wait: true
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: &app matrix
   namespace: &namespace matrix
 spec:
@@ -10,10 +41,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: cnpg-operator
-      namespace: cnpg-system
-    - name: external-secrets-stores
-      namespace: external-secrets
+    - name: matrix-secrets
+      namespace: matrix
   interval: 1h
   path: ./kubernetes/apps/matrix/matrix/app
   postBuild:
