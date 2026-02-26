@@ -59,11 +59,11 @@ spec:
       name: sops-age
   # Health check ensures ClusterSecretStore is ready
   healthChecks:
-    - apiVersion: external-secrets.io/v1beta1
+    - apiVersion: external-secrets.io/v1
       kind: ClusterSecretStore
       name: bitwarden-secretsmanager
   healthCheckExprs:
-    - apiVersion: external-secrets.io/v1beta1
+    - apiVersion: external-secrets.io/v1
       kind: ClusterSecretStore
       failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
