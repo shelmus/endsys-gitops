@@ -1,0 +1,40 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: matrix
+spec:
+  parentRefs:
+    - name: external
+      namespace: kube-system
+      sectionName: https
+  hostnames:
+    - chat.endsys.cloud
+    - matrix.endsys.cloud
+    - matrix-auth.endsys.cloud
+    - matrix-rtc.endsys.cloud
+    - matrix-admin.endsys.cloud
+  rules:
+    - backendRefs:
+        - name: matrix-haproxy
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: matrix-well-known
+spec:
+  parentRefs:
+    - name: external
+      namespace: kube-system
+      sectionName: https-bare
+  hostnames:
+    - endsys.cloud
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/matrix/
+      backendRefs:
+        - name: matrix-haproxy
+          port: 80

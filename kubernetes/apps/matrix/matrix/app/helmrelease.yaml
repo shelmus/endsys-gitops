@@ -1,0 +1,100 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: matrix
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: matrix-stack
+    namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    serverName: endsys.cloud
+
+    # --- Bundled PostgreSQL: disabled (using CNPG) ---
+    postgres:
+      enabled: false
+
+    # --- Synapse ---
+    synapse:
+      ingress:
+        host: matrix.endsys.cloud
+      postgres:
+        host: matrix-postgres-rw
+        port: 5432
+        user: synapse
+        database: synapse
+        password:
+          secret: matrix-postgres-app
+          secretKey: password
+        sslMode: prefer
+
+    # --- Matrix Authentication Service ---
+    matrixAuthenticationService:
+      enabled: true
+      ingress:
+        host: matrix-auth.endsys.cloud
+      postgres:
+        host: matrix-postgres-rw
+        port: 5432
+        user: mas
+        database: matrix_authentication_service
+        password:
+          secret: matrix-secrets
+          secretKey: mas-db-password
+        sslMode: prefer
+      additional:
+        upstream-oauth.yaml:
+          config: |
+            upstream_oauth2:
+              providers:
+                - id: "01JN0000PKTD00000000000000"
+                  human_name: "PocketID"
+                  issuer: "https://auth.endsys.cloud"
+                  client_id: "${MATRIX_OAUTH_CLIENT_ID}"
+                  client_secret: "${MATRIX_OAUTH_CLIENT_SECRET}"
+                  scope: "openid profile email"
+                  token_endpoint_auth_method: "client_secret_basic"
+                  claims_imports:
+                    localpart:
+                      action: require
+                      template: "{{ user.preferred_username }}"
+                    displayname:
+                      action: suggest
+                      template: "{{ user.name }}"
+                    email:
+                      action: suggest
+                      template: "{{ user.email }}"
+                      set_email_verification: always
+
+    # --- Element Web ---
+    elementWeb:
+      enabled: true
+      ingress:
+        host: chat.endsys.cloud
+
+    # --- Element Admin ---
+    elementAdmin:
+      enabled: true
+      ingress:
+        host: matrix-admin.endsys.cloud
+
+    # --- Matrix RTC (Element Call / LiveKit) ---
+    matrixRTC:
+      enabled: true
+      ingress:
+        host: matrix-rtc.endsys.cloud
+
+    # --- Well-Known Delegation ---
+    wellKnownDelegation:
+      enabled: true

@@ -12,3 +12,4 @@ resources:
   - ./schedules/gatus-schedule.yaml
   - ./schedules/obsidian-livesync-schedule.yaml
   - ./schedules/pocket-id-schedule.yaml
+  - ./schedules/matrix-schedule.yaml
