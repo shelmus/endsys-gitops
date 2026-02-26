@@ -30,12 +30,12 @@ spec:
       ingress:
         host: matrix.endsys.cloud
       postgres:
-        host: matrix-postgres-rw
+        host: matrix-synapse-postgres-rw
         port: 5432
         user: synapse
         database: synapse
         password:
-          secret: matrix-postgres-app
+          secret: matrix-synapse-postgres-app
           secretKey: password
         sslMode: prefer
 
@@ -45,13 +45,13 @@ spec:
       ingress:
         host: matrix-auth.endsys.cloud
       postgres:
-        host: matrix-postgres-rw
+        host: matrix-mas-postgres-rw
         port: 5432
         user: mas
         database: matrix_authentication_service
         password:
-          secret: matrix-secrets
-          secretKey: MAS_DB_PASSWORD
+          secret: matrix-mas-postgres-app
+          secretKey: password
         sslMode: prefer
       additional:
         upstream-oauth.yaml:
