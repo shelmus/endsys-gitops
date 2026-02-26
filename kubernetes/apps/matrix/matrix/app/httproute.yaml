@@ -1,8 +1,9 @@
 ---
+# Element Web
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: matrix
+  name: matrix-element-web
 spec:
   parentRefs:
     - name: external
@@ -10,15 +11,138 @@ spec:
       sectionName: https
   hostnames:
     - chat.endsys.cloud
-    - matrix.endsys.cloud
-    - matrix-auth.endsys.cloud
-    - matrix-rtc.endsys.cloud
+  rules:
+    - backendRefs:
+        - name: matrix-element-web
+          port: 80
+---
+# Element Admin
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: matrix-element-admin
+spec:
+  parentRefs:
+    - name: external
+      namespace: kube-system
+      sectionName: https
+  hostnames:
     - matrix-admin.endsys.cloud
   rules:
     - backendRefs:
-        - name: matrix-haproxy
-          port: 80
+        - name: matrix-element-admin
+          port: 8080
 ---
+# Matrix Authentication Service
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: matrix-auth
+spec:
+  parentRefs:
+    - name: external
+      namespace: kube-system
+      sectionName: https
+  hostnames:
+    - matrix-auth.endsys.cloud
+  rules:
+    - backendRefs:
+        - name: matrix-matrix-authentication-service
+          port: 8080
+---
+# Synapse — auth endpoints (login/refresh/logout) route to MAS,
+# everything else under /_matrix and /_synapse routes to Synapse via HAProxy.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: matrix-synapse
+spec:
+  parentRefs:
+    - name: external
+      namespace: kube-system
+      sectionName: https
+  hostnames:
+    - matrix.endsys.cloud
+  rules:
+    # Auth endpoints → MAS (must be listed before the catch-all /_matrix rule)
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/v3/login
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/v3/refresh
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/v3/logout
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/r0/login
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/r0/refresh
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/r0/logout
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/api/v1/login
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/api/v1/refresh
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/api/v1/logout
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/unstable/login
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/unstable/refresh
+        - path:
+            type: PathPrefix
+            value: /_matrix/client/unstable/logout
+      backendRefs:
+        - name: matrix-matrix-authentication-service
+          port: 8080
+    # All other Matrix API paths → Synapse (via HAProxy)
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /_matrix
+        - path:
+            type: PathPrefix
+            value: /_synapse
+      backendRefs:
+        - name: matrix-synapse
+          port: 8008
+---
+# Matrix RTC — /sfu/get → authorisation service, everything else → SFU
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: matrix-rtc
+spec:
+  parentRefs:
+    - name: external
+      namespace: kube-system
+      sectionName: https
+  hostnames:
+    - matrix-rtc.endsys.cloud
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /sfu/get
+      backendRefs:
+        - name: matrix-matrix-rtc-authorisation-service
+          port: 8080
+    - backendRefs:
+        - name: matrix-matrix-rtc-sfu
+          port: 7880
+---
+# Well-known delegation for Matrix federation on the bare domain.
+# Requires the https-bare listener on the external gateway.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -36,5 +160,5 @@ spec:
             type: PathPrefix
             value: /.well-known/matrix/
       backendRefs:
-        - name: matrix-haproxy
-          port: 80
+        - name: matrix-well-known
+          port: 8010
