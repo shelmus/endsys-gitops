@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gameserver-alerts
+  labels:
+    app.kubernetes.io/name: kube-prometheus-stack
+    app.kubernetes.io/component: alerting
+spec:
+  groups:
+    - name: gameserver-host
+      rules:
+        - alert: GameServerHostDown
+          expr: |
+            up{job="gameserver", instance=~"10.127.0.7:.*"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Game server host is unreachable"
+            description: "The game server at 10.127.0.7 ({{ $labels.instance }}) has been unreachable for more than 2 minutes."
+
+        - alert: GameServerHighCPU
+          expr: |
+            100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle", instance=~"10.127.0.7:.*"}[5m])) * 100) > 90
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Game server CPU usage above 90%"
+            description: "Game server CPU usage is at {{ $value | humanize }}% for more than 5 minutes."
+
+        - alert: GameServerHighMemory
+          expr: |
+            (1 - (node_memory_MemAvailable_bytes{instance=~"10.127.0.7:.*"} / node_memory_MemTotal_bytes{instance=~"10.127.0.7:.*"})) * 100 > 90
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Game server memory usage above 90%"
+            description: "Game server memory usage is at {{ $value | humanize }}% for more than 5 minutes."
+
+        - alert: GameServerDiskPressure
+          expr: |
+            (1 - (node_filesystem_avail_bytes{instance=~"10.127.0.7:.*", mountpoint="/", fstype!="tmpfs"} / node_filesystem_size_bytes{instance=~"10.127.0.7:.*", mountpoint="/", fstype!="tmpfs"})) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Game server disk usage above 85%"
+            description: "Game server root filesystem usage is at {{ $value | humanize }}% for more than 5 minutes."

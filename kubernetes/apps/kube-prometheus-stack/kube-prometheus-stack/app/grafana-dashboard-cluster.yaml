@@ -1,0 +1,441 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-cluster
+  labels:
+    grafana_dashboard: "1"
+data:
+  cluster.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": false,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "links": [],
+      "panels": [
+        {
+          "title": "Cluster Overview",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+          "collapsed": false
+        },
+        {
+          "title": "CPU Usage",
+          "type": "gauge",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 6, "w": 4, "x": 0, "y": 1 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "red", "value": 90 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "(1 - avg(rate(node_cpu_seconds_total{mode=\"idle\", job!=\"gameserver\"}[5m]))) * 100",
+              "legendFormat": "CPU"
+            }
+          ]
+        },
+        {
+          "title": "Memory Usage",
+          "type": "gauge",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 6, "w": 4, "x": 4, "y": 1 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "red", "value": 90 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "(1 - (sum(node_memory_MemAvailable_bytes{job!=\"gameserver\"}) / sum(node_memory_MemTotal_bytes{job!=\"gameserver\"}))) * 100",
+              "legendFormat": "Memory"
+            }
+          ]
+        },
+        {
+          "title": "Total Pods",
+          "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 6, "w": 4, "x": 8, "y": 1 },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  { "color": "blue", "value": null }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "count(kube_pod_info)",
+              "legendFormat": "Pods"
+            }
+          ]
+        },
+        {
+          "title": "Running Pods",
+          "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 6, "w": 4, "x": 12, "y": 1 },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  { "color": "green", "value": null }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "count(kube_pod_status_phase{phase=\"Running\"} == 1)",
+              "legendFormat": "Running"
+            }
+          ]
+        },
+        {
+          "title": "Nodes",
+          "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 6, "w": 4, "x": 16, "y": 1 },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  { "color": "green", "value": null }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "count(kube_node_info)",
+              "legendFormat": "Nodes"
+            }
+          ]
+        },
+        {
+          "title": "Cluster CPU Cores",
+          "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 6, "w": 4, "x": 20, "y": 1 },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  { "color": "blue", "value": null }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "sum(machine_cpu_cores)",
+              "legendFormat": "Cores"
+            }
+          ]
+        },
+        {
+          "title": "Node Resources",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+          "collapsed": false
+        },
+        {
+          "title": "CPU Usage by Node",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "custom": { "fillOpacity": 20, "lineWidth": 2 }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "(1 - avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\", job!=\"gameserver\"}[5m]))) * 100",
+              "legendFormat": "{{ instance }}"
+            }
+          ]
+        },
+        {
+          "title": "Memory Usage by Node",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "custom": { "fillOpacity": 20, "lineWidth": 2 }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "(1 - (node_memory_MemAvailable_bytes{job!=\"gameserver\"} / node_memory_MemTotal_bytes{job!=\"gameserver\"})) * 100",
+              "legendFormat": "{{ instance }}"
+            }
+          ]
+        },
+        {
+          "title": "CPU Requests vs Capacity",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": { "fillOpacity": 10, "lineWidth": 2 }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_node_status_allocatable{resource=\"cpu\"})",
+              "legendFormat": "Allocatable"
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_requests{resource=\"cpu\"})",
+              "legendFormat": "Requests"
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_limits{resource=\"cpu\"})",
+              "legendFormat": "Limits"
+            }
+          ]
+        },
+        {
+          "title": "Memory Requests vs Capacity",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": { "fillOpacity": 10, "lineWidth": 2 }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_node_status_allocatable{resource=\"memory\"})",
+              "legendFormat": "Allocatable"
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_requests{resource=\"memory\"})",
+              "legendFormat": "Requests"
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_limits{resource=\"memory\"})",
+              "legendFormat": "Limits"
+            }
+          ]
+        },
+        {
+          "title": "Pods per Node",
+          "type": "bargauge",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 80 },
+                  { "color": "red", "value": 100 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": { "orientation": "horizontal", "displayMode": "gradient" },
+          "targets": [
+            {
+              "expr": "count by (node) (kube_pod_info)",
+              "legendFormat": "{{ node }}"
+            }
+          ]
+        },
+        {
+          "title": "Node Disk Usage",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "custom": { "fillOpacity": 20, "lineWidth": 2 }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "(1 - (node_filesystem_avail_bytes{job!=\"gameserver\", mountpoint=\"/\", fstype!=\"tmpfs\"} / node_filesystem_size_bytes{job!=\"gameserver\", mountpoint=\"/\", fstype!=\"tmpfs\"})) * 100",
+              "legendFormat": "{{ instance }}"
+            }
+          ]
+        },
+        {
+          "title": "Storage",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+          "collapsed": false
+        },
+        {
+          "title": "PVC Usage",
+          "type": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 33 },
+          "fieldConfig": {
+            "defaults": { "unit": "bytes" },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Used %" },
+                "properties": [
+                  { "id": "unit", "value": "percent" },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "steps": [
+                        { "color": "green", "value": null },
+                        { "color": "yellow", "value": 70 },
+                        { "color": "red", "value": 85 }
+                      ]
+                    }
+                  },
+                  { "id": "custom.displayMode", "value": "color-background" }
+                ]
+              }
+            ]
+          },
+          "transformations": [
+            { "id": "merge", "options": {} },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": { "Time": true, "instance": true, "job": true, "__name__": true, "node": true, "uid": true },
+                "renameByName": { "namespace": "Namespace", "persistentvolumeclaim": "PVC", "Value #A": "Capacity", "Value #B": "Used", "Value #C": "Used %" }
+              }
+            }
+          ],
+          "targets": [
+            {
+              "expr": "kubelet_volume_stats_capacity_bytes",
+              "legendFormat": "",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            },
+            {
+              "expr": "kubelet_volume_stats_used_bytes",
+              "legendFormat": "",
+              "format": "table",
+              "instant": true,
+              "refId": "B"
+            },
+            {
+              "expr": "(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) * 100",
+              "legendFormat": "",
+              "format": "table",
+              "instant": true,
+              "refId": "C"
+            }
+          ]
+        },
+        {
+          "title": "Namespaces",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 },
+          "collapsed": false
+        },
+        {
+          "title": "CPU Usage by Namespace",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 42 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": { "fillOpacity": 30, "lineWidth": 1, "stacking": { "mode": "normal" } }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "sum by (namespace) (rate(container_cpu_usage_seconds_total{namespace!=\"\", image!=\"\"}[5m]))",
+              "legendFormat": "{{ namespace }}"
+            }
+          ]
+        },
+        {
+          "title": "Memory Usage by Namespace",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "$datasource" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 42 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": { "fillOpacity": 30, "lineWidth": 1, "stacking": { "mode": "normal" } }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "sum by (namespace) (container_memory_working_set_bytes{namespace!=\"\", image!=\"\"})",
+              "legendFormat": "{{ namespace }}"
+            }
+          ]
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 39,
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": { "selected": true, "text": "default", "value": "default" }
+          }
+        ]
+      },
+      "time": { "from": "now-6h", "to": "now" },
+      "title": "Kubernetes Cluster",
+      "uid": "k8s-cluster-overview",
+      "version": 1
+    }

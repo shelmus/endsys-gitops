@@ -7,3 +7,6 @@ resources:
   - ./externalsecret.yaml
   - ./prometheusrule-apps.yaml
   - ./prometheusrule-storage.yaml
+  - ./prometheusrule-gameserver.yaml
+  - ./grafana-dashboard-gameserver.yaml
+  - ./grafana-dashboard-cluster.yaml
