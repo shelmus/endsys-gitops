@@ -91,6 +91,10 @@ spec:
               namespace: kube-system
               sectionName: https
     prometheus:
+      prometheusSpec:
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
       route:
         main:
           enabled: true
