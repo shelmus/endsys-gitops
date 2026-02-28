@@ -67,6 +67,23 @@ spec:
     grafana:
       enabled: true
       defaultDashboardsTimezone: browsers
+      envFromSecret: grafana-oauth
+      grafana.ini:
+        server:
+          root_url: https://grafana.endsys.cloud
+        auth.generic_oauth:
+          enabled: true
+          name: PocketID
+          icon: signin
+          client_id: grafana
+          scopes: openid email profile
+          auth_url: https://auth.endsys.cloud/authorize
+          token_url: https://auth.endsys.cloud/api/oidc/token
+          api_url: https://auth.endsys.cloud/api/oidc/userinfo
+          allow_sign_up: true
+          auto_login: false
+          use_pkce: true
+          role_attribute_path: "contains(groups[*], 'admin') && 'Admin' || 'Viewer'"
       route:
         main:
           enabled: true
