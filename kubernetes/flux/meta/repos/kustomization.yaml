@@ -24,3 +24,4 @@ resources:
   - ./cnpg.yaml
   - ./dragonfly.yaml
   - ./matrix-stack.yaml
+  - ./coder.yaml
