@@ -8,8 +8,7 @@ metadata:
     app.kubernetes.io/component: panel
 spec:
   selector:
-    app.kubernetes.io/name: pelican
-    app.kubernetes.io/component: panel
+    app: pelican-panel
   ports:
     - protocol: TCP
       port: 80

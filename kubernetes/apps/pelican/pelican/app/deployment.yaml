@@ -10,11 +10,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: pelican
-      app.kubernetes.io/component: panel
+      app: pelican-panel
   template:
     metadata:
       labels:
+        app: pelican-panel
         app.kubernetes.io/name: pelican
         app.kubernetes.io/component: panel
     spec:
