@@ -5,22 +5,16 @@ metadata:
   name: pelican-panel
 spec:
   parentRefs:
-  - name: internal
-    namespace: kube-system
-    sectionName: https
-  hostnames: ["pelican.endsys.cloud"]
+    - name: internal
+      namespace: kube-system
+      sectionName: https
+  hostnames:
+    - pelican.endsys.cloud
   rules:
     - matches:
-      - path:
-          type: PathPrefix
-          value: /
-      filters:
-        # equivalent to nginx.ingress.kubernetes.io/rewrite-target: /
-        - type: URLRewrite
-          urlRewrite:
-            path:
-              type: ReplacePrefixMatch
-              replacePrefixMatch: /
-    - backendRefs:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
         - name: pelican-panel
           port: 80
