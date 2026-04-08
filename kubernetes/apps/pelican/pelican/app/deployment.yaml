@@ -40,6 +40,10 @@ spec:
               value: https://pelican.endsys.cloud
             - name: ADMIN_EMAIL
               value: admin@endsys.cloud
+            - name: BEHIND_PROXY
+              value: "true"
+            - name: TRUSTED_PROXIES
+              value: "10.127.0.0/24"
           volumeMounts:
             - name: pelican-data
               mountPath: /pelican-data
