@@ -26,6 +26,8 @@ image: jez500/pricebuddy:latest
 
 **Recommended Fix**: Pin to specific version tag when available.
 
+> **Note**: Pelican previously had this same issue — resolved by pinning to `v1.0.0-beta33`.
+
 ---
 
 ## Medium Priority
@@ -155,7 +157,7 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 | ID | Issue | Priority | Status |
 |----|-------|----------|--------|
 | TD-001 | Authentik embedded DBs | High | **Resolved** |
-| TD-002 | Pricebuddy latest tag | High | Open |
+| TD-002 | Pricebuddy latest tag (Pelican resolved) | High | Partial |
 | TD-003 | Single-instance CNPG | Medium | Open |
 | TD-004 | Limited Velero schedules | Medium | **Resolved** |
 | TD-005 | Manual Immich PV | Medium | Open |

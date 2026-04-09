@@ -36,7 +36,7 @@ Cluster-wide configuration pointing to Bitwarden:
 **Location**: `kubernetes/apps/external-secrets/external-secrets/stores/clustersecretstore.yaml`
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ClusterSecretStore
 metadata:
   name: bitwarden-secretsmanager
@@ -61,7 +61,7 @@ spec:
 Per-app resources that sync specific secrets:
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: my-app-secrets
@@ -96,7 +96,7 @@ In Bitwarden Secrets Manager:
 
 ```yaml
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: my-app-secrets

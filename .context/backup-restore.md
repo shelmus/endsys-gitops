@@ -43,6 +43,7 @@ Current schedules:
 | `gatus-daily` | gatus | `0 2 * * *` (2 AM UTC) | 30 days |
 | `obsidian-livesync-daily` | obsidian-livesync | `0 2 * * *` (2 AM UTC) | 30 days |
 | `pocket-id-daily` | pocket-id | `0 2 * * *` (2 AM UTC) | 30 days |
+| `pelican-daily` | pelican | `0 2 * * *` (2 AM UTC) | 30 days |
 
 ## Adding a Backup Schedule
 

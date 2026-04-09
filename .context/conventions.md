@@ -33,6 +33,15 @@
 | Service | `{app}` or `{app}-{component}` | `immich-server` |
 | ConfigMap | `{app}-config` or `{app}-{purpose}` | `pocket-id-config` |
 
+## Deployment Strategy
+
+| PVC Access Mode | Strategy | Reason |
+|-----------------|----------|--------|
+| ReadWriteOnce | `Recreate` | RWO volumes can only attach to one node; RollingUpdate deadlocks |
+| ReadWriteMany / No PVC | `RollingUpdate` (default) | No volume contention |
+
+When using `Recreate`, explicitly set `rollingUpdate: null` to prevent server-side merge conflicts with Flux.
+
 ## Domain Naming
 
 ```

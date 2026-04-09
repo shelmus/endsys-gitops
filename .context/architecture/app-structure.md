@@ -247,6 +247,17 @@ spec:
   storageClassName: longhorn
 ```
 
+### Deployment Strategy for RWO PVCs
+
+Apps using `ReadWriteOnce` PVCs **must** use the `Recreate` strategy. The default `RollingUpdate` creates the new pod before terminating the old one, which deadlocks because the volume can only attach to one node at a time.
+
+```yaml
+spec:
+  strategy:
+    type: Recreate
+    rollingUpdate: null   # Explicitly clear to avoid server-side merge conflicts
+```
+
 ### Storage in HelmRelease
 
 Reference existing PVC:
@@ -257,6 +268,32 @@ values:
     data:
       existingClaim: {app}-library
 ```
+
+## Health Probes
+
+All deployments should include readiness and liveness probes. Use a dedicated health endpoint (e.g., `/up`, `/health`, `/api/health`) rather than `/` — root paths often return redirects (302) which the kubelet may follow to HTTPS URLs that fail.
+
+```yaml
+readinessProbe:
+  httpGet:
+    path: /up
+    port: 80
+  initialDelaySeconds: 15
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /up
+    port: 80
+  initialDelaySeconds: 30
+  periodSeconds: 15
+```
+
+## Behind-Proxy Containers
+
+Containers with built-in web servers (Caddy, Nginx) that detect `APP_URL=https://...` may attempt automatic HTTPS/Let's Encrypt. Since TLS is terminated at the Gateway, set appropriate env vars to disable this:
+
+- **Pelican**: `BEHIND_PROXY=true`, `TRUSTED_PROXIES=10.127.0.0/24`
+- **General pattern**: Check the container's entrypoint for proxy/TLS flags
 
 ## Adding a New Application
 

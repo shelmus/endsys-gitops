@@ -88,6 +88,11 @@ Read `.context/backup-restore.md`
 - Use HTTPRoute (not Ingress) for exposing services
 - Prefer CNPG Cluster CRs for PostgreSQL databases
 - Store secrets in Bitwarden, reference via ExternalSecret
+- Use `external-secrets.io/v1` API version (not `v1beta1`)
+- Use `Recreate` deployment strategy for apps with ReadWriteOnce PVCs
+- Add health probes using dedicated endpoints (`/up`, `/health`), not `/` (avoids redirect issues)
+- For containers behind the Gateway, set proxy env vars (e.g., `BEHIND_PROXY=true`) to disable built-in TLS
+- Pin container images to specific version tags — never use `latest`
 
 ### Do Not
 - Generate manifests without checking similar existing apps first
@@ -96,6 +101,11 @@ Read `.context/backup-restore.md`
 - Store secrets directly in Git (use External Secrets)
 - Skip `dependsOn` for resources that need prerequisites
 - Override established naming conventions without clear rationale
+- Use `external-secrets.io/v1beta1` (cluster runs `v1`)
+- Use `RollingUpdate` strategy with ReadWriteOnce PVCs (causes volume deadlock)
+- Use `/` as a health probe path (often redirects to HTTPS, failing the probe)
+- Change Deployment `spec.selector.matchLabels` on existing resources (field is immutable)
+- Use `latest` image tags (non-reproducible, no rollback capability)
 
 ### When Making Changes
 - Update relevant `.context/` files when adding new patterns
