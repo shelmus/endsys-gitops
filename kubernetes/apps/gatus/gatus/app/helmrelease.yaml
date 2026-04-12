@@ -40,6 +40,7 @@ spec:
           - name: Homelab
             link: https://github.com/shelmus/endsys-gitops
       endpoints:
+        # External apps (public via Cloudflare)
         - name: echo-server
           enabled: true
           group: external
@@ -48,7 +49,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
-            - '[STATUS] == 200'
+            - "[STATUS] == 200"
         - name: flux-webhook
           enabled: true
           group: external
@@ -58,58 +59,167 @@ spec:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
             - "[STATUS] == 404"
-        - name: minecraft-vanilla
+        - name: immich
           enabled: true
           group: external
+          url: https://immich.endsys.cloud
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - "[STATUS] < 400"
+        - name: pocket-id
+          enabled: true
+          group: external
+          url: https://auth.endsys.cloud
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - "[STATUS] < 400"
+        - name: coder
+          enabled: true
+          group: external
+          url: https://coder.endsys.cloud
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - "[STATUS] < 400"
+        - name: obsidian-livesync
+          enabled: true
+          group: external
+          url: https://obsidian-livesync.endsys.cloud
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - "[STATUS] < 400"
+        # Matrix
+        - name: matrix-chat
+          enabled: true
+          group: external
+          url: https://chat.endsys.cloud
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - "[STATUS] < 400"
+        - name: matrix-synapse
+          enabled: true
+          group: external
+          url: https://matrix.endsys.cloud
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - "[STATUS] < 400"
+        - name: matrix-admin
+          enabled: true
+          group: external
+          url: https://matrix-admin.endsys.cloud
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - "[STATUS] < 400"
+        # Internal apps (private LAN)
+        - name: pelican
+          enabled: true
+          group: internal
+          url: https://pelican.endsys.cloud/up
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+        - name: grafana
+          enabled: true
+          group: internal
+          url: https://grafana.endsys.cloud
+          interval: 1m
+          conditions:
+            - "[STATUS] < 400"
+        - name: prometheus
+          enabled: true
+          group: internal
+          url: https://prometheus.endsys.cloud
+          interval: 1m
+          conditions:
+            - "[STATUS] < 400"
+        - name: alertmanager
+          enabled: true
+          group: internal
+          url: https://alertmanager.endsys.cloud
+          interval: 1m
+          conditions:
+            - "[STATUS] < 400"
+        - name: n8n
+          enabled: true
+          group: internal
+          url: https://n8n.endsys.cloud
+          interval: 1m
+          conditions:
+            - "[STATUS] < 400"
+        - name: pricebuddy
+          enabled: true
+          group: internal
+          url: https://pricebuddy.endsys.cloud
+          interval: 1m
+          conditions:
+            - "[STATUS] < 400"
+        - name: longhorn
+          enabled: true
+          group: internal
+          url: https://lh.endsys.cloud
+          interval: 1m
+          conditions:
+            - "[STATUS] < 400"
+        - name: octopi
+          enabled: true
+          group: internal
+          url: https://octopi.endsys.cloud
+          interval: 1m
+          conditions:
+            - "[STATUS] < 400"
+        # Game servers
+        - name: minecraft-vanilla
+          enabled: true
+          group: games
           url: tcp://games.endsys.cloud:25567
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
         - name: minecraft-creative
           enabled: true
-          group: external
+          group: games
           url: tcp://games.endsys.cloud:25565
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
-        - name: Vault Hunters
+        - name: vault-hunters
           enabled: true
-          group: external
+          group: games
           url: tcp://games.endsys.cloud:25566
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
-        - name: Vault Hunters Sky
-          enabled: true
-          group: external
-          url: tcp://games.endsys.cloud:25570
-          interval: 1m
-          conditions:
-            - "[CONNECTED] == true"
-        - name: TerraFirmaGreg
-          enabled: true
-          group: external
-          url: tcp://games.endsys.cloud:25569
-          interval: 1m
-          conditions:
-            - "[CONNECTED] == true"
+        # Infrastructure
         - name: kube1
           enabled: true
-          group: internal
+          group: infrastructure
           url: tcp://10.127.0.41:50000
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
         - name: kube2
           enabled: true
-          group: internal
+          group: infrastructure
           url: tcp://10.127.0.42:50000
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
         - name: kube3
           enabled: true
-          group: internal
+          group: infrastructure
           url: tcp://10.127.0.43:50000
           interval: 1m
           conditions:
