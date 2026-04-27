@@ -1,5 +1,6 @@
-## Documentation Index
+## Rules
 
+<<<<<<< HEAD
 ### Entry Point
 - `.context/substrate.md` - **Start here.** Repository overview, tech stack, and AI guidelines.
 
@@ -109,5 +110,192 @@ Read `.context/backup-restore.md`
 
 ### When Making Changes
 - Update relevant `.context/` files when adding new patterns
+=======
+- Use HTTPRoute (Gateway API), never Ingress
+- Use CNPG Cluster CRs for PostgreSQL, never embedded Helm subcharts
+- Use ExternalSecret + Bitwarden for secrets, never store secrets in Git
+- Add `dependsOn` in ks.yaml for all prerequisites
+- Reference `common` component at **namespace level**, not app level
+- Check existing apps in `kubernetes/apps/` for patterns before creating new ones
+- Start YAML files with `---`, use 2-space indentation
+- When adding new patterns, update relevant `.context/` files
+>>>>>>> 8b0fa57 (change immich to new NAS)
 - Document architectural decisions in `.context/decisions/`
-- Keep examples in documentation current and functional
+
+## Stack
+
+Talos Linux | FluxCD | Cilium | Gateway API + Cloudflare Tunnels | External Secrets + Bitwarden | CloudNativePG | Dragonfly | cert-manager | NFS CSI, Longhorn, SeaweedFS
+
+## Structure
+
+```
+kubernetes/
+├── apps/{namespace}/{app}/ks.yaml + app/   # App deployments
+├── components/common/                       # Shared namespace component
+└── flux/                                    # Bootstrap + HelmRepositories
+```
+
+Dependency chain: `flux-system` → `cluster-meta` → `cluster-apps` → `{ infrastructure, configs, apps }`
+
+## Naming
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Namespace | lowercase, hyphenated; system: `-system` suffix | `immich`, `cnpg-system` |
+| Domain | `{app}.endsys.cloud` | `immich.endsys.cloud` |
+| Files | `ks.yaml`, `helmrelease.yaml`, `httproute.yaml`, `externalsecret.yaml`, `postgres-cluster.yaml` | |
+| HelmRelease / Kustomization | `{app}` | `immich` |
+| CNPG Cluster | `{app}-postgres` | `immich-postgres` |
+| Secret | `{app}-secrets` or `{app}-{purpose}` | `pocket-id-secrets` |
+| Bitwarden key | `{app}-{purpose}` | `immich-oauth-client-secret` |
+
+## Gateways
+
+| Gateway | IP | Purpose |
+|---------|-----|---------|
+| `internal` | 10.127.0.51 | Private LAN access |
+| `external` | 10.127.0.52 | Public via Cloudflare Tunnel |
+
+## Templates
+
+### ks.yaml
+
+```yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app my-app
+  namespace: &namespace my-app
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: external-secrets-stores
+      namespace: external-secrets
+    # - name: cnpg-operator
+    #   namespace: cnpg-system
+    # - name: csi-driver-nfs
+    #   namespace: kube-system
+  interval: 1h
+  path: ./kubernetes/apps/my-app/my-app/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *namespace
+  timeout: 5m
+```
+
+### Namespace kustomization.yaml
+
+```yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: my-namespace
+components:
+  - ../../components/common
+resources:
+  - ./my-app/ks.yaml
+```
+
+### App kustomization.yaml
+
+```yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./httproute.yaml
+  - ./externalsecret.yaml
+```
+
+### HTTPRoute
+
+```yaml
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: my-app
+spec:
+  parentRefs:
+    - name: internal    # or 'external' for public
+      namespace: kube-system
+      sectionName: https
+  hostnames:
+    - my-app.endsys.cloud
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: my-app
+          port: 80
+```
+
+### ExternalSecret
+
+```yaml
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: my-app-secrets
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: bitwarden-secretsmanager
+  target:
+    name: my-app-secrets
+    creationPolicy: Owner
+    deletionPolicy: Retain
+  data:
+    - secretKey: password
+      remoteRef:
+        key: my-app-database-password
+```
+
+### CNPG Cluster
+
+```yaml
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: my-app-postgres
+spec:
+  instances: 1
+  storage:
+    size: 10Gi
+  bootstrap:
+    initdb:
+      database: my_app
+      owner: my_app
+```
+
+Auto-created secrets: `{cluster}-app` (credentials), `{cluster}-superuser`. Services: `{cluster}-rw` (primary), `{cluster}-ro` (replicas).
+
+## Deep Dives
+
+Only read these for tasks that specifically need detailed procedures:
+
+| Task | File |
+|------|------|
+| Backup/restore procedures | `.context/backup-restore.md` |
+| Alerting rules & Alertmanager config | `.context/monitoring/alerting.md` |
+| Dragonfly/BullMQ setup details | `.context/cache/dragonfly.md` |
+| OAuth/OIDC with PocketID | `.context/auth/oauth.md` |
+| Full DNS/networking architecture | `.context/architecture/networking.md` |
+| Technical debt registry | `.context/debt.md` |
+| Terminology definitions | `.context/glossary.md` |
+| USB device passthrough (Talos) | `.context/hardware/usb-passthrough.md` |
+| System design & Flux patterns | `.context/architecture/overview.md` |
+| Full app structure details | `.context/architecture/app-structure.md` |
+| Secret management details | `.context/auth/secrets.md` |

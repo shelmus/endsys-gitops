@@ -20,6 +20,7 @@ This is a **FluxCD GitOps** repository managing a **Talos Linux** Kubernetes clu
 | [monitoring/alerting.md](monitoring/alerting.md) | Prometheus alerts and Discord notifications |
 | [backup-restore.md](backup-restore.md) | Velero backup strategy and restore procedures |
 | [glossary.md](glossary.md) | Project terminology |
+| [hardware/usb-passthrough.md](hardware/usb-passthrough.md) | USB device passthrough on Talos OS |
 | [debt.md](debt.md) | Known technical debt |
 | [conventions.md](conventions.md) | Naming and coding standards |
 

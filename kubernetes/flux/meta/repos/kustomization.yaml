@@ -25,3 +25,4 @@ resources:
   - ./dragonfly.yaml
   - ./matrix-stack.yaml
   - ./coder.yaml
+  - ./pajikos.yaml

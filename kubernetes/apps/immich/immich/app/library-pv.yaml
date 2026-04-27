@@ -11,5 +11,5 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   nfs:
-    path: /data/photos
-    server: 10.127.0.5
+    path: /vault/immich
+    server: 10.127.0.7
