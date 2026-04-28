@@ -11,7 +11,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   nfs:
-    path: /vault/k8s
+    path: /vault/k8s/garage
     server: 10.127.0.7
   claimRef:
     namespace: garage
