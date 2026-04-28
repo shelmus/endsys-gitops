@@ -15,8 +15,8 @@ spec:
         namespace: flux-system
       interval: 5m
   dependsOn:
-    - name: seaweedfs
-      namespace: seaweedfs
+    - name: garage
+      namespace: garage
   values:
     # Use Kopia (replaces Restic) for file-system backup
     deployRestic: true
@@ -30,8 +30,8 @@ spec:
       provider: aws
       backupStorageLocation:
         name: default
-        bucket: velero # The bucket name SeaweedFS will use
+        bucket: velero
         config:
-          region: default
+          region: garage
           s3ForcePathStyle: "true"
-          s3Url: http://seaweedfs-s3.seaweedfs.svc:8333
+          s3Url: http://garage.garage.svc:3900

@@ -124,7 +124,7 @@ Read `.context/backup-restore.md`
 
 ## Stack
 
-Talos Linux | FluxCD | Cilium | Gateway API + Cloudflare Tunnels | External Secrets + Bitwarden | CloudNativePG | Dragonfly | cert-manager | NFS CSI, Longhorn, SeaweedFS
+Talos Linux | FluxCD | Cilium | Gateway API + Cloudflare Tunnels | External Secrets + Bitwarden | CloudNativePG | Dragonfly | cert-manager | NFS CSI, Longhorn, Garage
 
 ## Structure
 

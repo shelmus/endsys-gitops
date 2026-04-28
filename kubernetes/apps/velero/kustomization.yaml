@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: velero
 components:
   - ../../components/common
-resources: []
-  # - ./velero/ks.yaml
+resources:
+  - ./velero/ks.yaml

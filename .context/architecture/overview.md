@@ -75,7 +75,7 @@ System design and infrastructure patterns for the endsys-gitops cluster.
 | Pelican | pelican | Game server panel | - |
 | Pricebuddy | pricebuddy | Price tracking | MySQL (embedded) |
 | Otterwiki | default | Wiki | SQLite |
-| SeaweedFS | seaweedfs | Object storage | - |
+| Garage | garage | Object storage (S3) | - |
 | Cloudflare Tunnel | network | Public ingress via Cloudflare | - |
 | Cloudflare DNS | network | External DNS (Cloudflare) | - |
 | Pi-hole DNS | network | External DNS (Pi-hole) | - |
@@ -135,14 +135,15 @@ flux-system (bootstrap)
 |------|----------|----------|
 | Block | Longhorn | Pod persistent storage |
 | NFS | NFS CSI | Shared media libraries |
-| Object | SeaweedFS | S3-compatible storage |
+| Object | Garage | S3-compatible storage |
 
 ### NFS Configuration
-- Server: `10.127.0.5`
-- Paths:
-  - `/data/photos` - Immich library
-  - `/data/seaweedfs` - Object storage
-  - `/data/velero` - Backup storage
+
+| Server | Path | Use |
+|--------|------|-----|
+| `10.127.0.7` | `/vault/immich` | Immich library |
+| `10.127.0.7` | `/vault/k8s` | Garage object-storage data volume |
+| `10.127.0.214` | `/srv/nfs/kube` | Default `nfs-csi` StorageClass (dynamic provisioning) |
 
 ## Helm Repositories
 
@@ -162,7 +163,7 @@ flux-system (bootstrap)
 | longhorn | HTTP | charts.longhorn.io | Longhorn storage |
 | n8n | HTTP | community-charts.github.io/helm-charts | n8n |
 | otterwiki | HTTP | charts.otterwiki.com | Otterwiki |
-| seaweedfs | HTTP | seaweedfs.github.io/seaweedfs/helm | SeaweedFS |
+| garage | Git | git.deuxfleurs.fr/Deuxfleurs/garage (tag v1.3.1, path script/helm/garage) | Garage |
 | twin | HTTP | twin.github.io/helm-charts | Gatus |
 | vmware-tanzu | HTTP | vmware-tanzu.github.io/helm-charts | Velero |
 

@@ -34,7 +34,7 @@ This is a **FluxCD GitOps** repository managing a **Talos Linux** Kubernetes clu
 - **Database**: CloudNativePG (PostgreSQL)
 - **Cache**: Dragonfly (Redis-compatible)
 - **Certs**: cert-manager + Let's Encrypt
-- **Storage**: NFS CSI, Longhorn, SeaweedFS
+- **Storage**: NFS CSI, Longhorn, Garage
 
 ## Repository Structure
 
