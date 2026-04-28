@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: immich
 components:
   - ../../components/common
-resources:
-  - ./immich/ks.yaml
+resources: []
+  # - ./immich/ks.yaml
