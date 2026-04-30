@@ -5,6 +5,5 @@ kind: Kustomization
 namespace: pocket-id
 components:
   - ../../components/common
-resources: []
-  # Disabled for clean-slate wipe (2026-04-30)
-  # - ./pocket-id/ks.yaml
+resources:
+  - ./pocket-id/ks.yaml
