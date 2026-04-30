@@ -53,16 +53,17 @@ spec:
         - 192.168.0.0/16
         - 127.0.0.0/8
 
-    additionalVolumes:
-      - name: zwave-usb
-        hostPath:
-          path: /dev/serial/by-id
-          type: Directory
-
-    additionalMounts:
-      - name: zwave-usb
-        mountPath: /dev/serial/by-id
-        readOnly: true
+    # Z-wave USB passthrough disabled until device is plugged into kube1
+    # additionalVolumes:
+    #   - name: zwave-usb
+    #     hostPath:
+    #       path: /dev/serial/by-id
+    #       type: Directory
+    #
+    # additionalMounts:
+    #   - name: zwave-usb
+    #     mountPath: /dev/serial/by-id
+    #     readOnly: true
 
     service:
       type: ClusterIP
