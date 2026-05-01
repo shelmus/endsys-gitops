@@ -5,6 +5,5 @@ kind: Kustomization
 namespace: n8n
 components:
   - ../../components/common
-resources: []
-  # Disabled for clean-slate wipe (2026-04-30)
-  # - ./n8n/ks.yaml
+resources:
+  - ./n8n/ks.yaml
