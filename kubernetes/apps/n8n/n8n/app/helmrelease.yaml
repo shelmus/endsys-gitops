@@ -55,6 +55,11 @@ spec:
       # #    hosts:
       # #      - chart-example.local
     main:
+      extraEnv:
+        N8N_EDITOR_BASE_URL:
+          value: https://n8n.endsys.cloud
+        WEBHOOK_URL:
+          value: https://n8n.endsys.cloud/
       persistence:
         enabled: true
         type: dynamic
