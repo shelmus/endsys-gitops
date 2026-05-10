@@ -15,23 +15,34 @@ spec:
         namespace: flux-system
       interval: 5m
   dependsOn:
-    - name: seaweedfs
-      namespace: seaweedfs
+    - name: garage
+      namespace: garage
   values:
     # Use Kopia (replaces Restic) for file-system backup
-    deployRestic: true
+    deployNodeAgent: true
     # We are not using cloud provider snapshots
     snapshotsEnabled: false
     # Reference the 'cloud' key from the secret in step 02
     credentials:
       secretName: velero-s3-credentials
       secretKey: cloud
+    initContainers:
+      - name: velero-plugin-for-aws
+        image: velero/velero-plugin-for-aws:v1.13.0
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: /target
+            name: plugins
     configuration:
-      provider: aws
       backupStorageLocation:
-        name: default
-        bucket: velero # The bucket name SeaweedFS will use
-        config:
-          region: default
-          s3ForcePathStyle: "true"
-          s3Url: http://seaweedfs-s3.seaweedfs.svc:8333
+        - name: default
+          provider: aws
+          bucket: velero
+          credential:
+            name: velero-s3-credentials
+            key: cloud
+          config:
+            region: garage
+            s3ForcePathStyle: "true"
+            s3Url: http://garage.garage.svc:3900
+            profile: default

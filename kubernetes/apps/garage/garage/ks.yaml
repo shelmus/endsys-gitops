@@ -3,22 +3,21 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app seaweedfs
-  namespace: &namespace seaweedfs
+  name: &app garage
+  namespace: &namespace garage
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  decryption:
-    provider: sops
-    secretRef:
-      name: sops-age
+  dependsOn:
+    - name: external-secrets-stores
+      namespace: external-secrets
+    - name: csi-driver-nfs
+      namespace: kube-system
+    - name: longhorn
+      namespace: longhorn-system
   interval: 1h
-  path: ./kubernetes/apps/seaweedfs/seaweedfs/app
-  postBuild:
-    substituteFrom:
-      - name: cluster-secrets
-        kind: Secret
+  path: ./kubernetes/apps/garage/garage/app
   prune: true
   retryInterval: 2m
   sourceRef:

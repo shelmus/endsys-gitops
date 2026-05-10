@@ -8,8 +8,8 @@ How backups work in this cluster and how to restore an application on a fresh cl
 Velero (with Kopia/Restic)
   -> Filesystem backup of PVCs + Kubernetes resources
   -> S3 API
-  -> SeaweedFS (in-cluster S3)
-  -> NFS (10.127.0.5:/data/seaweedfs)
+  -> Garage (in-cluster S3)
+  -> NFS (10.127.0.7:/vault/k8s)
 ```
 
 **Components**:
@@ -17,7 +17,7 @@ Velero (with Kopia/Restic)
 | Component | Role | Location |
 |-----------|------|----------|
 | Velero | Backup orchestrator | `kubernetes/apps/velero/velero/` |
-| SeaweedFS | S3-compatible backup target | `kubernetes/apps/seaweedfs/seaweedfs/` |
+| Garage | S3-compatible backup target | `kubernetes/apps/garage/garage/` |
 | Kopia/Restic | Filesystem-level PVC backup | Deployed as Velero node-agent |
 | Snapshot Controller | VolumeSnapshot CRDs | `kubernetes/apps/kube-system/snapshot-controller/` |
 
@@ -120,9 +120,9 @@ velero backup get
 ### Scenario: Recovering Pelican on a Fresh Cluster
 
 This walkthrough assumes:
-- The cluster infrastructure is running (Flux, Cilium, storage, Velero, SeaweedFS)
+- The cluster infrastructure is running (Flux, Cilium, storage, Velero, Garage)
 - A Velero backup exists for the `pelican` namespace
-- The backup target (SeaweedFS on NFS) survived or has been re-provisioned
+- The backup target (Garage on NFS) survived or has been re-provisioned
 
 #### Step 1: Verify Infrastructure is Ready
 
@@ -279,17 +279,20 @@ flux-system -> cluster-meta -> cluster-apps
 
 ### 3. Restore Backup Storage
 
-SeaweedFS must be running and have access to the NFS path containing previous backups:
+Garage must be running and have access to the NFS path containing previous backups. Note that Garage requires a one-time `garage layout` bootstrap on a fresh deploy — see `.context/decisions/garage-migration.md` for the procedure:
 
 ```bash
-# Verify SeaweedFS is running
-kubectl get pods -n seaweedfs
+# Verify Garage is running
+kubectl get pods -n garage
+
+# Confirm cluster layout is applied
+kubectl -n garage exec garage-0 -- /garage status
 
 # Verify Velero can see the backup location
 velero backup-location get
 ```
 
-If the NFS server (`10.127.0.5`) retains the data under `/data/seaweedfs`, backups are automatically available once SeaweedFS starts.
+If the NFS server (`10.127.0.7`) retains the data under `/vault/k8s`, backups are visible once Garage starts and the `velero` bucket key is present.
 
 ### 4. Suspend and Restore Apps
 
@@ -336,9 +339,9 @@ kubectl get cluster -A
 | Longhorn PVCs (PocketID) | Velero filesystem backup | No, must restore from backup |
 | Default PVCs (Pelican, n8n) | Velero filesystem backup | No, must restore from backup |
 | CNPG PVCs (Immich DB) | Velero or CNPG Barman | No, must restore from backup |
-| SeaweedFS (backups themselves) | On NFS at `/data/seaweedfs` | Yes, if NFS server is intact |
+| Garage (backups themselves) | On NFS at `10.127.0.7:/vault/k8s` | Yes, if NFS server is intact |
 
-The NFS server at `10.127.0.5` is the ultimate safety net. As long as it retains `/data/seaweedfs` (backup store) and `/data/photos` (Immich library), the most critical data survives a full cluster loss.
+The NFS server at `10.127.0.7` is the ultimate safety net for backups. As long as it retains `/vault/k8s` (backup store), the Velero history survives a full cluster loss. See `.context/architecture/overview.md` for the full NFS layout.
 
 ## Troubleshooting
 
@@ -348,9 +351,10 @@ The NFS server at `10.127.0.5` is the ultimate safety net. As long as it retains
 # Check backup storage location status
 velero backup-location get
 
-# If "Unavailable", check SeaweedFS
-kubectl get pods -n seaweedfs
-kubectl logs -n seaweedfs deployment/seaweedfs-master
+# If "Unavailable", check Garage
+kubectl get pods -n garage
+kubectl -n garage exec garage-0 -- /garage status
+kubectl -n garage exec garage-0 -- /garage bucket info velero
 
 # Check S3 credentials
 kubectl get secret velero-s3-credentials -n velero
