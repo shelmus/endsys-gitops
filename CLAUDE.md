@@ -22,7 +22,7 @@
 | File | Purpose |
 |------|---------|
 | `.context/auth/secrets.md` | External Secrets + Bitwarden integration |
-| `.context/auth/oauth.md` | Authentik OAuth/OIDC provider patterns |
+| `.context/auth/oauth.md` | PocketID OAuth/OIDC provider patterns |
 
 ### Database & Cache
 | File | Purpose |
