@@ -4,7 +4,7 @@ Patterns for integrating applications with PocketID as the OIDC identity provide
 
 ## Overview
 
-PocketID is a lightweight, passkey-based OIDC provider. Unlike Authentik, it requires no bundled database or Redis — it uses SQLite by default.
+PocketID is a lightweight, passkey-based OIDC provider. It uses SQLite by default and requires no bundled database or Redis.
 
 OIDC clients are configured via the PocketID web UI (no blueprints or declarative config).
 
