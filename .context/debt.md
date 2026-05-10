@@ -4,12 +4,6 @@ Known technical debt and areas requiring attention.
 
 ## High Priority
 
-### 1. ~~Authentik Using Embedded Databases~~ — Resolved
-
-**Status**: Resolved — Authentik replaced with PocketID (uses SQLite, no embedded DBs).
-
----
-
 ### 2. Pricebuddy Using `latest` Image Tag
 
 **Location**: `kubernetes/apps/pricebuddy/pricebuddy/app/deployment.yaml:40`
@@ -70,15 +64,9 @@ image: jez500/pricebuddy:latest
 
 ## Low Priority
 
-### 6. SOPS Secrets Still Present (Deprecated)
+### 6. ~~Velero SOPS Secret~~ — Resolved
 
-**Location**: Various `secret.sops.yaml` files
-
-**Issue**: Some SOPS-encrypted secrets remain despite migration to External Secrets.
-
-**Files**:
-- `kubernetes/apps/velero/velero/app/secret.sops.yaml`
-**Recommended Fix**: Complete migration to ExternalSecrets, remove SOPS files.
+**Status**: Resolved — `velero-s3-credentials` migrated to ExternalSecret/Bitwarden during the SeaweedFS→Garage migration.
 
 ---
 
@@ -107,12 +95,6 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 
 ---
 
-### 9. ~~Authentik Blueprint Syntax (2025.x)~~ — Resolved
-
-**Status**: Resolved — Authentik replaced with PocketID (no blueprints needed).
-
----
-
 ### 10. VolSync Not Consistently Deployed
 
 **Location**: Only `kubernetes/apps/default/otterwiki/app/volsync-backup.yaml`
@@ -130,7 +112,7 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 
 ### 11. SOPS Secrets Still Widely Used
 
-**Location**: 13 files across the cluster
+**Location**: 11 files across the cluster
 
 **Files**:
 - `kubernetes/components/common/sops/cluster-secrets.sops.yaml` (intentional - cluster vars)
@@ -141,8 +123,6 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 - `kubernetes/apps/network/cloudflare-tunnel/app/secret.sops.yaml`
 - `kubernetes/apps/network/pihole-dns/app/secret.sops.yaml`
 - `kubernetes/apps/longhorn-system/longhorn-system/app/secret.sops.yaml`
-- `kubernetes/apps/seaweedfs/seaweedfs/app/secret.sops.yaml`
-- `kubernetes/apps/velero/velero/app/secret.sops.yaml`
 - `kubernetes/apps/pricebuddy/pricebuddy/app/secret.sops.yaml`
 - `kubernetes/apps/default/otterwiki/app/secret.sops.yaml`
 - `kubernetes/apps/external-secrets/external-secrets/stores/secret.sops.yaml`
@@ -156,14 +136,12 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 
 | ID | Issue | Priority | Status |
 |----|-------|----------|--------|
-| TD-001 | Authentik embedded DBs | High | **Resolved** |
 | TD-002 | Pricebuddy latest tag (Pelican resolved) | High | Partial |
 | TD-003 | Single-instance CNPG | Medium | Open |
 | TD-004 | Limited Velero schedules | Medium | **Resolved** |
 | TD-005 | Manual Immich PV | Medium | Open |
-| TD-006 | SOPS migration incomplete | Low | In Progress |
+| TD-006 | Velero SOPS secret | Low | **Resolved** |
 | TD-007 | n8n HTTPRoute missing | Low | Open |
 | TD-008 | Pricebuddy init workaround | Low | Open |
-| TD-009 | Authentik blueprint syntax | High | **Resolved** |
 | TD-010 | VolSync not consistent | Medium | Open |
 | TD-011 | SOPS still widely used | Low | Open |
