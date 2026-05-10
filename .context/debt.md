@@ -4,12 +4,6 @@ Known technical debt and areas requiring attention.
 
 ## High Priority
 
-### 1. ~~Authentik Using Embedded Databases~~ — Resolved
-
-**Status**: Resolved — Authentik replaced with PocketID (uses SQLite, no embedded DBs).
-
----
-
 ### 2. Pricebuddy Using `latest` Image Tag
 
 **Location**: `kubernetes/apps/pricebuddy/pricebuddy/app/deployment.yaml:40`
@@ -101,12 +95,6 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 
 ---
 
-### 9. ~~Authentik Blueprint Syntax (2025.x)~~ — Resolved
-
-**Status**: Resolved — Authentik replaced with PocketID (no blueprints needed).
-
----
-
 ### 10. VolSync Not Consistently Deployed
 
 **Location**: Only `kubernetes/apps/default/otterwiki/app/volsync-backup.yaml`
@@ -148,7 +136,6 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 
 | ID | Issue | Priority | Status |
 |----|-------|----------|--------|
-| TD-001 | Authentik embedded DBs | High | **Resolved** |
 | TD-002 | Pricebuddy latest tag (Pelican resolved) | High | Partial |
 | TD-003 | Single-instance CNPG | Medium | Open |
 | TD-004 | Limited Velero schedules | Medium | **Resolved** |
@@ -156,6 +143,5 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 | TD-006 | Velero SOPS secret | Low | **Resolved** |
 | TD-007 | n8n HTTPRoute missing | Low | Open |
 | TD-008 | Pricebuddy init workaround | Low | Open |
-| TD-009 | Authentik blueprint syntax | High | **Resolved** |
 | TD-010 | VolSync not consistent | Medium | Open |
 | TD-011 | SOPS still widely used | Low | Open |

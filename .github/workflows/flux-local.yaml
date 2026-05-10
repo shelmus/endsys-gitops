@@ -35,6 +35,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - name: Prepare Garage Helm chart
+        run: |
+          GARAGE_REF="$(awk '/tag:/ { print $2; exit }' kubernetes/flux/meta/repos/garage.yaml)"
+          git clone --depth 1 --branch "${GARAGE_REF}" https://git.deuxfleurs.fr/Deuxfleurs/garage /tmp/garage
+          mkdir -p script/helm
+          cp -R /tmp/garage/script/helm/garage script/helm/garage
+
       - name: Run flux-local test
         uses: docker://ghcr.io/allenporter/flux-local:v8.0.1
         with:

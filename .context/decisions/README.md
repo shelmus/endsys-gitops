@@ -10,8 +10,7 @@ This directory contains key decisions made for the endsys-gitops infrastructure.
 | ADR-002 | Use Dragonfly instead of Redis | 2025-01 | Accepted |
 | ADR-003 | Use Gateway API over Ingress | 2024 | Accepted |
 | ADR-004 | Use External Secrets with Bitwarden | 2024 | Accepted |
-| ADR-005 | Use Authentik Blueprints for OAuth config | 2025-01 | Superseded |
-| ADR-006 | Replace Authentik with PocketID | 2026-02 | Accepted |
+| ADR-006 | Use PocketID for OIDC | 2026-02 | Accepted |
 
 ---
 
@@ -79,26 +78,16 @@ This directory contains key decisions made for the endsys-gitops infrastructure.
 
 ---
 
-## ADR-005: Use Authentik Blueprints for OAuth config (Superseded)
+## ADR-006: Use PocketID for OIDC
 
-**Context**: Authentik OAuth providers and applications could be configured manually or via code.
+**Context**: The cluster needs an OIDC provider for SSO across apps (Immich, Coder, Grafana, Matrix). The provider should be lightweight and not require its own database stack.
 
-**Decision**: Use Authentik Blueprints (YAML configuration) mounted as ConfigMaps to manage OAuth providers declaratively.
-
-**Status**: Superseded by ADR-006 (PocketID replaces Authentik).
-
----
-
-## ADR-006: Replace Authentik with PocketID
-
-**Context**: Authentik was overly complex for this cluster's needs (only Immich uses OAuth). It required bundled PostgreSQL and Redis, consuming significant resources. PocketID is a lightweight, passkey-based OIDC provider that provides the same core functionality with SQLite and no external dependencies.
-
-**Decision**: Replace Authentik with PocketID (`anza-labs/pocket-id` Helm chart). OIDC clients are configured via PocketID's web UI instead of declarative blueprints.
+**Decision**: Use PocketID (`anza-labs/pocket-id` Helm chart). OIDC clients are configured via PocketID's web UI.
 
 **Consequences**:
-- (+) Dramatically reduced resource usage (no PostgreSQL, no Redis)
-- (+) Simpler deployment and maintenance
+- (+) Minimal resource usage (no PostgreSQL, no Redis — SQLite-backed)
+- (+) Simple deployment and maintenance
 - (+) Passkey-based authentication (more secure than passwords)
 - (+) SQLite database with Longhorn PVC persistence
 - (-) OIDC client configuration is manual (via UI, not GitOps)
-- (-) Fewer features than Authentik (no LDAP, SAML, etc.)
+- (-) Fewer features than full IDPs (no LDAP, SAML, etc.)
