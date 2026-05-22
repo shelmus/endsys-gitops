@@ -19,15 +19,18 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    # Pin Firecrawl images to chart-matching 0.2.0 (only versioned tag on Docker Hub).
-    # GHCR alternatives only publish :latest, which violates repo CLAUDE.md.
+    # winkkgmbh publishes only :latest for these images (the chart-version-named
+    # :0.2.0 tag on winkkgmbh/firecrawl is the Helm chart artifact, not a runnable
+    # container — it crashes with "node: not found"). Pin by SHA digest of :latest
+    # at deploy time so the deployment is reproducible despite the upstream gap.
+    # Refresh digests when upgrading the chart.
     image:
-      tag: "0.2.0"
+      tag: "latest@sha256:8b26e0967fa83e7f92d2e506e0957c10fe52f082b829e56a72ade0f7a627ed50"
     playwright:
-      tag: "0.2.0"
+      tag: "latest@sha256:3542c4773c7ba5072258625cf40916d6589b2d94f7f12a5ed22e670ece126ead"
     nuqPostgres:
       image:
-        tag: "0.2.0"
+        tag: "latest@sha256:b0f14f9c8c9b5929d25a5d6f1f7f6ef99c51475d45767908eed4f086f7159e02"
       persistence:
         enabled: true
         size: 10Gi
