@@ -31,9 +31,12 @@ spec:
     nuqPostgres:
       image:
         tag: "latest@sha256:b0f14f9c8c9b5929d25a5d6f1f7f6ef99c51475d45767908eed4f086f7159e02"
+      # Persistence stays off (chart default): chart mounts the PVC directly at
+      # /var/lib/postgresql/data, and initdb refuses to start with the filesystem's
+      # lost+found in there. The chart has no PGDATA override. NUQ holds transient
+      # queue state per the design spec, so emptyDir is acceptable.
       persistence:
-        enabled: true
-        size: 10Gi
+        enabled: false
 
     redis:
       image: redis:7.4.9-alpine3.21
