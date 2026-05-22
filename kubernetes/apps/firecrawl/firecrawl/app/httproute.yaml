@@ -9,8 +9,7 @@ spec:
     - name: internal
       namespace: kube-system
       sectionName: https
-  hostnames:
-    - firecrawl.endsys.cloud
+  hostnames: ["firecrawl.endsys.cloud"]
   rules:
     - matches:
         - path:

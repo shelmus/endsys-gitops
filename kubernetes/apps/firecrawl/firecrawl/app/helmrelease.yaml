@@ -19,7 +19,7 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    # Pin all images to the chart's matching 0.2.0 tag (only versioned tag available).
+    # Pin Firecrawl images to chart-matching 0.2.0 (only versioned tag on Docker Hub).
     # GHCR alternatives only publish :latest, which violates repo CLAUDE.md.
     image:
       tag: "0.2.0"
@@ -32,9 +32,10 @@ spec:
         enabled: true
         size: 10Gi
 
-    # RabbitMQ stays enabled (chart default); it's the only toggleable bundled dep.
+    redis:
+      image: redis:7.4.9-alpine3.21
     rabbitmq:
-      enabled: true
+      image: rabbitmq:3.13.7-management-alpine
 
     # Scrape/crawl only — disable LLM-dependent workers.
     extractWorker:
