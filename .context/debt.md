@@ -110,6 +110,26 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 
 ---
 
+### 12. Firecrawl: Upstream Chart Limitations
+
+**Location**: `kubernetes/apps/firecrawl/firecrawl/app/helmrelease.yaml`
+
+**Issues** (all deliberate trade-offs from the design spec at `docs/superpowers/specs/2026-05-22-firecrawl-deployment-design.md`):
+
+| Item | Convention violated | Why accepted |
+|---|---|---|
+| Bundled `nuq-postgres` (custom Postgres image) | "Use CNPG Cluster CRs" | Chart has no toggle to disable; tightly coupled. NUQ holds transient queue state, not user data. |
+| Bundled Redis (instead of Dragonfly) | "Prefer Dragonfly over Redis" | Chart has no `.enabled` toggle for Redis; always deploys. Cache is transient. |
+| Bundled RabbitMQ | No precedent (no other RabbitMQ in repo) | No in-repo message broker; over-engineering for a single consumer. Queue state is transient. |
+| Image tag references `latest` (pinned by SHA digest) | "Never use `latest` tags" | winkkgmbh publishes only `:latest` for `firecrawl-playwright`, `nuq-postgres`. Pinned by SHA digest so the deployment is still immutable. (Firecrawl `:0.2.0` exists but is the Helm chart artifact, not a container image.) |
+| `nuq-postgres` persistence disabled (emptyDir) | (data loss on pod restart) | Chart mounts PVC directly at `/var/lib/postgresql/data`; initdb refuses to start with `lost+found` present, and the chart has no `PGDATA` env override. NUQ state is transient. |
+
+**Recommended fix paths** (if Firecrawl becomes load-bearing):
+- Fork the chart to add `extraEnv` support (would fix the PGDATA issue and enable using a CNPG cluster).
+- Or migrate piece-by-piece off the bundled deps via `postRenderers` Kustomize patches.
+
+---
+
 ### 11. SOPS Secrets Still Widely Used
 
 **Location**: 11 files across the cluster
@@ -145,3 +165,4 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 | TD-008 | Pricebuddy init workaround | Low | Open |
 | TD-010 | VolSync not consistent | Medium | Open |
 | TD-011 | SOPS still widely used | Low | Open |
+| TD-012 | Firecrawl chart limitations (bundled deps, image tags, no Postgres persistence) | Low | Open |
