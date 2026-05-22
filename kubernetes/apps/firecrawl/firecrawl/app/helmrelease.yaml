@@ -1,0 +1,47 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: firecrawl
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: firecrawl-helm
+    namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    # Pin all images to the chart's matching 0.2.0 tag (only versioned tag available).
+    # GHCR alternatives only publish :latest, which violates repo CLAUDE.md.
+    image:
+      tag: "0.2.0"
+    playwright:
+      tag: "0.2.0"
+    nuqPostgres:
+      image:
+        tag: "0.2.0"
+      persistence:
+        enabled: true
+        size: 10Gi
+
+    # RabbitMQ stays enabled (chart default); it's the only toggleable bundled dep.
+    rabbitmq:
+      enabled: true
+
+    # Scrape/crawl only — disable LLM-dependent workers.
+    extractWorker:
+      enabled: false
+    nuqPrefetchWorker:
+      enabled: false
+
+    # Enable resource requests/limits globally (uses chart's modest defaults).
+    resources:
+      enabled: true
