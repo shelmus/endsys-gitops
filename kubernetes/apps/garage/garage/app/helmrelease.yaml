@@ -26,7 +26,10 @@ spec:
       kind: StatefulSet
       replicaCount: 1
     garage:
-      replicationMode: "1"
+      # Garage v2 removed `replicationMode`; use replicationFactor + consistencyMode.
+      # Single-node deploy (replicaCount: 1) requires factor "1" (chart default is "3").
+      replicationFactor: "1"
+      consistencyMode: "consistent"
     persistence:
       enabled: true
       meta:
