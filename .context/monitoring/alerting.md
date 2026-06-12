@@ -69,6 +69,19 @@ Alerts display with status indicators:
 
 ## Alert Rules
 
+### Game server alerts (`prometheusrule-gameserver.yaml`)
+
+The Lyris game-server host uses ZFS, so the memory alert is intentionally ZFS-aware. Plain
+`MemAvailable / MemTotal` can page the old forest-horn when ZFS ARC is large but reclaimable.
+
+| Alert | Condition | Severity | For |
+|-------|-----------|----------|-----|
+| `GameServerHostDown` | gameserver node-exporter target down | critical | 2m |
+| `GameServerHighCPU` | CPU usage > 90% | warning | 5m |
+| `GameServerHighMemory` | non-reclaimable memory > 90%, excluding reclaimable ZFS ARC above `arc_c_min` | warning | 5m |
+| `GameServerMemoryPressure` | MemAvailable < 5% plus swap-out, major faults, or PSI full memory stalls | critical | 5m |
+| `GameServerDiskPressure` | root filesystem usage > 85% | warning | 5m |
+
 ### App Outage Alerts (`prometheusrule-apps.yaml`)
 
 Monitors namespaces: `immich`, `pocket-id`, `gatus`, `kube-prometheus-stack`, `n8n`, `pelican`

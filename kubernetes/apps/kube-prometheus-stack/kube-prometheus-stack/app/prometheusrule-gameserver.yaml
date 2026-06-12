@@ -33,13 +33,42 @@ spec:
 
         - alert: GameServerHighMemory
           expr: |
-            (1 - (node_memory_MemAvailable_bytes{instance=~"10.127.0.7:.*"} / node_memory_MemTotal_bytes{instance=~"10.127.0.7:.*"})) * 100 > 90
+            (
+              (
+                node_memory_MemTotal_bytes{instance=~"10.127.0.7:.*"}
+                - node_memory_MemAvailable_bytes{instance=~"10.127.0.7:.*"}
+                - (
+                  node_zfs_arc_size{instance=~"10.127.0.7:.*"}
+                  - node_zfs_arc_c_min{instance=~"10.127.0.7:.*"}
+                )
+              )
+              / node_memory_MemTotal_bytes{instance=~"10.127.0.7:.*"}
+            ) * 100 > 90
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "Game server memory usage above 90%"
-            description: "Game server memory usage is at {{ $value | humanize }}% for more than 5 minutes."
+            summary: "Game server non-reclaimable memory usage above 90%"
+            description: "Game server non-reclaimable memory usage is at {{ $value | humanize }}% for more than 5 minutes, excluding reclaimable ZFS ARC cache above arc_c_min."
+
+        - alert: GameServerMemoryPressure
+          expr: |
+            (
+              node_memory_MemAvailable_bytes{instance=~"10.127.0.7:.*"}
+              / node_memory_MemTotal_bytes{instance=~"10.127.0.7:.*"}
+            ) * 100 < 5
+            and on(instance)
+            (
+              rate(node_vmstat_pswpout{instance=~"10.127.0.7:.*"}[5m]) > 0
+              or rate(node_vmstat_pgmajfault{instance=~"10.127.0.7:.*"}[5m]) > 10
+              or rate(node_pressure_memory_stalled_seconds_total{instance=~"10.127.0.7:.*"}[5m]) > 0.01
+            )
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Game server is under real memory pressure"
+            description: "Game server has less than 5% MemAvailable and is swapping, major-faulting, or reporting PSI full memory stalls for more than 5 minutes."
 
         - alert: GameServerDiskPressure
           expr: |
