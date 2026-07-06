@@ -324,6 +324,7 @@ spec:
         HINDSIGHT_API_ENABLE_OBSERVATIONS: "false"
         HINDSIGHT_API_VECTOR_EXTENSION: "pgvector"
         HINDSIGHT_API_LLM_TEMPERATURE: "none"
+        HINDSIGHT_API_WORKER_ID: "hindsight-api"
       persistence:
         modelCache:
           enabled: true

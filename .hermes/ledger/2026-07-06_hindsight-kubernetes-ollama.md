@@ -6,10 +6,12 @@ runtime: Hermes
 repo: /home/sean/src/endsys-gitops
 branch: main
 plan: .hermes/plans/2026-07-06_130333-hindsight-kubernetes-ollama-plan.md
-status: in_progress
+status: complete
 side_effects:
   - repo-local files written under /home/sean/src/endsys-gitops
-  - read-only Kubernetes queries and server dry-run validation only; no live apply/reconcile/push
+  - commit pushed to origin/main
+  - Flux reconciled cluster-meta, cluster-apps, and hindsight app Kustomization
+  - live Kubernetes resources created in namespace hindsight
 commands_run:
   - command: kubectl kustomize kubernetes/flux/meta
     exit_code: 0
@@ -33,7 +35,7 @@ commands_run:
 
 ## Scope
 
-Sean approved working out the Hindsight deployment in the GitOps repo. I created repo-local manifests only. I did not push, reconcile Flux, create live namespaces, create databases, restart services, or change DNS/firewall state.
+Sean approved working out the Hindsight deployment in the GitOps repo, then approved pushing/deploying and validating it. The app was deployed through Flux from `origin/main`.
 
 ## Implementation Notes
 
@@ -67,9 +69,67 @@ kubectl apply --dry-run=client -f /tmp/endsys-apps.yaml # exit 0
 
 The namespace bundle needs Flux SOPS decryption in live reconciliation; direct server dry-run rejected encrypted common-component secrets, matching existing repo behavior.
 
+## Runtime Validation Evidence
+
+Live deployment from commit `399e694` reached healthy state:
+
+```text
+flux reconcile source git flux-system -n flux-system      # fetched 399e694
+flux reconcile kustomization cluster-meta --with-source   # ready
+flux reconcile kustomization cluster-apps --with-source   # ready
+flux reconcile kustomization hindsight -n hindsight --with-source # ready
+kubectl -n hindsight wait cluster/hindsight-postgres --for=condition=Ready # pass
+kubectl -n hindsight wait pod -l app.kubernetes.io/instance=hindsight --for=condition=Ready # pass
+kubectl -n hindsight wait helmrelease/hindsight --for=condition=Ready # pass
+```
+
+Final resource state:
+
+```text
+Kustomization hindsight: Ready=True
+HelmRelease hindsight: Ready=True, chart hindsight@0.8.4
+CNPG cluster hindsight-postgres: 1/1 Ready, healthy
+Pods: hindsight-api, hindsight-control-plane, hindsight-postgres all 1/1 Running, 0 restarts
+PVCs: hindsight-api-model-cache 5Gi Bound; hindsight-postgres-1 10Gi Bound
+HTTPRoutes: hindsight and hindsight-api Accepted=True, ResolvedRefs=True
+```
+
+Database extension check:
+
+```text
+pg_trgm|1.6
+vector|0.8.0
+```
+
+Ollama reachability from inside the `hindsight` namespace succeeded and returned `gemma4:e4b` from `http://10.127.0.4:11434/api/tags`.
+
+API health checks:
+
+```text
+http://hindsight-api:8888/health -> {"status":"healthy","database":"connected"}
+https://hindsight-api.endsys.cloud/health via internal gateway 10.127.0.51 -> {"status":"healthy","database":"connected"}
+https://hindsight.endsys.cloud via internal gateway 10.127.0.51 -> HTTP/1.1 307 Temporary Redirect to /dashboard
+```
+
+DNS checks:
+
+```text
+dig @10.127.0.50 hindsight.endsys.cloud A -> 10.127.0.51
+dig @10.127.0.50 hindsight-api.endsys.cloud A -> 10.127.0.51
+dig @10.127.0.3 hindsight.endsys.cloud A -> internal.endsys.cloud / 10.127.0.51
+dig @10.127.0.3 hindsight-api.endsys.cloud A -> internal.endsys.cloud / 10.127.0.51
+```
+
+Hindsight retain/recall smoke test through the Python client succeeded using bank `mimir-smoke`:
+
+```text
+retain success=True, items_count=1, usage total_tokens=2174
+recall returned: The validation token hugin-1783359309 belongs to the Kubernetes deployment smoke...
+```
+
+One runtime warning was found and fixed in the manifests before finalizing: `HINDSIGHT_API_WORKER_ID` was unset. The HelmRelease now sets `HINDSIGHT_API_WORKER_ID: hindsight-api`.
+
 ## Remaining Gates
 
-- Review the diff.
-- Decide whether to commit locally.
-- Decide whether to push to GitHub and let Flux reconcile. Pushing/deploying is a live infrastructure mutation and needs explicit approval.
-- After live deployment, verify CNPG actually initializes pgvector/vector extension and Hindsight can retain/recall through Ollama.
+- Configure Hermes to use Hindsight only after loading the `hermes-agent` skill and choosing the integration mode.
+- Consider switching from `gemma4:e4b` to a tool-calling Ollama model if Hindsight `reflect` is needed.
