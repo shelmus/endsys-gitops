@@ -27,3 +27,4 @@ resources:
   - ./coder.yaml
   - ./pajikos.yaml
   - ./firecrawl.yaml
+  - ./hindsight.yaml
