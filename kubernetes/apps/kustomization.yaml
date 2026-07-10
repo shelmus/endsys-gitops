@@ -17,6 +17,7 @@ resources:
   - ./immich
   - ./kube-prometheus-stack
   - ./kube-system
+  - ./larder
   - ./longhorn-system
   - ./matrix
   - ./n8n

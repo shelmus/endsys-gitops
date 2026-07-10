@@ -1,0 +1,15 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: larder-postgres
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.9
+  bootstrap:
+    initdb:
+      database: larder
+      owner: larder
+  storage:
+    storageClass: longhorn
+    size: 5Gi
