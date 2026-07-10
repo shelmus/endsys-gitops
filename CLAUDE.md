@@ -1,6 +1,5 @@
 ## Rules
 
-<<<<<<< HEAD
 ### Entry Point
 - `.context/substrate.md` - **Start here.** Repository overview, tech stack, and AI guidelines.
 
@@ -84,7 +83,8 @@ Read `.context/backup-restore.md`
 ### Code Standards
 - Follow naming conventions from `.context/conventions.md`
 - Use standard app structure from `.context/architecture/app-structure.md`
-- Reference the `common` component for namespace creation
+- Reference the `common` component at the **namespace level**, not the app level
+- Start YAML files with `---`, use 2-space indentation
 - Add appropriate `dependsOn` entries in Flux Kustomizations
 - Use HTTPRoute (not Ingress) for exposing services
 - Prefer CNPG Cluster CRs for PostgreSQL databases
@@ -110,16 +110,6 @@ Read `.context/backup-restore.md`
 
 ### When Making Changes
 - Update relevant `.context/` files when adding new patterns
-=======
-- Use HTTPRoute (Gateway API), never Ingress
-- Use CNPG Cluster CRs for PostgreSQL, never embedded Helm subcharts
-- Use ExternalSecret + Bitwarden for secrets, never store secrets in Git
-- Add `dependsOn` in ks.yaml for all prerequisites
-- Reference `common` component at **namespace level**, not app level
-- Check existing apps in `kubernetes/apps/` for patterns before creating new ones
-- Start YAML files with `---`, use 2-space indentation
-- When adding new patterns, update relevant `.context/` files
->>>>>>> 8b0fa57 (change immich to new NAS)
 - Document architectural decisions in `.context/decisions/`
 
 ## Stack
