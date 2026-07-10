@@ -37,7 +37,7 @@ spec:
               SECURE_COOKIES: "True"
               OIDC_BASE_URL: "https://auth.${SECRET_DOMAIN}"
               OIDC_PROVIDER_NAME: PocketID
-              OIDC_ADMIN_EMAILS: bazingapirate@proton.me
+              OIDC_ADMIN_EMAILS: sean@endsys.cloud
               DATABASE_URL:
                 valueFrom:
                   secretKeyRef:
