@@ -26,3 +26,5 @@ resources:
   - ./matrix-stack.yaml
   - ./coder.yaml
   - ./pajikos.yaml
+  - ./firecrawl.yaml
+  - ./hindsight.yaml

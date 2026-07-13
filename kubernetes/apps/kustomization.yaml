@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./cert-manager
+  - ./cnpg-system
+  - ./coder
+  - ./default
+  - ./external-secrets
+  - ./external-services
+  - ./firecrawl
+  - ./flux-system
+  - ./garage
+  - ./gatus
+  - ./home-assistant
+  - ./immich
+  - ./kube-prometheus-stack
+  - ./kube-system
+  - ./larder
+  - ./longhorn-system
+  - ./matrix
+  - ./n8n
+  - ./network
+  - ./obsidian-livesync
+  - ./pelican
+  - ./pocket-id
+  - ./pricebuddy
+  - ./velero
+  - ./hindsight

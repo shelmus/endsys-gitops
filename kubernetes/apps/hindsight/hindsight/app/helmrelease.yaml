@@ -1,0 +1,68 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: hindsight
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: hindsight
+    namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  valuesFrom:
+    - kind: Secret
+      name: hindsight-postgres-app
+      valuesKey: password
+      targetPath: postgresql.external.password
+  values:
+    postgresql:
+      enabled: false
+      external:
+        host: hindsight-postgres-rw
+        port: 5432
+        database: hindsight
+        username: hindsight
+
+    api:
+      env:
+        HINDSIGHT_API_LLM_PROVIDER: "ollama"
+        HINDSIGHT_API_LLM_BASE_URL: "http://10.127.0.4:11434/v1"
+        HINDSIGHT_API_LLM_MODEL: "gemma4:e4b"
+        HINDSIGHT_API_LLM_MAX_CONCURRENT: "1"
+        HINDSIGHT_API_ENABLE_OBSERVATIONS: "false"
+        HINDSIGHT_API_VECTOR_EXTENSION: "pgvector"
+        HINDSIGHT_API_LLM_TEMPERATURE: "none"
+        HINDSIGHT_API_WORKER_ID: "hindsight-api"
+      persistence:
+        modelCache:
+          enabled: true
+          storageClass: longhorn
+          size: 5Gi
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+        limits:
+          cpu: 2000m
+          memory: 4Gi
+
+    worker:
+      enabled: false
+
+    controlPlane:
+      enabled: true
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 512Mi

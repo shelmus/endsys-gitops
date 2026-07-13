@@ -166,6 +166,13 @@ spec:
           interval: 1m
           conditions:
             - "[STATUS] < 400"
+        - name: larder
+          enabled: true
+          group: internal
+          url: https://larder.endsys.cloud/healthz
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
         - name: longhorn
           enabled: true
           group: internal

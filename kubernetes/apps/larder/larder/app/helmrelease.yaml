@@ -1,0 +1,131 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: larder
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      larder:
+        # Entrypoint runs `manage.py migrate`; Recreate ensures two pods never
+        # migrate the same database concurrently during an upgrade.
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image: &image
+              repository: ghcr.io/shelmus/larder
+              tag: v0.2.0
+            env: &env
+              TIME_ZONE: America/New_York
+              DEBUG: "False"
+              ALLOWED_HOSTS: "larder.${SECRET_DOMAIN},localhost,127.0.0.1"
+              CSRF_TRUSTED_ORIGINS: "https://larder.${SECRET_DOMAIN}"
+              SECURE_COOKIES: "True"
+              OIDC_BASE_URL: "https://auth.${SECRET_DOMAIN}"
+              OIDC_PROVIDER_NAME: PocketID
+              OIDC_ADMIN_EMAILS: sean@endsys.cloud
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: larder-postgres-app
+                    key: uri
+              SECRET_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: larder-secrets
+                    key: SECRET_KEY
+            # OIDC client id/secret; optional so the app starts password-only
+            # until the PocketID client + Bitwarden entries exist.
+            envFrom: &envFrom
+              - secretRef:
+                  name: larder-oidc
+                  optional: true
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8000
+                    httpHeaders:
+                      # Probes hit the pod IP, which Django's ALLOWED_HOSTS
+                      # would reject without a pinned Host header.
+                      - name: Host
+                        value: localhost
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext: &containerSecurity
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+
+      alerts:
+        type: cronjob
+        cronjob:
+          schedule: "*/15 * * * *"
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
+        containers:
+          app:
+            image: *image
+            # Bypasses the image entrypoint so the cron run doesn't re-apply
+            # migrations every 15 minutes.
+            command: ["python", "manage.py", "evaluate_alerts"]
+            env: *env
+            envFrom: *envFrom
+            securityContext: *containerSecurity
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+
+    service:
+      app:
+        controller: larder
+        ports:
+          http:
+            port: *port
+
+    route:
+      app:
+        hostnames: ["larder.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
