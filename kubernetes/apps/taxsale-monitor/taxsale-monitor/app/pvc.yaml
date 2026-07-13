@@ -1,0 +1,12 @@
+---
+# SQLite state + raw page snapshots; survives across CronJob runs.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: taxsale-monitor-data
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Gi

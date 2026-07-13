@@ -26,5 +26,6 @@ resources:
   - ./pelican
   - ./pocket-id
   - ./pricebuddy
+  - ./taxsale-monitor
   - ./velero
   - ./hindsight
