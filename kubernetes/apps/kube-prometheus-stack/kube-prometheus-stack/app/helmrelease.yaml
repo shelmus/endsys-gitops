@@ -29,6 +29,9 @@ spec:
       valuesKey: webhook-url
       targetPath: alertmanager.config.receivers[0].discord_configs[0].webhook_url
   values:
+    crds:
+      upgradeJob:
+        enabled: true
     defaultRules:
       create: false
     alertmanager:
