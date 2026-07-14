@@ -31,7 +31,7 @@
 - [x] Ansible desired state implemented
 - [x] GitOps manifests implemented
 - [x] Static/render validation complete
-- [ ] Feature commits complete
+- [x] Feature commits complete
 - [ ] Live mutation approvals received
 - [ ] NFS applied and verified
 - [ ] Secret created and verified
