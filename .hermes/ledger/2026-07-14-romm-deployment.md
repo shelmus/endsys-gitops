@@ -68,6 +68,7 @@ Ansible checks in `/home/sean/workspace/endsys-ansible-romm`:
 - `yamllint inventory/host_vars/lyris/nas.yml`: pass.
 - `ansible-lint playbooks/nas.yml roles/nas`: pass with zero failures and warnings.
 - Local exports template render: pass, including `/vault/games    10.127.0.0/24(rw,sync,no_subtree_check,root_squash)`.
-- Live check mode: blocked by authentication/privilege prerequisites (`momo` key rejected; `docker_ops` has no passwordless sudo).
+- Direct SSH and Ansible become preflight through `momo` with `/home/sean/.ssh/momo`: pass; `ping: pong` and passwordless become returned UID `0`.
+- Live NFS check mode with the explicit Momo key: pass; `changed=2`, `unreachable=0`, `failed=0`. The only predicted changes are `/vault/games` root metadata (`0:0/0777` to `1000:1000/0775`) and the intended export line.
 
-No NFS, Kubernetes, Bitwarden, GitHub, or Flux live state has been changed.
+No NFS, Kubernetes, Bitwarden, or Flux live state has been changed. Ahead-only feature branches were pushed; no pull request or merge was created.
