@@ -33,14 +33,13 @@
 - [x] Static/render validation complete
 - [x] Feature commits complete
 - [ ] Live mutation approvals received
-- [ ] NFS applied and verified
+- [x] NFS applied and verified
 - [ ] Secret created and verified
 - [ ] GitOps deployed and live health verified
 
 ## Approval gates still closed
 
 - Bitwarden secret creation
-- Lyris NFS apply
 - Kubernetes server-side dry-run (blocked by the homelab gate)
 - Pull request creation / merge
 - Live Flux reconciliation
@@ -70,5 +69,7 @@ Ansible checks in `/home/sean/workspace/endsys-ansible-romm`:
 - Local exports template render: pass, including `/vault/games    10.127.0.0/24(rw,sync,no_subtree_check,root_squash)`.
 - Direct SSH and Ansible become preflight through `momo` with `/home/sean/.ssh/momo`: pass; `ping: pong` and passwordless become returned UID `0`.
 - Live NFS check mode with the explicit Momo key: pass; `changed=2`, `unreachable=0`, `failed=0`. The only predicted changes are `/vault/games` root metadata (`0:0/0777` to `1000:1000/0775`) and the intended export line.
+- Approved NFS apply reported `ok=32 changed=3 unreachable=0 failed=0`; the third change is the export reload handler. Backup: `/etc/exports.pre-romm-20260715T073321-0400`.
+- Post-apply verification: live export is RW with `root_squash`; `/vault/games` is `1000:1000/0775`; a UID/GID 1000 create/delete NFS probe passed; no probe mounts/files remained; ZFS is healthy; idempotency check passed with `changed=0 failed=0`.
 
-No NFS, Kubernetes, Bitwarden, or Flux live state has been changed. Ahead-only feature branches were pushed; no pull request or merge was created.
+NFS live state changed only as recorded above. No Kubernetes, Bitwarden, or Flux live state has been changed. Ahead-only feature branches were pushed; no pull request or merge was created.
