@@ -73,3 +73,12 @@ Ansible checks in `/home/sean/workspace/endsys-ansible-romm`:
 - Post-apply verification: live export is RW with `root_squash`; `/vault/games` is `1000:1000/0775`; a UID/GID 1000 create/delete NFS probe passed; no probe mounts/files remained; ZFS is healthy; idempotency check passed with `changed=0 failed=0`.
 
 NFS live state changed only as recorded above. No Kubernetes, Bitwarden, or Flux live state has been changed. Ahead-only feature branches were pushed; no pull request or merge was created.
+
+## Bitwarden secret rollout
+
+- Scratch CLI: official BWS `2.1.0`; the x86-64 GNU/Linux archive passed its published SHA-256 checksum.
+- Existing `bitwarden-secretsmanager` ClusterSecretStore is Ready, has a project ID, and references `external-secrets/bitwarden-access-token` key `token`.
+- With explicit approval, the cluster-held token was loaded only into process memory. Project lookup passed and the pre-create count for `romm-auth-secret-key` was `0`.
+- `bws secret create ... --output none` failed with `404 Resource not found`; a post-error count confirmed the key remains absent (`0`). Sensitive variables were removed by the shell exit trap, and no value was printed or written to disk.
+- Classification: the machine account has read-only project access. The error exactly matches Bitwarden SDK issue [#1287](https://github.com/bitwarden/sdk-sm/issues/1287), which documents this misleading `404` when create permission is missing.
+- Blocker: temporarily grant that machine account **Can read, write** on the existing project, or create the key manually in the Bitwarden web app. No retry is warranted until permission changes.
