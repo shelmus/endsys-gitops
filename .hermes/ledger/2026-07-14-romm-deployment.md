@@ -39,8 +39,7 @@
 
 ## Approval gates still closed
 
-- Kubernetes server-side dry-run (blocked by the homelab gate)
-- Pull request creation / merge
+- Pull request merge
 - Live Flux reconciliation
 
 ## Verification evidence
@@ -58,7 +57,7 @@ GitOps checks run independently after both Claude Code workers exhausted their t
 - Live read-only Lyris check: `sean` is UID/GID 1000 and all known game-library directories are mode `0777`. The Ansible share item sets the export root to `1000:1000/0775`; with `fsGroupChangePolicy: OnRootMismatch`, Kubernetes can avoid a recursive ownership walk through the 355 GiB library.
 - Strict kubeconform with core and CRD-catalog schemas after `SECRET_DOMAIN=example.com` substitution: 8/8 ROMM app resources valid, 1/1 Flux Kustomization valid, and 1/1 Velero Schedule valid.
 - `git diff --check`: pass.
-- Kubernetes server-side dry-run: not run; the homelab gate blocked the exact `kubectl apply --dry-run=server` commands and explicitly prohibited retrying or working around the block.
+- Kubernetes server-side admission dry-run: unavailable from the gateway's intentional read-only kubeconfig. The `mimir-readonly` service account has no create permission. The repaired homelab hook allows explicit client/server dry-runs, but Mimir did not bypass the read-only identity with admin credentials.
 
 Ansible checks in `/home/sean/workspace/endsys-ansible-romm`:
 
@@ -71,7 +70,7 @@ Ansible checks in `/home/sean/workspace/endsys-ansible-romm`:
 - Approved NFS apply reported `ok=32 changed=3 unreachable=0 failed=0`; the third change is the export reload handler. Backup: `/etc/exports.pre-romm-20260715T073321-0400`.
 - Post-apply verification: live export is RW with `root_squash`; `/vault/games` is `1000:1000/0775`; a UID/GID 1000 create/delete NFS probe passed; no probe mounts/files remained; ZFS is healthy; idempotency check passed with `changed=0 failed=0`.
 
-NFS live state changed only as recorded above. No Kubernetes or Flux live state has been changed. Ahead-only feature branches were pushed; no pull request or merge was created.
+NFS live state changed only as recorded above. No Kubernetes or Flux live state has been changed. Ahead-only feature branches were pushed; no merge was performed.
 
 ## Bitwarden secret rollout
 
@@ -82,3 +81,18 @@ NFS live state changed only as recorded above. No Kubernetes or Flux live state 
 - Classification: the machine account has read-only project access. The error exactly matches Bitwarden SDK issue [#1287](https://github.com/bitwarden/sdk-sm/issues/1287), which documents this misleading `404` when create permission is missing.
 - Sean created `romm-auth-secret-key` manually in the `endsys-gitops` project. The value was never sent through chat or read back by Mimir.
 - Value-free BWS verification passed: the matching-key count is exactly `1`.
+
+## Readiness revalidation — 2026-07-15
+
+- Opened [shelmus/endsys-gitops#287](https://github.com/shelmus/endsys-gitops/pull/287) (`feat/romm` → `main`). PR creation was explicitly approved; merge and deployment were not.
+- Branch is clean, synchronized with its remote, and not behind `origin/main`.
+- Ansible syntax/lint/YAML validation and both repo diff checks passed.
+- Kustomize renders passed for the ROMM app/namespace, Velero app, and root apps tree. Client dry-run creation passed for the namespace bundle, eight-resource app bundle, Velero Schedule, app-template output, and Dragonfly output.
+- Strict Kubernetes 1.34/CRD schemas passed: ROMM app 8/8, Flux Kustomization 1/1, Velero Schedule 1/1, app-template output 5/5, and Dragonfly output 3/3.
+- Checksum-verified Helm 4.2.3 pulled and rendered app-template 5.0.1 and Dragonfly v1.39.0 from their live OCI sources. `rommapp/romm:4.9.2` remains available for `linux/amd64`.
+- All three Kubernetes nodes and every declared Flux dependency are Ready. The internal Gateway is programmed at `10.127.0.51`; the Bitwarden ClusterSecretStore is Ready.
+- Longhorn is the default StorageClass; all three disks are schedulable with 619–755 GiB currently available, well above the 42 GiB requested by ROMM/CNPG/Dragonfly.
+- Lyris answers NFSv4 RPC, `nfs-server` is active, and ZFS pool `vault` is ONLINE with zero known data errors.
+- `pihole-dns` is Ready with no recent error/timeout log lines. Existing internal routes resolve to the internal Gateway; the ROMM record is expected only after its HTTPRoute exists.
+- Velero controller logs repeatedly mark backup location `default` available; all three node agents are Ready.
+- Post-merge checks remain: ExternalSecret sync, PV/PVC binding, in-pod UID/GID 1000 NFS write probe, CNPG/Dragonfly readiness, ROMM migrations and `/api/heartbeat`, HTTPRoute/DNS/TLS, a small platform scan, and proof from a real backup that volume `library` is excluded.
