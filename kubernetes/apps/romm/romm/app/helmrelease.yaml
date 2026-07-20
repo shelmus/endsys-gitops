@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: rommapp/romm
-              tag: 4.9.2
+              tag: 5.0.0
             env:
               TZ: America/New_York
               ROMM_BASE_URL: https://romm.${SECRET_DOMAIN}
