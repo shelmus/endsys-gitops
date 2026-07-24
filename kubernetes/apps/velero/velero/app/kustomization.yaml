@@ -15,3 +15,4 @@ resources:
   - ./schedules/pocket-id-schedule.yaml
   - ./schedules/matrix-schedule.yaml
   - ./schedules/pelican-schedule.yaml
+  - ./schedules/home-assistant-schedule.yaml
