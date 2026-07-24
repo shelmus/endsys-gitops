@@ -66,8 +66,21 @@ Local verification:
 - rendered namespace, cron, included resources, filesystem backup, storage location, TTL, cluster-resource inclusion, and owner-reference settings — all asserted;
 - schedule manifest/documentation inventory — exact 10/10 match;
 - secret-pattern scan across the related plan, validation, ledger, and changed files — zero recovery-key-shaped values and zero literal key-assignment labels.
+- workflow-equivalent Flux Local test using pinned image `ghcr.io/allenporter/flux-local:v8.0.1@sha256:5c8cb0ff9d26a5260a47e7b3949403d80713d80037b9f0e4c02c5efca3588518` — 80/80 resources passed in 20.92 seconds, including Home Assistant and Velero.
 
-The repository pins standalone Kustomize `5.7.0`; GitHub's pinned Flux Local check remains required after push and before any merge decision.
+The repository pins standalone Kustomize `5.7.0`; yggdrasil's embedded
+Kustomize is `v5.7.1`. The GitHub Flux Local workflow triggers only on pull
+requests, so no GitHub checks exist for the branch push. Its required PR check
+remains a separate pre-merge gate.
+
+## Commit and push evidence — 2026-07-24
+
+- Implementation commit: `9b7d6d93b00950861727e1de43360df5dc744fd2` (`feat(velero): add Home Assistant backup schedule`)
+- Push: new branch `origin/feat/home-assistant-backup-baseline`, ahead-only
+- Remote verification: local and remote heads both resolved to `9b7d6d93b00950861727e1de43360df5dc744fd2`
+- GitHub check runs for that commit: none, because the relevant workflows are pull-request-triggered
+- Local Flux Local scratch clone: exact pushed commit, regular Git clone, Garage chart `v2.3.0` fixture
+- Container isolation: disposable scratch clone only; no credentials mounted; test container removed on exit; scratch directories deleted and verified absent
 
 ## Approval gates still closed
 
@@ -168,14 +181,14 @@ future approved UI phase; it was not read from the backup or inferred here.
 ## Exact next gate
 
 The application-backup gate is closed successfully, and repository-only PR A
-work is implemented and locally verified on
-`feat/home-assistant-backup-baseline`. The next allowed actions are commit,
-ahead-only push, and GitHub CI observation.
+work is implemented, committed, pushed, and locally verified on
+`feat/home-assistant-backup-baseline`.
 
-Pull-request creation, merge, Flux reconciliation, and any live Home Assistant
-or Velero change remain closed red gates. After an approved rollout, do not
-report successful Velero coverage until a resulting Backup is `Completed` and
-its volume-backup artifact is present.
+The exact next action requiring Sean's approval is pull-request creation. Merge,
+Flux reconciliation, and any live Home Assistant or Velero change remain
+separate closed red gates. After an approved rollout, do not report successful
+Velero coverage until a resulting Backup is `Completed` and its volume-backup
+artifact is present.
 
 ## Verification provenance
 
