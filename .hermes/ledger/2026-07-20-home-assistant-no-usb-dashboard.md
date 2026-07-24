@@ -69,23 +69,25 @@ Local verification:
 - workflow-equivalent Flux Local test using pinned image `ghcr.io/allenporter/flux-local:v8.0.1@sha256:5c8cb0ff9d26a5260a47e7b3949403d80713d80037b9f0e4c02c5efca3588518` — 80/80 resources passed in 20.92 seconds, including Home Assistant and Velero.
 
 The repository pins standalone Kustomize `5.7.0`; yggdrasil's embedded
-Kustomize is `v5.7.1`. The GitHub Flux Local workflow triggers only on pull
-requests, so no GitHub checks exist for the branch push. Its required PR check
-remains a separate pre-merge gate.
+Kustomize is `v5.7.1`. GitHub's Flux Local workflow triggers only on pull
+requests. PR #296 now supplies that current-head check, which remains a
+mandatory pre-merge gate.
 
 ## Commit and push evidence — 2026-07-24
 
 - Implementation commit: `9b7d6d93b00950861727e1de43360df5dc744fd2` (`feat(velero): add Home Assistant backup schedule`)
+- Verification-ledger commit before PR creation: `cf42c247e7dd341c0ea6c56503fe1c6583efebc9`
 - Push: new branch `origin/feat/home-assistant-backup-baseline`, ahead-only
-- Remote verification: local and remote heads both resolved to `9b7d6d93b00950861727e1de43360df5dc744fd2`
-- GitHub check runs for that commit: none, because the relevant workflows are pull-request-triggered
+- Pull request: [#296](https://github.com/shelmus/endsys-gitops/pull/296), open against `main`
+- Initial PR head: `cf42c247e7dd341c0ea6c56503fe1c6583efebc9`, verified equal to the local and remote branch heads at creation
+- Initial GitHub state: mergeable; Flux Local pre-job and labeler passed; render test/diff jobs queued
 - Local Flux Local scratch clone: exact pushed commit, regular Git clone, Garage chart `v2.3.0` fixture
 - Container isolation: disposable scratch clone only; no credentials mounted; test container removed on exit; scratch directories deleted and verified absent
 
 ## Approval gates still closed
 
 - Any storage-level pre-onboarding snapshot
-- Pull request creation or merge
+- Pull request merge
 - Flux reconciliation or pod restart
 - Calendar/provider integration setup
 - HACS installation
@@ -184,11 +186,12 @@ The application-backup gate is closed successfully, and repository-only PR A
 work is implemented, committed, pushed, and locally verified on
 `feat/home-assistant-backup-baseline`.
 
-The exact next action requiring Sean's approval is pull-request creation. Merge,
-Flux reconciliation, and any live Home Assistant or Velero change remain
-separate closed red gates. After an approved rollout, do not report successful
-Velero coverage until a resulting Backup is `Completed` and its volume-backup
-artifact is present.
+PR #296 is open. No merge action is allowed until every check on its current
+head succeeds. Once green, merge is the exact next action requiring Sean's
+separate approval. Flux reconciliation and any live Home Assistant or Velero
+change remain separate closed red gates. After an approved rollout, do not
+report successful Velero coverage until a resulting Backup is `Completed` and
+its volume-backup artifact is present.
 
 ## Verification provenance
 
