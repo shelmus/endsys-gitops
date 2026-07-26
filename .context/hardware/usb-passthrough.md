@@ -1,5 +1,11 @@
 # USB Device Passthrough on Talos OS
 
+This is an optional recipe for direct USB device access (e.g. a Z-Wave or
+Zigbee stick), for use if and when a workload needs to talk to a physical
+device attached to a specific node. It is not part of the Home Assistant
+household-dashboard baseline, which runs without any USB/hostPath device and
+without node pinning.
+
 ## Finding Device Paths
 
 Talos Linux is immutable — there is no SSH access. Use `talosctl` to interact with nodes.
@@ -57,7 +63,13 @@ additionalMounts:
     readOnly: true
 ```
 
-The pod must run with `securityContext.privileged: true` and a `nodeSelector` pinning it to the node with the device.
+As a last resort, when a workload needs direct access to a physical device,
+grant the minimum device exposure and permissions the workload actually
+requires: expose only the intended device path and add only an explicitly
+required supplemental group or Linux capability. Do not reach for
+`securityContext.privileged: true` by default. Pin the pod to a specific node
+with a `nodeSelector` only when the physical device is actually attached to
+that node.
 
 In Home Assistant, configure the Z-Wave integration with the full path:
 

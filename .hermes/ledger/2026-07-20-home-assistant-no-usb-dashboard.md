@@ -308,20 +308,104 @@ future approved UI phase; it was not read from the backup or inferred here.
 - Live Velero schedules/backups remain unverified because the read-only identity lacks access.
 - Tablet model, OS, viewport, kiosk features, charging, and burn-in constraints remain unknown and do not block the infrastructure baseline.
 
+## PR B merge and natural rollout — verified 2026-07-26
+
+- PR B #302 merged to `origin/main` as
+  `15c73d4e84fb6f863331e73b2f50bca52fc71cbd`; all four GitHub checks on the
+  merge candidate completed successfully.
+- Flux naturally reconciled HelmRelease revision `home-assistant.v13` with
+  chart `home-assistant@0.3.61`. No manual reconcile, restart, or pod deletion
+  was used.
+- Pod `home-assistant-0` became `1/1 Running` with zero restarts and the public
+  Gateway route returned HTTP 200 with the Home Assistant login page.
+- The setup init container preserved the first pre-overwrite configuration as
+  `/config/configuration.yaml.20260726_184635`. This is the required pristine
+  configuration backup identifier; the init image's clock is not assumed to
+  share the main container's `America/New_York` timezone.
+- The generated configuration retained the normal Home Assistant defaults and
+  one exact `http:` block with `use_x_forwarded_for: true` and only
+  `127.0.0.0/8` plus `10.42.0.0/16` trusted.
+- No reverse-proxy, forwarded-header, or untrusted-proxy warnings appeared.
+  Existing outbound errors to `api.met.no` and `alerts.home-assistant.io`
+  remain a separate network issue.
+- The unauthenticated Gateway user path is proven. Authenticated dashboard,
+  retained integration/entity, Chromecast-discovery, and post-rollout
+  application-backup checks remain user-owned because no Home Assistant owner
+  session or credentials were provided to Mimir.
+
+## PR C implementation and local verification — 2026-07-26
+
+Branch/worktree:
+
+- `feat/home-assistant-usb-decoupling`
+- `/home/sean/workspace/endsys-gitops-worktrees/home-assistant-usb-decoupling`
+- merge base `15c73d4e84fb6f863331e73b2f50bca52fc71cbd`
+
+The source change is deliberately narrow:
+
+- set `forceInit: false`;
+- remove the Home Assistant container's privileged security context;
+- remove the `kube1` node selector;
+- remove dormant USB/Z-Wave comments;
+- update `.context/hardware/usb-passthrough.md` to state that the household
+  baseline needs no direct USB and direct-device access is a last resort.
+
+Verification evidence:
+
+- `git diff --check`: pass.
+- `yamllint`: only the pre-existing 111-character schema comment on line 2;
+  no changed line failed.
+- `kubectl kustomize`: pass for both the app root (HelmRelease plus HTTPRoute)
+  and parent root (Kustomization plus common component resources).
+- Pinned targeted Flux Local base/feature renders: pass with
+  `ghcr.io/allenporter/flux-local:v8.0.1` at digest
+  `sha256:5c8cb0ff9d26a5260a47e7b3949403d80713d80037b9f0e4c02c5efca3588518`.
+- The immutable chart source was reconstructed through GitHub's API from tag
+  `home-assistant-0.3.61` at audited commit
+  `1ff2e477902268c8006fe35259c6cd5e1df1a9aa`; locally packaged chart SHA-256:
+  `a96a3ffacf92a3db879e37dbcebdfaa7e64d64851f85e6db49e77862504dde82`.
+  This was necessary because Xfinity intercepted Git/GitHub release TLS with a
+  `susi.comcast.net` certificate; no TLS verification was disabled.
+- Base render SHA-256:
+  `2ceb75f7f4a7b18a84b5855828f758cb68e4c5c80d021c6ce89d6858e8fbc86f`.
+  Feature render SHA-256:
+  `f37a1b75be14d79d0e4dfca269c5583d3c7b7616d8678690d57d9dbac5673bd3`.
+- Machine comparison proved that only `ConfigMap/init-script` and
+  `StatefulSet/home-assistant` change. The complete 39-line render diff is
+  exactly: `forceInit=true` to `false`, its checksum, privileged mode to the
+  chart default `{}`, and removal of the `kube1` selector. Service, image,
+  resources, host networking, DNS policy, Home Assistant configuration,
+  trusted proxies, and persistent-volume template are unchanged.
+- The host firewall blocked Docker bridge-to-host access. An explicitly
+  approved isolated Docker network and read-only chart-server container were
+  used instead; both test container and network were verified absent after
+  cleanup.
+- Independent Claude Opus review returned `PASS` with no blocker.
+
+Storage correction from live/render evidence:
+
+- The accepted plan's `persistence.existingClaim: home-assistant-config`
+  wording is stale. Neither live values nor source contain `existingClaim`.
+- The real retained claim is `home-assistant-home-assistant-0`, generated from
+  StatefulSet volumeClaimTemplate `home-assistant`, bound to Longhorn volume
+  `pvc-5b8361e2-6318-4976-9011-f4c588290caa` since 2026-05-01.
+- PR C leaves the persistence values and volumeClaimTemplate byte-for-byte
+  unchanged.
+
+Scheduler/port preconditions also pass read-only checks: kube1, kube2, and
+kube3 are Ready, untainted, schedulable Kubernetes and Longhorn nodes. Only
+`home-assistant-0` declares host-network container port 8123; kube2 and kube3
+refuse direct connections on 8123, while kube1 returns the current service.
+
 ## Exact next gate
 
-PR A #296 merged on 2026-07-24 as `0513776573c633d669df7e686af283edc55764e5`.
-Its schedule manifest is present on `origin/main`; current live Velero CR and
-artifact verification remains unavailable to `mimir-readonly` and is not
-silently inferred from Git state.
-
-PR B repository edits and targeted render assertions are complete on
-`feat/home-assistant-proxy-bootstrap`, independent final review passed, and the
-implementation commit was pushed ahead-only with local/remote equality verified.
-Opening the pull request is now the next red gate and requires Sean's separate
-approval. GitHub checks must then pass on that exact head before merge is even
-considered; merge/natural Flux reconciliation and the live Home Assistant
-rollout window remain later, separate red gates.
+Once this ledger and the reviewed PR C source land on the ahead-only feature
+branch, opening PR C is the next red gate and requires Sean's separate
+approval. GitHub checks must pass on that exact head. Merge remains blocked
+until Sean also performs the authenticated Gateway checks (dashboard,
+retained integrations/entities, and Chromecast discovery as applicable) and
+creates a fresh Home Assistant application backup, recording its identifier.
+No PR creation, merge, or live rollout is implied by a feature-branch push.
 
 ## Verification provenance
 
