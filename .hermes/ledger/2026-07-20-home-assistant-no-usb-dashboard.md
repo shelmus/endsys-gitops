@@ -15,8 +15,8 @@
 - [x] First-run onboarding state identified
 - [x] Owner/core onboarding approved and completed
 - [x] Fresh Home Assistant application backup downloaded and verified
-- [x] PR A backup schedule implemented
-- [ ] Proxy bootstrap implemented
+- [x] PR A backup schedule implemented and merged in #296
+- [x] PR B proxy bootstrap — repository edits + local verification only (not rolled out)
 - [ ] USB-only coupling removed
 - [ ] Native household dashboard configured
 
@@ -84,9 +84,121 @@ mandatory pre-merge gate.
 - Local Flux Local scratch clone: exact pushed commit, regular Git clone, Garage chart `v2.3.0` fixture
 - Container isolation: disposable scratch clone only; no credentials mounted; test container removed on exit; scratch directories deleted and verified absent
 
+## PR B repository implementation — 2026-07-26
+
+Scope: reverse-proxy bootstrap (Phase 2) repository edits only. This section
+records exactly what was edited and verified in this run. **No live rollout,
+Flux reconcile, pull request, CI run, or cluster mutation was performed or is
+claimed here.**
+
+Worktree/branch context:
+
+- Worktree: `/home/sean/workspace/endsys-gitops-worktrees/home-assistant-proxy-bootstrap`
+- Branch: `feat/home-assistant-proxy-bootstrap`
+- Base commit at edit time: `a1a80257f1215a8b6b947cc8ade68ae3ab32c51b`
+- This is a separate worktree/branch from PR A's `feat/home-assistant-backup-baseline`.
+
+Files changed on the feature branch:
+
+- `kubernetes/apps/home-assistant/home-assistant/app/helmrelease.yaml`
+- `.hermes/ledger/2026-07-20-home-assistant-no-usb-dashboard.md` (this file)
+
+HelmRelease edit (single `configuration:` block; 30 insertions, 4 deletions;
+no other block touched):
+
+- kept `configuration.enabled: true`;
+- set `configuration.forceInit: true` for this one rollout (annotated to reset
+  to false in PR C);
+- narrowed `configuration.trusted_proxies` from the four RFC1918+loopback ranges
+  to exactly `127.0.0.0/8` and `10.42.0.0/16` (loopback plus the Cilium
+  native-routing / pod CIDR observed as the Gateway Envoy proxy source);
+- added `configuration.templateConfig` reproducing the pinned chart `0.3.61`
+  default (source: `pajikos/home-assistant-helm-chart` commit
+  `1ff2e477902268c8006fe35259c6cd5e1df1a9aa`, `charts/home-assistant/values.yaml`)
+  with the `{{- if or .Values.ingress.enabled .Values.ingress.external }}` guard
+  removed so there is exactly one unconditional `http:` mapping. The mapping
+  keeps `use_x_forwarded_for: true` and renders `trusted_proxies` from values via
+  the chart's `{{- range .Values.configuration.trusted_proxies }}` loop. The
+  `default_config:`, `serviceMonitor`-conditional `prometheus:`, frontend themes
+  include, and `automation`/`script`/`scene` includes are preserved verbatim.
+
+Protected values confirmed unchanged (chart/image version, controller type,
+hostNetwork, dnsPolicy, `securityContext.privileged`, `kube1` nodeSelector,
+persistence, service, resources, TZ env, and the dormant Z-Wave USB comments).
+
+Local non-mutating checks (this run):
+
+- `git diff --check` — PASS (no whitespace/conflict errors).
+- `yamllint` on `helmrelease.yaml` — only the pre-existing line-2 schema comment
+  (111 > 80) reported; zero new findings. No repo yamllint config exists, so
+  yamllint ran with defaults.
+- `kubectl kustomize kubernetes/apps/home-assistant/home-assistant/app` (embedded
+  Kustomize `v5.7.1`) — PASS; rendered exactly 1 HelmRelease + 1 HTTPRoute.
+- Standalone `kustomize`/`helm`/`yq` — not run because they are absent from the
+  host PATH. The pinned Flux Local container supplied the authoritative chart
+  expansion instead.
+- Immutable upstream source verification — chart tag `home-assistant-0.3.61`
+  resolves to commit `1ff2e477902268c8006fe35259c6cd5e1df1a9aa`; the fetched
+  defaults confirm the retained template and init-script semantics.
+
+Independent Flux Local render evidence:
+
+- Image: `ghcr.io/allenporter/flux-local:v8.0.1@sha256:5c8cb0ff9d26a5260a47e7b3949403d80713d80037b9f0e4c02c5efca3588518`.
+- The workflow-equivalent all-resource test collected 80 resources. Home
+  Assistant's Kustomization and HelmRelease both passed. The overall run was
+  78 passed / 2 failed because unrelated `external-secrets` and
+  `snapshot-controller` chart tests could not find their indexes in Flux
+  Local's temporary Helm cache. Treat GitHub's current-head Flux Local check as
+  the required full-repository gate; do not misreport this local run as 80/80.
+- Targeted base and feature `flux-local build hr home-assistant` renders both
+  succeeded. Feature output contained exactly five objects: ServiceAccount,
+  `hass-configuration` ConfigMap, `init-script` ConfigMap, Service, and
+  StatefulSet.
+- The generated Home Assistant configuration parses with exactly one top-level,
+  unconditional `http:` mapping, `use_x_forwarded_for: true`, and trusted
+  proxies exactly `[127.0.0.0/8, 10.42.0.0/16]`. It retains `default_config`,
+  frontend themes, and the automation/script/scene includes; `prometheus` is
+  absent because ServiceMonitor remains disabled.
+- The generated init script contains `forceInit="true"`, copies
+  `/config/configuration.yaml` to the timestamped
+  `/config/configuration.yaml.$current_time` exactly once, and performs that
+  backup before the exact `yq eval-all --inplace 'select(fileIndex == 0) *d
+  select(fileIndex == 1)'` deep merge. Replacing only `true` with `false` makes
+  the feature init script byte-identical to the base render.
+- A machine comparison of base and feature renders passed. ServiceAccount and
+  Service are identical. The StatefulSets are identical after removing the two
+  expected config checksum annotations; chart `0.3.61`, image `2026.5.4`, PVC
+  template, `hostNetwork`, DNS policy, privilege, node selector, service,
+  resources, and environment did not drift.
+- Disposable render artifacts and the assertion script were kept under
+  `/tmp/ha-proxy-render.1r73Sp/` during review and contain no credentials.
+
+Independent final review:
+
+- A separate read-only Claude Opus review returned **PASS — safe to commit and
+  push for later, separately approved PR creation**. It independently reran both
+  source and render assertion scripts, read the raw render/test artifacts, and
+  found no protected-field drift, secret leakage, stale success claim, or PR-B
+  scope violation.
+- Live-rollout warning: while `forceInit=true`, every pod restart repeats the
+  merge and creates another backup; the chart retains only the 10 newest. During
+  the approved rollout, capture the first init-log backup timestamp and land PR
+  C (`forceInit=false`) promptly so the pristine pre-merge file is not rotated
+  away.
+- Live-rollout warning: the chart's `*d` merge makes the rendered template win
+  key conflicts. Compare the merged live file with the named pre-merge backup
+  before declaring success, as the accepted plan already requires.
+
+Remaining verification before any rollout:
+
+- GitHub Flux Local and repository checks on the exact PR head after separately
+  approved PR creation.
+- A fresh approval for merge/natural Flux reconciliation and the named live
+  verification/rollback window.
+
 ## Approval gates still closed
 
-- Any storage-level pre-onboarding snapshot
+- Pull request creation
 - Pull request merge
 - Flux reconciliation or pod restart
 - Calendar/provider integration setup
@@ -130,7 +242,12 @@ mandatory pre-merge gate.
 - Home Assistant logs record reverse-proxy rejection from `10.42.1.240` and later `10.42.2.82`.
 - The live generated `hass-configuration` ConfigMap has no `http:` mapping.
 - The live generated init script has `forceInit="false"`.
-- The observed proxy source has moved between node pod CIDRs, supporting a stable cluster pod-CIDR trust range rather than one ephemeral source address. Final proxy values still require render inspection.
+- The observed proxy source has moved between node pod CIDRs. A 2026-07-26
+  refresh confirmed Cilium's native-routing CIDR is `10.42.0.0/16`, with current
+  node pod CIDRs `10.42.0.0/24`, `10.42.2.0/24`, and `10.42.1.0/24`.
+- The targeted chart render confirms that trusting `10.42.0.0/16` plus loopback
+  produces the intended Home Assistant configuration without broad LAN or
+  RFC1918 trust.
 
 ## Live workload and storage
 
@@ -182,26 +299,30 @@ future approved UI phase; it was not read from the backup or inferred here.
 
 ## Exact next gate
 
-The application-backup gate is closed successfully, and repository-only PR A
-work is implemented, committed, pushed, and locally verified on
-`feat/home-assistant-backup-baseline`.
+PR A #296 merged on 2026-07-24 as `0513776573c633d669df7e686af283edc55764e5`.
+Its schedule manifest is present on `origin/main`; current live Velero CR and
+artifact verification remains unavailable to `mimir-readonly` and is not
+silently inferred from Git state.
 
-PR #296 is open. No merge action is allowed until every check on its current
-head succeeds. Once green, merge is the exact next action requiring Sean's
-separate approval. Flux reconciliation and any live Home Assistant or Velero
-change remain separate closed red gates. After an approved rollout, do not
-report successful Velero coverage until a resulting Backup is `Completed` and
-its volume-backup artifact is present.
+PR B repository edits and targeted render assertions are complete on
+`feat/home-assistant-proxy-bootstrap`, and independent final review passed. The
+branch is ready for a verified commit and ahead-only push. Once those repository
+facts are confirmed, opening the pull request is the next red gate and requires
+Sean's separate approval. GitHub checks must then pass on that exact head before
+merge is even considered; merge/natural Flux reconciliation and the live Home
+Assistant rollout window remain later, separate red gates.
 
 ## Verification provenance
 
 Read-only evidence used:
 
-- `git status`, `git log`, `git diff`, `git worktree list`, `git pull --ff-only`, branch verification
+- `git status`, `git log`, `git diff`, `git worktree list`, `git fetch`, branch and remote verification
 - `kubectl get` for HelmRelease, StatefulSet, pod, Service, EndpointSlice, HTTPRoute, PVC, events, ConfigMaps, node pod CIDRs, Gateway, and Cilium Envoy pods
 - `kubectl logs` for the Home Assistant container and setup init container
 - `talosctl get routes` and `talosctl get resolvers` on kube1
 - Browser reads of the direct endpoint, `/api/onboarding`, and the Gateway hostname
+- Immutable GitHub chart-tag/default-source reads for Home Assistant chart `0.3.61`
+- Pinned Flux Local base/feature renders and machine comparison of generated objects
 
 All live infrastructure operations were read-only. Local mutations were the
 agreed Git fast-forward/feature branch, the Sean-only recovery files, and the
