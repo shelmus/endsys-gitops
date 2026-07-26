@@ -189,6 +189,17 @@ Independent final review:
   key conflicts. Compare the merged live file with the named pre-merge backup
   before declaring success, as the accepted plan already requires.
 
+Commit and push evidence:
+
+- Implementation/review commit:
+  `0b1f13e743be195d14a9794bfecc0e4da5c33894`
+  (`fix(home-assistant): bootstrap reverse proxy config`).
+- The remote feature branch did not exist. It was created with a normal,
+  non-force, ahead-only push; local and remote heads were then verified equal at
+  the implementation commit.
+- No pull request was created and no GitHub Actions result is claimed. This
+  ledger update follows as a documentation-only commit on the same branch.
+
 Remaining verification before any rollout:
 
 - GitHub Flux Local and repository checks on the exact PR head after separately
@@ -305,12 +316,12 @@ artifact verification remains unavailable to `mimir-readonly` and is not
 silently inferred from Git state.
 
 PR B repository edits and targeted render assertions are complete on
-`feat/home-assistant-proxy-bootstrap`, and independent final review passed. The
-branch is ready for a verified commit and ahead-only push. Once those repository
-facts are confirmed, opening the pull request is the next red gate and requires
-Sean's separate approval. GitHub checks must then pass on that exact head before
-merge is even considered; merge/natural Flux reconciliation and the live Home
-Assistant rollout window remain later, separate red gates.
+`feat/home-assistant-proxy-bootstrap`, independent final review passed, and the
+implementation commit was pushed ahead-only with local/remote equality verified.
+Opening the pull request is now the next red gate and requires Sean's separate
+approval. GitHub checks must then pass on that exact head before merge is even
+considered; merge/natural Flux reconciliation and the live Home Assistant
+rollout window remain later, separate red gates.
 
 ## Verification provenance
 
