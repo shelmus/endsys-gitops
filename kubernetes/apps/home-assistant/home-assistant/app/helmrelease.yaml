@@ -33,12 +33,6 @@ spec:
     hostNetwork: true
     dnsPolicy: ClusterFirstWithHostNet
 
-    securityContext:
-      privileged: true
-
-    nodeSelector:
-      kubernetes.io/hostname: kube1
-
     persistence:
       enabled: true
       storageClass: longhorn
@@ -46,9 +40,7 @@ spec:
 
     configuration:
       enabled: true
-      # One-shot force init for the reverse-proxy bootstrap rollout (PR B).
-      # Reset to false in PR C so the template is not re-merged on restart.
-      forceInit: true
+      forceInit: false
       # Narrowed to loopback plus the Cilium native-routing / pod CIDR that the
       # internal Gateway Envoy sources from. Rendered into the http block below.
       trusted_proxies:
@@ -78,18 +70,6 @@ spec:
         automation: !include automations.yaml
         script: !include scripts.yaml
         scene: !include scenes.yaml
-
-    # Z-wave USB passthrough disabled until device is plugged into kube1
-    # additionalVolumes:
-    #   - name: zwave-usb
-    #     hostPath:
-    #       path: /dev/serial/by-id
-    #       type: Directory
-    #
-    # additionalMounts:
-    #   - name: zwave-usb
-    #     mountPath: /dev/serial/by-id
-    #     readOnly: true
 
     service:
       type: ClusterIP
