@@ -37,6 +37,13 @@ spec:
     service:
       type: LoadBalancer
       port: 53
+      # DNS over TCP is not optional here. Chart 3.7.2 gates BOTH the container
+      # port and the Service port behind `useTcp` (default false), so without
+      # this the LoadBalancer only publishes 53/UDP and every TCP query — a
+      # truncated-response retry, a resolver that forces TCP, `dig +tcp` — just
+      # times out. That becomes load-bearing once UniFi is the household
+      # resolver and conditionally forwards endsys.cloud to this address.
+      useTcp: true
       annotations:
         lbipam.cilium.io/ips: "10.127.0.50"
       externalTrafficPolicy: Cluster
