@@ -9,8 +9,10 @@ resources:
   - ./schedules/pricebuddy-schedule.yaml
   - ./schedules/n8n-schedule.yaml
   - ./schedules/immich-schedule.yaml
+  - ./schedules/romm-schedule.yaml
   - ./schedules/gatus-schedule.yaml
   - ./schedules/obsidian-livesync-schedule.yaml
   - ./schedules/pocket-id-schedule.yaml
   - ./schedules/matrix-schedule.yaml
   - ./schedules/pelican-schedule.yaml
+  - ./schedules/home-assistant-schedule.yaml

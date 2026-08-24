@@ -44,6 +44,28 @@ Current schedules:
 | `obsidian-livesync-daily` | obsidian-livesync | `0 2 * * *` (2 AM UTC) | 30 days |
 | `pocket-id-daily` | pocket-id | `0 2 * * *` (2 AM UTC) | 30 days |
 | `pelican-daily` | pelican | `0 2 * * *` (2 AM UTC) | 30 days |
+| `matrix-daily` | matrix | `0 2 * * *` (2 AM UTC) | 30 days |
+| `romm-daily` | romm | `45 2 * * *` (2:45 AM UTC) | 30 days |
+| `home-assistant-daily` | home-assistant | `0 2 * * *` (2 AM UTC) | 30 days |
+
+### Home Assistant Recovery Boundary
+
+Home Assistant has two complementary recovery layers:
+
+1. A fresh application-aware backup downloaded from Home Assistant is the
+   rollout gate. It captures the configuration and SQLite database through
+   Home Assistant's backup integration. Home Assistant decrypts UI downloads
+   on the fly, so store the downloaded archive as secret-bearing data with
+   restrictive permissions.
+2. The `home-assistant-daily` Velero schedule is supplemental disaster-recovery
+   coverage for namespace resources and the live PVC. Because Home Assistant
+   uses SQLite, this filesystem backup is crash-consistent at best; a
+   `Completed` Velero Backup does not prove application consistency or a
+   successful restore.
+
+Prefer the application-aware archive for configuration recovery. Use Velero
+when namespace/PVC recovery is required, and verify both the Backup and its
+volume-backup artifact before claiming coverage.
 
 ## Adding a Backup Schedule
 

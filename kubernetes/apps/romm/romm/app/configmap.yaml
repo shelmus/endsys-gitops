@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: romm-config
+data:
+  config.yml: |
+    system:
+      platforms:
+        "Nintendo Gameboy": gb
+        "Nintendo Gameboy Advance": gba

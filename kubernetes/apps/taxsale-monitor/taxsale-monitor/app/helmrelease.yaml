@@ -1,0 +1,60 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: taxsale-monitor
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      check:
+        type: cronjob
+        cronjob:
+          # Daily 11:05 UTC ≈ 07:05 ET — county offices publish during
+          # business hours; one polite check per day per the config cadence.
+          schedule: "5 11 * * *"
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 2
+        containers:
+          app:
+            image:
+              repository: ghcr.io/shelmus/taxsale-monitor
+              tag: v0.1.0
+            env:
+              # n8n Webhook (docs/n8n-workflow.md); harmless until the
+              # workflow exists — delivery failure never fails the run.
+              N8N_WEBHOOK_URL: "http://n8n.n8n.svc.cluster.local:5678/webhook/taxsale-monitor"
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+
+    persistence:
+      data:
+        existingClaim: taxsale-monitor-data
+        globalMounts:
+          - path: /data

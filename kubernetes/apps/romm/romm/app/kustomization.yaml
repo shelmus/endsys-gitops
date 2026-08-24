@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./configmap.yaml
+  - ./dragonfly.yaml
+  - ./externalsecret.yaml
+  - ./helmrelease.yaml
+  - ./httproute.yaml
+  - ./library-pv.yaml
+  - ./library-pvc.yaml
+  - ./postgres-cluster.yaml

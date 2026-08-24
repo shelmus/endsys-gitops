@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: home-assistant
-      version: 0.3.61
+      version: 0.3.74
       sourceRef:
         kind: HelmRepository
         name: pajikos
@@ -33,12 +33,6 @@ spec:
     hostNetwork: true
     dnsPolicy: ClusterFirstWithHostNet
 
-    securityContext:
-      privileged: true
-
-    nodeSelector:
-      kubernetes.io/hostname: kube1
-
     persistence:
       enabled: true
       storageClass: longhorn
@@ -47,23 +41,35 @@ spec:
     configuration:
       enabled: true
       forceInit: false
+      # Narrowed to loopback plus the Cilium native-routing / pod CIDR that the
+      # internal Gateway Envoy sources from. Rendered into the http block below.
       trusted_proxies:
-        - 10.0.0.0/8
-        - 172.16.0.0/12
-        - 192.168.0.0/16
         - 127.0.0.0/8
+        - 10.42.0.0/16
+      # Chart 0.3.61 default templateConfig, with the Ingress-conditional http
+      # block replaced by exactly one unconditional http mapping so the
+      # standalone HTTPRoute path is trusted. Other defaults are preserved.
+      templateConfig: |-
+        # Loads default set of integrations. Do not remove.
+        default_config:
 
-    # Z-wave USB passthrough disabled until device is plugged into kube1
-    # additionalVolumes:
-    #   - name: zwave-usb
-    #     hostPath:
-    #       path: /dev/serial/by-id
-    #       type: Directory
-    #
-    # additionalMounts:
-    #   - name: zwave-usb
-    #     mountPath: /dev/serial/by-id
-    #     readOnly: true
+        {{- if .Values.serviceMonitor.enabled }}
+        prometheus:
+        {{- end }}
+
+        http:
+          use_x_forwarded_for: true
+          trusted_proxies:
+            {{- range .Values.configuration.trusted_proxies }}
+            - {{ . }}
+            {{- end }}
+        # Load frontend themes from the themes folder
+        frontend:
+          themes: !include_dir_merge_named themes
+
+        automation: !include automations.yaml
+        script: !include scripts.yaml
+        scene: !include scenes.yaml
 
     service:
       type: ClusterIP
