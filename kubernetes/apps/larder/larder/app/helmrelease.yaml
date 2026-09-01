@@ -28,7 +28,7 @@ spec:
           app:
             image: &image
               repository: ghcr.io/shelmus/larder
-              tag: v0.2.0
+              tag: v0.3.0
             env: &env
               TIME_ZONE: America/New_York
               DEBUG: "False"
