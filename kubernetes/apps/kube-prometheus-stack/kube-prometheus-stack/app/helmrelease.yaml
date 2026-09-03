@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: kube-prometheus-stack
-      version: 82.18.0
+      version: 88.5.4
       sourceRef:
         kind: HelmRepository
         name: kube-prometheus-stack
@@ -29,6 +29,19 @@ spec:
       valuesKey: webhook-url
       targetPath: alertmanager.config.receivers[0].discord_configs[0].webhook_url
   values:
+    # Helm does not upgrade CRDs from a chart's crds/ directory. Run the
+    # chart's pre-upgrade hook so the v0.93.1 CRDs land before the operator.
+    crds:
+      upgradeJob:
+        enabled: true
+        forceConflicts: true
+        image:
+          busybox:
+            # renovate: datasource=docker depName=busybox
+            tag: "1.37.0"
+          kubectl:
+            # renovate: datasource=docker depName=registry.k8s.io/kubectl
+            tag: "v1.34.0"
     defaultRules:
       create: false
     alertmanager:
