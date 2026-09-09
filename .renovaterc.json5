@@ -30,6 +30,12 @@
   },
   packageRules: [
     {
+      description: "Keep n8n on 1.x until its 2.x migration is tested",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["n8nio/n8n", "docker.io/n8nio/n8n"],
+      allowedVersions: "<2.0.0",
+    },
+    {
       description: "Cert-Manager Group",
       groupName: "Cert-Manager",
       matchDatasources: ["docker"],
