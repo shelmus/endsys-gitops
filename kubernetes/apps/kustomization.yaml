@@ -19,6 +19,7 @@ resources:
   - ./kube-system
   - ./larder
   - ./longhorn-system
+  - ./manatable
   - ./matrix
   - ./n8n
   - ./network
