@@ -8,7 +8,7 @@ spec:
   interval: 1h
   url: https://git.deuxfleurs.fr/Deuxfleurs/garage
   ref:
-    tag: v2.3.0
+    tag: v2.4.1
   ignore: |
     /*
     !/script/helm/garage
