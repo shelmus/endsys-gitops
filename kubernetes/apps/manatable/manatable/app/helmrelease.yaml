@@ -112,7 +112,7 @@ spec:
       app:
         hostnames: ["manatable.${SECRET_DOMAIN}"]
         parentRefs:
-          - name: internal
+          - name: external
             namespace: kube-system
             sectionName: https
         rules:
