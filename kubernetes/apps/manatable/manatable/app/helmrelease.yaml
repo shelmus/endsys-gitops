@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/shelmus/manatable-client
-              tag: v0.5.4
+              tag: v0.5.5
             env:
               ROOM_SERVER_UPSTREAM: manatable-room-server.manatable.svc.cluster.local:4174
             probes:
@@ -63,7 +63,7 @@ spec:
           app:
             image:
               repository: ghcr.io/shelmus/manatable-room-server
-              tag: v0.5.4
+              tag: v0.5.5
             env:
               ROOM_SERVER_PORT: &roomPort 4174
               NODE_ENV: production
