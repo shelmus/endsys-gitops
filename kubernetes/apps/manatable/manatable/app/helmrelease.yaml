@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/shelmus/manatable-client
-              tag: v0.3.1
+              tag: v0.4.0
             env:
               ROOM_SERVER_UPSTREAM: manatable-room-server.manatable.svc.cluster.local:4174
             probes:
@@ -63,10 +63,18 @@ spec:
           app:
             image:
               repository: ghcr.io/shelmus/manatable-room-server
-              tag: v0.3.1
+              tag: v0.4.0
             env:
               ROOM_SERVER_PORT: &roomPort 4174
               NODE_ENV: production
+              # v0.4.0 import proxy (POST /api/import). ALLOWED_ORIGINS is
+              # REQUIRED in production: unset fails closed (every import 403).
+              ALLOWED_ORIGINS: "https://manatable.${SECRET_DOMAIN}"
+              # Caddy (client pod) is the only peer; honour its X-Forwarded-For.
+              # Pod CIDR 10.42.0.0/16 is inside the default 10.0.0.0/8.
+              TRUSTED_PROXIES: "127.0.0.1/32,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+              # Moxfield stays gated (no UA requested); empty = 503 upstream_not_enabled.
+              MOXFIELD_USER_AGENT: ""
             probes:
               liveness: &roomProbes
                 enabled: true
