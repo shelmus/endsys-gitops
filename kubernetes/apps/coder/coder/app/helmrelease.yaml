@@ -26,6 +26,15 @@ spec:
     coder:
       service:
         type: ClusterIP
+      # The chart ships the liveness probe disabled. Without it a coderd that
+      # hangs mid-shutdown (e.g. after losing Postgres during node churn) stays
+      # Running 0/1 forever instead of being restarted by the kubelet.
+      livenessProbe:
+        enabled: true
+        initialDelaySeconds: 120
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 6
       env:
         - name: CODER_PG_CONNECTION_URL
           valueFrom:
