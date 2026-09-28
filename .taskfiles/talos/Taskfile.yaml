@@ -14,6 +14,14 @@ tasks:
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - which talhelper
 
+  validate:
+    desc: Validate talconfig.yaml against the talhelper schema
+    dir: '{{.TALOS_DIR}}'
+    cmd: talhelper validate talconfig {{.TALOS_DIR}}/talconfig.yaml
+    preconditions:
+      - test -f {{.TALOS_DIR}}/talconfig.yaml
+      - which talhelper
+
   apply-node:
     desc: Apply Talos config to a node [IP=required]
     dir: '{{.TALOS_DIR}}'
