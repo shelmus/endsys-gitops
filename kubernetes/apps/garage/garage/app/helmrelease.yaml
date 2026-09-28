@@ -30,6 +30,15 @@ spec:
       # Single-node deploy (replicaCount: 1) requires factor "1" (chart default is "3").
       replicationFactor: "1"
       consistencyMode: "consistent"
+      # Metadata (LMDB) lives on the in-cluster Longhorn volume; without it the NFS data
+      # blocks are unreadable. Snapshot it every 6h onto the NFS data volume (Lyris), per
+      # Garage's docs ("same storage space as data_dir"). Garage keeps the 2 newest.
+      # The block scanner only walks hex-named directories, so this subdir is ignored.
+      # Restore: docs "Recovering from failures -> corrupted metadata", then
+      # `garage repair -a --yes tables` and `garage repair -a --yes blocks`.
+      metadataAutoSnapshotInterval: "6h"
+      additionalTopLevelConfig: |
+        metadata_snapshots_dir = "/mnt/data/metadata-snapshots"
     persistence:
       enabled: true
       meta:
