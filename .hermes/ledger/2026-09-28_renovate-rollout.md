@@ -72,17 +72,57 @@ It was then merged pinned to `373c2ee`.
 - **#276:** prometheus-operator bootstrap CRD URL. Folded into the #334 repair.
 - **#306:** mysql 8.2 → 26.7, an unsupported jump. #253 (8.4 LTS) stays on hold.
 
-## Repaired, not merged
+## Second pass (2026-09-28, 05:50–06:50 EDT; Sean: "go ahead on everything but the talos upgrade")
 
-- **#332 (external-dns 1.21.1 → 1.22.0):** pushed ahead-only as `a60bded`. The head is CLEAN and all Flux Local checks pass.
-  - The repair pins `annotationPrefix: external-dns.alpha.kubernetes.io/` on both releases. v0.22 changed the default prefix with no fallback, the Gateways use the alpha prefix, and cloudflare-dns runs `policy: sync`.
-  - It also removes `--pihole-api-version`, which no longer exists in v0.22.0. kingpin rejects unknown flags, so the pod would crashloop.
-  - The render confirms both flags. Every rendered flag exists in the v0.22.0 source.
-  - Merging it is a DNS change and needs Sean's go-ahead. #315 (bootstrap CRD URL v0.21 → v0.22) is its companion.
-- **#334 (kube-prometheus-stack):** a local repair, `8b5f0f5`, exists: the CRD upgradeJob plus bootstrap CRDs v0.94.1.
-  - It was built on the 91.8.0 head `8fc8264`. Renovate has since moved the PR to **91.8.1**.
-  - The repair must be rebuilt and re-verified on the new head before it is pushed.
-  - It needs a rollout window: the operator CRDs change, and Grafana goes to 13 with distroless images.
+| PR | Change | Merge commit | Result |
+|---|---|---|---|
+| #332 | external-dns chart 1.21.1 → 1.22.0 (app v0.22.0) + repair `a60bded` | `54eb704` | Converged; DNS unchanged |
+| #315 | bootstrap DNSEndpoint CRD URL v0.21.0 → v0.23.0 | `699de05` | Bootstrap only; no live effect |
+| #334 | kube-prometheus-stack 82.18.0 → 91.8.1 + repair `385538a` | `583ff6c` | Converged; monitoring verified |
+
+**#332:**
+- Recorded a baseline first:
+  - Pi-hole answers for all 28 HTTPRoute hostnames.
+  - Cloudflare A records and `k8s.cname-*` ownership TXT (owner=default) for the 14 external hostnames.
+- The v0.22 TXT-registry change (`a-` prefix) applies to AWS A-ALIAS only, not Cloudflare.
+- After the merge:
+  - Both pods run v0.22.0 with 0 restarts and carry `--annotation-prefix=external-dns.alpha.kubernetes.io/`.
+  - pihole-dns no longer passes `--pihole-api-version`.
+  - Both log only "All records are already up to date".
+  - A re-query of all 28 Pi-hole and 14 Cloudflare answers matched the baseline exactly.
+- An unrelated finding: pihole-dns has 837 lifetime restarts. The last one was 2026-09-20: `connection refused` to 10.127.0.3:80 at start-up, which means Pi-hole was down at the time. It has been stable since.
+
+**#315:** the v0.22.0 and v0.23.0 DNSEndpoint CRDs are byte-identical, and v0.21 → v0.22 changes only the controller-gen annotation. The live CRD is v1alpha1 and was untouched, since `scripts/bootstrap-apps.sh` runs only at bootstrap.
+
+**#334:**
+- The repair was rebuilt on the 91.8.1 head. Chart 91.8.0 → 91.8.1 only adds the node-exporter `prometheusScrape: false` default. It was pushed ahead-only as `385538a`, and CI passed.
+- Pre-merge evidence:
+  - The render includes a pre-upgrade/pre-rollback Job that runs `kubectl apply --server-side --force-conflicts` on all 10 CRDs, with pinned busybox 1.37.0 and kubectl v1.34.0.
+  - Every live `storedVersion` is still served by the target CRDs.
+  - All 10 rendered images resolve in their registries.
+  - `amtool` v0.34.1 (sha256-verified) accepts the rendered Alertmanager config.
+  - The operator ClusterRole went from 3 wildcard-verb rules to 0.
+  - Control-plane ServiceMonitors now use the chart-created `kube-prometheus-stack-prometheus-token` Secret (the 90.x change).
+  - The Grafana 13 distroless image forbids `GF_*__FILE`, but this repo uses plain env from the `grafana-oauth` ExternalSecret.
+- Two Renovate annotation tags were unquoted: the regex manager's `(?<currentValue>\S+)` would otherwise capture the quote marks.
+- Before and after, from read-only snapshots:
+  - All 10 CRDs went from `operator.prometheus.io/version` 0.84.1 to **0.94.1**, with storedVersions unchanged.
+  - Pods now run operator v0.94.1, Prometheus v3.15.0-distroless, Alertmanager v0.34.1, Grafana 13.2.2-distroless, kube-state-metrics v2.20.0 and node-exporter v1.12.1-distroless. All are Ready with 0 restarts.
+  - Prometheus has 37 jobs and **66/66 targets up**; 3 briefly showed `unknown` before their first scrape. 13 alert rules, none firing.
+  - Config reloads succeed for both Prometheus and Alertmanager, and the operator reports 0 reconcile errors.
+  - Grafana's `/api/health` reports database ok. `/login/generic_oauth` still returns a 302 to PocketID with a client_id.
+  - A test alert (`MimirPostUpgradeTest`, severity warning, expires after 3 minutes) was posted at 10:46 UTC. The Discord notification counter went from 0 to 1 with 0 failures.
+- Not verified: an interactive Grafana OIDC login all the way through. Sean should log in once.
+- Side effect: Prometheus, Alertmanager and Grafana store data in `emptyDir`, so this restart wiped metric history, Alertmanager silences (none were active) and any dashboards created in the UI. Provisioned dashboards come back from ConfigMaps.
+
+## PRs opened
+
+- #361 `chore/purge-cluster-template`: template purge + README. Merged with `main` to drop the 8 `.j2` files that Renovate bumped in this rollout.
+
+## First-pass repair notes (superseded by the second pass)
+
+- **#332:** the repair pins `annotationPrefix: external-dns.alpha.kubernetes.io/`. v0.22 changed the default prefix with no fallback, the Gateways use the alpha prefix, and cloudflare-dns runs `policy: sync`. It also removes `--pihole-api-version`: the flag no longer exists in v0.22.0, and kingpin rejects unknown flags. Every rendered flag exists in the v0.22.0 source.
+- **#334:** the first repair, `8b5f0f5`, was built on the 91.8.0 head. It was rebuilt on 91.8.1 as `385538a` and never pushed in its original form.
 
 ## Held (unchanged)
 
@@ -99,8 +139,9 @@ It was then merged pinned to `373c2ee`.
 
 - **Velero:** BackupStorageLocation, BackupRepository and Schedule status. The `mimir-readonly` service account is forbidden from `velero.io` resources. Check `velero backup-location get` and the next 02:00 UTC scheduled backup.
 - **octopi 503:** not confirmed as pre-existing.
+- **Grafana:** an interactive OIDC login after the Grafana 13 upgrade.
 
 ## Related
 
-- Template purge: branch `chore/purge-cluster-template` @ `45aa8c9`, pushed; no PR yet.
+- Template purge: PR #361 (`chore/purge-cluster-template` @ `077c28c`).
 - The security audit is in the vault, not this public repo: `Plan/2026-09-27_221141-endsys-gitops-security-audit.md`.
