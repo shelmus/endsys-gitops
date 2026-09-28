@@ -137,9 +137,9 @@ It was then merged pinned to `373c2ee`.
 
 ## Not verified
 
-- **Velero:** BackupStorageLocation, BackupRepository and Schedule status. The `mimir-readonly` service account is forbidden from `velero.io` resources. Check `velero backup-location get` and the next 02:00 UTC scheduled backup.
-- **octopi 503:** not confirmed as pre-existing.
-- **Grafana:** an interactive OIDC login after the Grafana 13 upgrade.
+- **Velero:** the `mimir-readonly` service account can't read `velero.io` resources. Sean confirmed on 2026-09-28 that backups run to Garage on Lyris NFS. The CNPG databases still have no point-in-time backup, and no restore has been recorded.
+- **octopi 503:** Sean says octopi isn't needed at the moment, so it's out of scope.
+- **Grafana:** Sean confirmed on 2026-09-28 that the OIDC login works after the Grafana 13 upgrade.
 
 ## Related
 
