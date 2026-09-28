@@ -8,6 +8,8 @@ resources:
   - ./externalsecret-grafana-oauth.yaml
   - ./prometheusrule-apps.yaml
   - ./prometheusrule-storage.yaml
+  - ./prometheusrule-backups.yaml
+  - ./podmonitor-cnpg.yaml
   - ./prometheusrule-gameserver.yaml
   - ./grafana-dashboard-gameserver.yaml
   - ./grafana-dashboard-cluster.yaml
