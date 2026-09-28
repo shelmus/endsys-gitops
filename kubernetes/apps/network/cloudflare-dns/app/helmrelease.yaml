@@ -37,6 +37,10 @@ spec:
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
       - --gateway-name=external
+    # external-dns v0.22 changed the default prefix to external-dns.kubernetes.io/
+    # with no fallback. Our Gateways use the alpha prefix; without this pin the
+    # target/hostname annotations are ignored and policy=sync rewrites records.
+    annotationPrefix: external-dns.alpha.kubernetes.io/
     triggerLoopOnEvent: true
     policy: sync
     sources: ["crd", "gateway-httproute"]
