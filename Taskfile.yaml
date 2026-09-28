@@ -21,7 +21,6 @@ env:
 includes:
   bootstrap: .taskfiles/bootstrap
   talos: .taskfiles/talos
-  template: .taskfiles/template
 
 tasks:
 
@@ -33,3 +32,14 @@ tasks:
     preconditions:
       - test -f {{.KUBECONFIG}}
       - which flux
+
+  debug:
+    desc: Gather common resources in your cluster (read-only)
+    cmds:
+      - for:
+          matrix:
+            RESOURCE: [certificates, certificaterequests, gitrepositories, helmrepositories, helmreleases, httproutes, kustomizations, nodes, pods]
+        cmd: kubectl get --all-namespaces {{.ITEM.RESOURCE}}
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl

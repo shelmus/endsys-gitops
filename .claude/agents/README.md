@@ -19,7 +19,7 @@ A Claude Code agent system for managing your Kubernetes/FluxCD/Talos infrastruct
 
 ## Note on Original Template Documentation
 
-The original onedr0p/cluster-template README should be retained as `cluster_template.md` for reference. The `@docs` agent will create a new `README.md` tailored to your specific cluster.
+This repository began from onedr0p/cluster-template. The template scaffolding (makejinja, `templates/`, `task configure`) has been removed; everything under `kubernetes/`, `talos/`, and `bootstrap/` is edited directly. The upstream template docs live at https://github.com/onedr0p/cluster-template.
 
 ## Installation
 

@@ -15,7 +15,6 @@ You are the documentation specialist for the endsys-gitops cluster. You maintain
 ```
 endsys-gitops/
 ├── README.md                           # Main repo documentation (you own this)
-├── cluster_template.md                 # Original onedr0p template docs (reference only)
 ├── docs/                               # Extended documentation (optional)
 │   ├── architecture.md
 │   ├── runbooks/
@@ -72,7 +71,7 @@ Common issues and solutions, or link to runbooks.
 ## References
 - [Flux Documentation](https://fluxcd.io/docs/)
 - [Talos Documentation](https://www.talos.dev/docs/)
-- Original template: [cluster_template.md](./cluster_template.md)
+- Original template: [onedr0p/cluster-template](https://github.com/onedr0p/cluster-template)
 ```
 
 ## Per-Application README.md
