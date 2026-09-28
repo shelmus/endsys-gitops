@@ -47,6 +47,27 @@ Current schedules:
 | `matrix-daily` | matrix | `0 2 * * *` (2 AM UTC) | 30 days |
 | `romm-daily` | romm | `45 2 * * *` (2:45 AM UTC) | 30 days |
 | `home-assistant-daily` | home-assistant | `0 2 * * *` (2 AM UTC) | 30 days |
+| `coder-daily` | coder | `15 2 * * *` (2:15 AM UTC) | 30 days |
+| `hindsight-daily` | hindsight | `20 2 * * *` (2:20 AM UTC) | 30 days |
+| `larder-daily` | larder | `25 2 * * *` (2:25 AM UTC) | 30 days |
+
+Not scheduled: `taxsale-monitor`. It is a CronJob, and file-system backup only captures volumes mounted by running pods (see `debt.md` TD-004).
+
+### What the Backups Do Not Cover Yet
+
+- **Postgres is not point-in-time.** A Velero file copy of a running CNPG `pgdata` volume is a live copy taken while Postgres writes. It is not captured at one instant, so it may not start cleanly. WAL archiving is not configured (TD-013).
+- **Garage metadata lives in the cluster.** Garage's data blocks are on NFS, but its LMDB metadata is on the Longhorn volume `meta-garage-0`. Without the metadata, the blocks on NFS are unreadable (TD-014).
+- **No restore has been recorded.** A backup counts only after one restore test succeeds.
+
+### Alerting
+
+`kube-prometheus-stack/app/prometheusrule-backups.yaml` alerts to Discord when:
+- a scheduled Velero backup fails or goes 26 hours without success;
+- the backup location is unavailable;
+- Velero metrics disappear;
+- CNPG WAL archiving fails (inactive until archiving is configured).
+
+`podmonitor-cnpg.yaml` scrapes every CNPG instance.
 
 ### Home Assistant Recovery Boundary
 
@@ -116,7 +137,7 @@ resources:
 
 If the app has an in-pod database (like pricebuddy's MySQL), add pre/post hooks to ensure consistency. See `schedules/pricebuddy-schedule.yaml` for a full example with `FLUSH TABLES WITH READ LOCK`.
 
-Apps using CNPG do not need hooks — CNPG manages its own WAL-based consistency.
+Apps using CNPG are not made consistent by Velero. Postgres recovers from WAL only when WAL is archived, and no archiving is configured here. Until it is, treat a Velero copy of `pgdata` as a best-effort live copy, and take a `pg_dump` before risky migrations (Option C below).
 
 ## Creating a Manual Backup
 
@@ -263,7 +284,7 @@ spec:
     size: 20Gi
 ```
 
-> **Note**: CNPG Barman backups are not currently configured. See `debt.md` TD-004.
+> **Note**: CNPG backups are not configured. Use the Barman Cloud plugin (`ObjectStore` plus `method: plugin`), not the deprecated in-tree `barmanObjectStore` shown above. See `debt.md` TD-013.
 
 #### Option C: pg_dump / pg_restore (Manual)
 
@@ -361,9 +382,10 @@ kubectl get cluster -A
 | Longhorn PVCs (PocketID) | Velero filesystem backup | No, must restore from backup |
 | Default PVCs (Pelican, n8n) | Velero filesystem backup | No, must restore from backup |
 | CNPG PVCs (Immich DB) | Velero or CNPG Barman | No, must restore from backup |
-| Garage (backups themselves) | On NFS at `10.127.0.7:/vault/k8s` | Yes, if NFS server is intact |
+| Garage data blocks | On NFS at `10.127.0.7:/vault/k8s/garage` | Yes, if NFS server is intact |
+| Garage metadata (LMDB) | Longhorn PVC `meta-garage-0` | **No**, and without it the blocks are unreadable (TD-014) |
 
-The NFS server at `10.127.0.7` is the ultimate safety net for backups. As long as it retains `/vault/k8s` (backup store), the Velero history survives a full cluster loss. See `.context/architecture/overview.md` for the full NFS layout.
+The NFS server at `10.127.0.7` holds Garage's data blocks, but not the metadata that indexes them. The Velero history survives a full cluster loss only if a copy of Garage's metadata also survives. Until TD-014 is closed, NFS is not a complete safety net. See `.context/architecture/overview.md` for the full NFS layout.
 
 ## Troubleshooting
 

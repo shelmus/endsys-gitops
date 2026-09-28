@@ -16,3 +16,6 @@ resources:
   - ./schedules/matrix-schedule.yaml
   - ./schedules/pelican-schedule.yaml
   - ./schedules/home-assistant-schedule.yaml
+  - ./schedules/coder-schedule.yaml
+  - ./schedules/hindsight-schedule.yaml
+  - ./schedules/larder-schedule.yaml

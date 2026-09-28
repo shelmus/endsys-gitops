@@ -41,9 +41,45 @@ image: jez500/pricebuddy:latest
 
 ---
 
-### 4. ~~Limited Velero Backup Schedules~~ — Resolved
+### 4. Limited Velero Backup Schedules — Partial
 
-**Status**: Resolved — Backup schedules added for all stateful apps (n8n, immich, gatus, obsidian-livesync, pocket-id).
+**Status**: Partial. The earlier schedules covered n8n, immich, gatus, obsidian-livesync and pocket-id. coder, hindsight and larder were added on 2026-09-28.
+
+**Remaining**: `taxsale-monitor` runs as a CronJob. File-system backup only captures volumes mounted by running pods, so its SQLite volume is not backed up. Either accept that the data can be regenerated, or move to CSI snapshot backups.
+
+---
+
+### 13. CNPG Clusters Without WAL Archiving
+
+**Location**: All 7 CNPG `Cluster` CRs (coder, hindsight, immich, larder, matrix-mas, matrix-synapse, romm)
+
+**Issue**: No `spec.plugins`, no `ScheduledBackup`, and no WAL archiving. Velero copies `pgdata` while Postgres is live.
+
+**Risk**: No point-in-time recovery. A restore depends on an inconsistent daily file copy.
+
+**Recommended Fix**: Barman Cloud plugin (`plugin-barman-cloud`) with one Garage bucket and key per cluster. Pilot on larder, then roll out one cluster per change, running a restore test for each.
+
+---
+
+### 14. Garage Metadata Not Protected
+
+**Location**: `kubernetes/apps/garage/garage/app/helmrelease.yaml`
+
+**Issue**: Garage's LMDB metadata is on the Longhorn PVC `meta-garage-0`, and `metadataAutoSnapshotInterval` is unset.
+
+**Risk**: If the cluster or Longhorn is lost, the Velero data on NFS can't be read.
+
+**Recommended Fix**: Enable `metadata_auto_snapshot_interval`, with `metadata_snapshots_dir` on an NFS volume on Lyris.
+
+---
+
+### 16. PriceBuddy MySQL Hook Does Not Hold the Lock
+
+**Location**: `kubernetes/apps/velero/velero/app/schedules/pricebuddy-schedule.yaml`
+
+**Issue**: The pre-hook runs `FLUSH TABLES WITH READ LOCK; SELECT SLEEP(5)` in the background and exits after `sleep 2`. The lock is released before Velero copies the volume, and a read lock doesn't make InnoDB's files consistent on disk anyway.
+
+**Recommended Fix**: Run `mysqldump --single-transaction` into a backed-up path as the pre-hook, and back up the dump.
 
 ---
 
@@ -95,7 +131,9 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 
 ---
 
-### 10. VolSync Not Consistently Deployed
+### 10. ~~VolSync Not Consistently Deployed~~ — Superseded
+
+**Status**: Superseded by Velero. Its only user, otterwiki, is disabled. Remove VolSync when otterwiki is retired.
 
 **Location**: Only `kubernetes/apps/default/otterwiki/app/volsync-backup.yaml`
 
@@ -158,11 +196,14 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 |----|-------|----------|--------|
 | TD-002 | Pricebuddy latest tag (Pelican resolved) | High | Partial |
 | TD-003 | Single-instance CNPG | Medium | Open |
-| TD-004 | Limited Velero schedules | Medium | **Resolved** |
+| TD-004 | Limited Velero schedules (taxsale-monitor remaining) | Medium | Partial |
 | TD-005 | Manual Immich PV | Medium | Open |
 | TD-006 | Velero SOPS secret | Low | **Resolved** |
 | TD-007 | n8n HTTPRoute missing | Low | Open |
 | TD-008 | Pricebuddy init workaround | Low | Open |
-| TD-010 | VolSync not consistent | Medium | Open |
+| TD-010 | VolSync not consistent | Medium | Superseded |
 | TD-011 | SOPS still widely used | Low | Open |
 | TD-012 | Firecrawl chart limitations (bundled deps, image tags, no Postgres persistence) | Low | Open |
+| TD-013 | CNPG without WAL archiving | High | Open |
+| TD-014 | Garage metadata unprotected | High | Open |
+| TD-016 | PriceBuddy MySQL hook ineffective | Medium | Open |

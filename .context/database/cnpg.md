@@ -180,23 +180,16 @@ See [debt.md](../debt.md) TD-003 for current HA status.
 
 ## Backup Configuration
 
-Example with S3-compatible storage:
+No cluster has backups configured yet (see [debt.md](../debt.md) TD-013).
 
-```yaml
-spec:
-  backup:
-    barmanObjectStore:
-      destinationPath: s3://backups/postgres
-      endpointURL: https://s3.example.com
-      s3Credentials:
-        accessKeyId:
-          name: backup-creds
-          key: access-key
-        secretAccessKey:
-          name: backup-creds
-          key: secret-key
-    retentionPolicy: "30d"
-```
+The in-tree `spec.backup.barmanObjectStore` is deprecated as of CNPG 1.26. Use the Barman Cloud plugin instead:
+- an `ObjectStore` (`barmancloud.cnpg.io/v1`) holding the S3 destination and credentials;
+- `spec.plugins` with `barman-cloud.cloudnative-pg.io` and `isWALArchiver: true` on the `Cluster`;
+- a `ScheduledBackup` with `method: plugin`.
+
+The plugin exposes `barman_cloud_cloudnative_pg_io_last_available_backup_timestamp` and `..._first_recoverability_point`. These replace the deprecated `cnpg_collector_*` backup metrics.
+
+Metrics are scraped by the shared PodMonitor `kube-prometheus-stack/app/podmonitor-cnpg.yaml`, which selects `cnpg.io/podRole: instance`. Don't add a PodMonitor per cluster.
 
 ## Monitoring
 

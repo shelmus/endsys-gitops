@@ -1,0 +1,72 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+# Backup health. Metric sources (checked against source, 2026-09-28):
+#   velero_*: Velero v1.18.2 pkg/metrics/metrics.go. InitSchedule seeds backup_last_status=1 and the
+#     attempt counters at startup; backup_last_successful_timestamp only appears after a success.
+#   cnpg_pg_stat_archiver_*: CNPG default monitoring query pg_stat_archiver (primary only; -1 = never).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: backup-alerts
+  labels:
+    app.kubernetes.io/name: kube-prometheus-stack
+    app.kubernetes.io/component: alerting
+spec:
+  groups:
+    - name: velero
+      rules:
+        - alert: VeleroMetricsAbsent
+          expr: absent(velero_backup_attempt_total)
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Velero metrics are missing"
+            description: "Prometheus has no Velero server metrics. Velero is down or its ServiceMonitor is not scraping, so backup alerts cannot fire."
+
+        - alert: VeleroBackupFailed
+          expr: velero_backup_last_status{schedule!=""} == 0
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Velero schedule {{ $labels.schedule }} last backup failed"
+            description: "The most recent backup from schedule {{ $labels.schedule }} ended Failed or PartiallyFailed. Check `velero backup describe` for the newest {{ $labels.schedule }} backup."
+
+        - alert: VeleroBackupTooOld
+          expr: (time() - velero_backup_last_successful_timestamp{schedule!=""}) > 26 * 3600
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Velero schedule {{ $labels.schedule }} has no successful backup in 26h"
+            description: "The last successful {{ $labels.schedule }} backup was {{ $value | humanizeDuration }} ago."
+
+        - alert: VeleroScheduleNoSuccess
+          expr: velero_backup_attempt_total{schedule!=""} unless on (schedule) velero_backup_last_successful_timestamp{schedule!=""}
+          for: 26h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Velero schedule {{ $labels.schedule }} has not succeeded since Velero started"
+            description: "Velero has run for 26h without a successful {{ $labels.schedule }} backup. This also covers a schedule whose backups fail every night."
+
+        - alert: VeleroBackupLocationUnavailable
+          expr: velero_backup_location_status_gauge == 0
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Velero backup location {{ $labels.backup_location_name }} is unavailable"
+            description: "Velero cannot reach backup location {{ $labels.backup_location_name }} (Garage). Scheduled backups will fail."
+
+    - name: cnpg-backups
+      rules:
+        - alert: CNPGWALArchivingFailing
+          expr: cnpg_pg_stat_archiver_last_failed_time > cnpg_pg_stat_archiver_last_archived_time
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} WAL archiving is failing"
+            description: "The newest WAL archive attempt on {{ $labels.namespace }}/{{ $labels.pod }} failed and nothing has archived since. Point-in-time recovery is falling behind."

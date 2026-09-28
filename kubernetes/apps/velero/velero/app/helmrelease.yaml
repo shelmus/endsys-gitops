@@ -22,6 +22,12 @@ spec:
     deployNodeAgent: true
     # We are not using cloud provider snapshots
     snapshotsEnabled: false
+    # Scrape the server and node-agent so backup failures alert (prometheusrule-backups.yaml)
+    metrics:
+      serviceMonitor:
+        enabled: true
+      nodeAgentPodMonitor:
+        enabled: true
     # Reference the 'cloud' key from the secret in step 02
     credentials:
       secretName: velero-s3-credentials
