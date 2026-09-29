@@ -4,6 +4,9 @@
 #   velero_*: Velero v1.18.2 pkg/metrics/metrics.go. InitSchedule seeds backup_last_status=1 and the
 #     attempt counters at startup; backup_last_successful_timestamp only appears after a success.
 #   cnpg_pg_stat_archiver_*: CNPG default monitoring query pg_stat_archiver (primary only; -1 = never).
+#   barman_cloud_cloudnative_pg_io_*: Barman Cloud plugin v0.15 metrics, served on the instance :9187 endpoint.
+#     For plugin-method backups cnpg_collector_last_available_backup_timestamp stays 0 (verified on
+#     larder 2026-09-29), so base-backup age must use the plugin metric. 0 = no backup yet.
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -70,3 +73,25 @@ spec:
           annotations:
             summary: "{{ $labels.namespace }}/{{ $labels.pod }} WAL archiving is failing"
             description: "The newest WAL archive attempt on {{ $labels.namespace }}/{{ $labels.pod }} failed and nothing has archived since. Point-in-time recovery is falling behind."
+
+        - alert: CNPGNoRecentBaseBackup
+          expr: |
+            barman_cloud_cloudnative_pg_io_last_available_backup_timestamp > 0
+            and (time() - barman_cloud_cloudnative_pg_io_last_available_backup_timestamp) > 26 * 3600
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} has no base backup in 26h"
+            description: "The newest Barman Cloud base backup for {{ $labels.namespace }}/{{ $labels.pod }} is older than 26 hours. Check the ScheduledBackup and the Backup objects in that namespace."
+
+        - alert: CNPGBaseBackupFailed
+          expr: |
+            barman_cloud_cloudnative_pg_io_last_failed_backup_timestamp
+              > barman_cloud_cloudnative_pg_io_last_available_backup_timestamp
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} base backup failed"
+            description: "The most recent Barman Cloud base backup attempt for {{ $labels.namespace }}/{{ $labels.pod }} failed after the last successful one. Inspect: kubectl -n {{ $labels.namespace }} get backups.postgresql.cnpg.io"
