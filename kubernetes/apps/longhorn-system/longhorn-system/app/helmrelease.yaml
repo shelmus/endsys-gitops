@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: longhorn
-      version: 1.11.2
+      version: 1.12.1
       sourceRef:
         kind: HelmRepository
         name: longhorn
@@ -39,3 +39,10 @@ spec:
     metrics:
       serviceMonitor:
         enabled: true
+    # 1.12 renders internal NetworkPolicies by default (restrictInternalTraffic: true).
+    # Their longhorn-manager policy admits only Longhorn pods, which would cut off the
+    # Prometheus ServiceMonitor scrape. Keep pre-1.12 behaviour until metrics access
+    # is added explicitly.
+    networkPolicies:
+      enabled: false
+      restrictInternalTraffic: false
