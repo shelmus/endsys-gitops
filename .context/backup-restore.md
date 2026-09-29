@@ -55,7 +55,7 @@ Not scheduled: `taxsale-monitor`. It is a CronJob, and file-system backup only c
 
 ### What the Backups Do Not Cover Yet
 
-- **Postgres is not point-in-time.** A Velero file copy of a running CNPG `pgdata` volume is a live copy taken while Postgres writes. It is not captured at one instant, so it may not start cleanly. WAL archiving is not configured (TD-013).
+- **Postgres is point-in-time only where the [CNPG Backup Standard](database/cnpg-backup-standard.md) is applied** (larder so far; status table there). For the others, a Velero file copy of a running CNPG `pgdata` volume is a live copy taken while Postgres writes. It is not captured at one instant, so it may not start cleanly (TD-013).
 - **Garage metadata lives in the cluster.** Garage's data blocks are on NFS, but its LMDB metadata is on the Longhorn volume `meta-garage-0`. Without the metadata, the blocks on NFS are unreadable (TD-014).
 - **No restore has been recorded.** A backup counts only after one restore test succeeds.
 
@@ -284,7 +284,7 @@ spec:
     size: 20Gi
 ```
 
-> **Note**: CNPG backups are not configured. Use the Barman Cloud plugin (`ObjectStore` plus `method: plugin`), not the deprecated in-tree `barmanObjectStore` shown above. See `debt.md` TD-013.
+> **Note**: the example above uses the deprecated in-tree `barmanObjectStore`. Clusters here use the Barman Cloud plugin; the recovery `bootstrap` for that is in [database/cnpg-backup-standard.md](database/cnpg-backup-standard.md#restoring-for-real), and `scripts/cnpg-restore-drill.py` builds it for a drill.
 
 #### Option C: pg_dump / pg_restore (Manual)
 
