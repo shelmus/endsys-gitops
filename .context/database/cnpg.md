@@ -180,14 +180,14 @@ See [debt.md](../debt.md) TD-003 for current HA status.
 
 ## Backup Configuration
 
-No cluster has backups configured yet (see [debt.md](../debt.md) TD-013).
+**Every cluster must meet the [CNPG Backup Standard](cnpg-backup-standard.md)**: continuous WAL archiving and daily base backups to its own Garage bucket, alerts, and one recorded restore drill. For a new database, write `postgres-cluster.yaml`, then run `scripts/cnpg-backup-scaffold.py <cluster>` in the same PR. `scripts/cnpg-backup-scaffold.py --audit` lists the clusters that don't meet it yet.
 
 The in-tree `spec.backup.barmanObjectStore` is deprecated as of CNPG 1.26. Use the Barman Cloud plugin instead:
 - an `ObjectStore` (`barmancloud.cnpg.io/v1`) holding the S3 destination and credentials;
 - `spec.plugins` with `barman-cloud.cloudnative-pg.io` and `isWALArchiver: true` on the `Cluster`;
 - a `ScheduledBackup` with `method: plugin`.
 
-The plugin exposes `barman_cloud_cloudnative_pg_io_last_available_backup_timestamp` and `..._first_recoverability_point`. These replace the deprecated `cnpg_collector_*` backup metrics.
+The plugin exposes `barman_cloud_cloudnative_pg_io_last_available_backup_timestamp` and `..._first_recoverability_point`. For plugin-method backups `cnpg_collector_last_available_backup_timestamp` stays 0, so alerts use the plugin series.
 
 Metrics are scraped by the shared PodMonitor `kube-prometheus-stack/app/podmonitor-cnpg.yaml`, which selects `cnpg.io/podRole: instance`. Don't add a PodMonitor per cluster.
 
