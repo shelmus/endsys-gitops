@@ -1,0 +1,15 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: larder-postgres-daily
+spec:
+  # CNPG cron has a seconds field: 03:15 UTC, after Velero's 02:00-02:50 window.
+  schedule: "0 15 3 * * *"
+  immediate: true
+  backupOwnerReference: self
+  cluster:
+    name: larder-postgres
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
