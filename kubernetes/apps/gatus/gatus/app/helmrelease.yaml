@@ -187,6 +187,17 @@ spec:
           interval: 1m
           conditions:
             - "[STATUS] < 400"
+        # Host TLS outside the cluster. The Lyris Wings cert is issued by
+        # certbot on the host (dns-cloudflare), not cert-manager, so this probe
+        # is the only thing feeding the EndpointCertificate* alerts for it.
+        - name: lyris-wings-tls
+          enabled: true
+          group: internal
+          url: tls://lyris.endsys.cloud:8443
+          interval: 5m
+          conditions:
+            - "[CONNECTED] == true"
+            - "[CERTIFICATE_EXPIRATION] > 72h"
         # Game servers
         - name: minecraft-vanilla
           enabled: true

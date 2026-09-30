@@ -9,6 +9,7 @@ resources:
   - ./prometheusrule-apps.yaml
   - ./prometheusrule-storage.yaml
   - ./prometheusrule-backups.yaml
+  - ./prometheusrule-certificates.yaml
   - ./podmonitor-cnpg.yaml
   - ./prometheusrule-gameserver.yaml
   - ./grafana-dashboard-gameserver.yaml

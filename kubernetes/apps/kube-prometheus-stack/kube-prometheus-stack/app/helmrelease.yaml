@@ -56,10 +56,18 @@ spec:
           group_interval: 5m
           repeat_interval: 4h
           routes:
+            # Watchdog is the always-firing heartbeat (prometheusrule-certificates.yaml).
+            # Route it to "null" so Discord stays quiet. It must come first:
+            # the root receiver is discord, so an unmatched Watchdog would page.
+            - receiver: "null"
+              matchers:
+                - alertname="Watchdog"
             - receiver: discord
               matchers:
                 - severity=~"warning|critical"
         receivers:
+          # discord must stay receivers[0]: valuesFrom above injects the webhook
+          # URL at receivers[0].discord_configs[0].webhook_url.
           - name: discord
             discord_configs:
               - send_resolved: true
@@ -69,6 +77,7 @@ spec:
                   **{{ .Labels.alertname }}** ({{ .Labels.severity }})
                   {{ .Annotations.description }}
                   {{ end }}
+          - name: "null"
       route:
         main:
           enabled: true

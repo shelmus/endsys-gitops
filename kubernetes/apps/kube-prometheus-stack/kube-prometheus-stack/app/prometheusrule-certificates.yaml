@@ -1,0 +1,120 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+# Certificate expiry and alerting-pipeline liveness. Added 2026-09-29, after the
+# Lyris Wings cert (lyris.endsys.cloud, certbot on the host) came within hours
+# of expiring with no alert: defaultRules.create is false, so nothing watched
+# certificates, and nothing proved Alertmanager could still deliver.
+#
+# Metric sources (checked against source, 2026-09-29):
+#   certmanager_certificate_*: cert-manager controller metrics (ServiceMonitor
+#     job "cert-manager"). ready_status has one series per condition; the
+#     condition="False" series is 1 when the Certificate is not Ready.
+#   gatus_results_certificate_expiration_seconds: Gatus v5.34.0
+#     metrics/metrics.go. Set per endpoint only when a TLS handshake succeeded
+#     (config/endpoint/endpoint.go). When the handshake FAILS (including on an
+#     already-expired cert) the series is not updated. Verified 2026-09-29 by
+#     running gatus v5.34.0 against the expired Lyris cert: only
+#     gatus_results_endpoint_success{type="TLS"} 0 was emitted. So expiry
+#     alerts cover the run-up, and TlsEndpointCheckFailing covers "already broken".
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: certificate-alerts
+  labels:
+    app.kubernetes.io/name: kube-prometheus-stack
+    app.kubernetes.io/component: alerting
+spec:
+  groups:
+    - name: alerting-pipeline
+      rules:
+        # Always firing. Alertmanager routes it to the "null" receiver, so it
+        # stays silent in Discord. Its presence in the Alertmanager UI proves
+        # that rule evaluation and delivery to Alertmanager work. An external
+        # dead-man's switch (e.g. healthchecks.io) can be attached later.
+        - alert: Watchdog
+          expr: vector(1)
+          labels:
+            severity: none
+          annotations:
+            summary: "Alerting pipeline heartbeat"
+            description: "Always firing. If this alert is missing from Alertmanager, Prometheus rule evaluation or Alertmanager delivery is broken."
+
+    - name: cert-manager-certificates
+      rules:
+        - alert: CertManagerCertificateExpiringSoon
+          expr: |
+            (certmanager_certificate_expiration_timestamp_seconds - time()) < 14 * 86400
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} expires in under 14 days"
+            description: "cert-manager Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} expires in {{ $value | humanizeDuration }}. cert-manager renews at two-thirds of its lifetime, so this usually means renewal is failing. Check `kubectl describe certificate` and the CertificateRequest/Order."
+
+        - alert: CertManagerCertificateExpiryCritical
+          expr: |
+            (certmanager_certificate_expiration_timestamp_seconds - time()) < 3 * 86400
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} expires in under 3 days"
+            description: "cert-manager Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} expires in {{ $value | humanizeDuration }}."
+
+        - alert: CertManagerCertificateNotReady
+          expr: |
+            certmanager_certificate_ready_status{condition="False"} == 1
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} is not Ready"
+            description: "cert-manager Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} has been not Ready for 30 minutes."
+
+    - name: endpoint-certificates
+      rules:
+        # Covers every TLS endpoint Gatus probes, including certs issued
+        # outside the cluster (Lyris certbot, Cloudflare edge).
+        - alert: EndpointCertificateExpiringSoon
+          expr: |
+            gatus_results_certificate_expiration_seconds < 14 * 86400
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "TLS certificate for {{ $labels.name }} expires in under 14 days"
+            description: "The certificate served by Gatus endpoint {{ $labels.group }}/{{ $labels.name }} expires in {{ $value | humanizeDuration }}."
+
+        - alert: EndpointCertificateExpiryCritical
+          expr: |
+            gatus_results_certificate_expiration_seconds < 3 * 86400
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "TLS certificate for {{ $labels.name }} expires in under 3 days"
+            description: "The certificate served by Gatus endpoint {{ $labels.group }}/{{ $labels.name }} expires in {{ $value | humanizeDuration }}. A negative value means it has already expired."
+
+        # A failed handshake (expired or untrusted cert, or the service is down)
+        # produces no expiry value at all, so the rules above go quiet exactly
+        # when the cert is already broken. Scoped to type="TLS" (tls:// probes
+        # of hosts outside the cluster), so HTTP and game-port checks are not
+        # included.
+        - alert: TlsEndpointCheckFailing
+          expr: |
+            gatus_results_endpoint_success{type="TLS"} == 0
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "TLS check for {{ $labels.name }} is failing"
+            description: "Gatus TLS endpoint {{ $labels.group }}/{{ $labels.name }} has failed for 15 minutes: the certificate is expired or untrusted, or the service is down. See status.endsys.cloud for the error."
+
+        - alert: GatusMetricsAbsent
+          expr: absent(gatus_results_endpoint_success)
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Gatus metrics are missing"
+            description: "Prometheus has no Gatus metrics, so endpoint certificate-expiry alerts cannot fire."
