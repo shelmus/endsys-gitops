@@ -24,7 +24,7 @@ spec:
       repository: n8nio/n8n
       pullPolicy: IfNotPresent
       # Keep the chart update separate from the n8n 2.x application migration.
-      tag: "1.123.75"
+      tag: "1.123.83"
 
     imagePullSecrets: [ ]
     nameOverride: ""
