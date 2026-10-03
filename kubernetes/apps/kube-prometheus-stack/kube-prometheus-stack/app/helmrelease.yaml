@@ -38,7 +38,7 @@ spec:
         image:
           busybox:
             # renovate: datasource=docker depName=busybox
-            tag: 1.37.0
+            tag: 1.38.0
           kubectl:
             # renovate: datasource=docker depName=registry.k8s.io/kubectl
             tag: v1.34.0
