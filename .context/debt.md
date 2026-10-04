@@ -20,7 +20,7 @@ image: jez500/pricebuddy:latest
 
 **Recommended Fix**: Pin to specific version tag when available.
 
-> **Note**: Pelican previously had this same issue — resolved by pinning to `v1.0.0-beta33`.
+> **Note**: Pelican previously had this same issue — resolved by pinning to a release tag (currently `v1.0.0-beta38`, matched to Wings `v1.0.0-beta29`).
 
 ---
 

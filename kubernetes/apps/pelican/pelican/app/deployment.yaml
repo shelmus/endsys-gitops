@@ -27,7 +27,7 @@ spec:
         fsGroup: 82
       containers:
         - name: pelican-panel
-          image: ghcr.io/pelican-dev/panel:v1.0.0-beta33
+          image: ghcr.io/pelican/panel:v1.0.0-beta38
           ports:
             - containerPort: 80
           envFrom:
