@@ -61,6 +61,9 @@ Examples:
 |---------|---------|-----|----------|
 | `internal` | Private cluster access | 10.127.0.51 | Apps accessible only on local network |
 | `external` | Public via Cloudflare | 10.127.0.52 | Apps exposed to internet |
+| `netbird` | Direct WAN (router TCP 443 forward), **not** Cloudflare | 10.127.0.54 | NetBird only: listener admits routes from namespace `netbird`. DNS-only record owned by the DDNS updater, no external-dns. STUN is a separate LB Service `netbird/netbird-stun` on 10.127.0.55 (UDP 3478). |
+
+Do not attach other apps to `netbird`: it is the one gateway the WAN reaches without Cloudflare in front.
 
 HTTPRoute `parentRefs` reference:
 ```yaml

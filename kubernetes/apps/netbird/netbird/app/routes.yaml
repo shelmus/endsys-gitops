@@ -1,0 +1,62 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/gateway.networking.k8s.io/grpcroute_v1.json
+# Path split mirrors upstream getting-started.sh (v0.80.0) Traefik routers.
+# Parent: dedicated Gateway kube-system/netbird (10.127.0.54), the only one the WAN 443 forward reaches.
+apiVersion: gateway.networking.k8s.io/v1
+kind: GRPCRoute
+metadata:
+  name: netbird-grpc
+spec:
+  parentRefs:
+    - name: netbird
+      namespace: kube-system
+      sectionName: https
+  hostnames: ["netbird.${SECRET_DOMAIN}"]
+  rules:
+    - matches:
+        - method: { service: signalexchange.SignalExchange }
+        - method: { service: management.ManagementService }
+        - method: { service: management.ProxyService }
+      backendRefs:
+        - name: netbird-server-grpc
+          port: 80
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: netbird-server
+spec:
+  parentRefs:
+    - name: netbird
+      namespace: kube-system
+      sectionName: https
+  hostnames: ["netbird.${SECRET_DOMAIN}"]
+  rules:
+    - matches:
+        - path: { type: PathPrefix, value: /relay }
+        - path: { type: PathPrefix, value: /ws-proxy/ }
+        - path: { type: PathPrefix, value: /api }
+        - path: { type: PathPrefix, value: /oauth2 }
+      backendRefs:
+        - name: netbird-server
+          port: 80
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/gateway.networking.k8s.io/httproute_v1.json
+# Catch-all for the SPA. Gateway API prefers the longest matching prefix, so the server paths win.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: netbird-dashboard
+spec:
+  parentRefs:
+    - name: netbird
+      namespace: kube-system
+      sectionName: https
+  hostnames: ["netbird.${SECRET_DOMAIN}"]
+  rules:
+    - matches:
+        - path: { type: PathPrefix, value: / }
+      backendRefs:
+        - name: netbird-dashboard
+          port: 80

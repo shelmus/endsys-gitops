@@ -98,6 +98,20 @@ image: jez500/pricebuddy:latest
 
 ---
 
+### 17. UniFi DHCP Pool Overlaps the Cilium LB-IPAM Pool
+
+**Location**: `kubernetes/apps/kube-system/cilium/app/networks.yaml` (CiliumLoadBalancerIPPool) vs. UniFi LAN DHCP range
+
+**Issue**: The LB-IPAM pool covers the whole `10.127.0.0/24`, and the UniFi DHCP pool (`.150–.254`) sits inside it. LB IPs are pinned by hand (`lbipam.cilium.io/ips`, Gateway `addresses`) to free addresses below `.150`, so nothing collides today.
+
+**Risk**:
+- A Service without a pinned IP could be handed a `.150+` address already leased to a LAN device; L2 announcements would then answer ARP for it.
+- Checking "is this IP free" requires UniFi client/lease lookups (done for `.54`/`.55` on 2026-10-06 for NetBird).
+
+**Recommended Fix**: Narrow the LB-IPAM pool to a block outside DHCP (e.g. `.40–.99`) once the existing pinned IPs are confirmed inside it. Candidate for the planned infrastructure remodel.
+
+---
+
 ## Low Priority
 
 ### 6. ~~Velero SOPS Secret~~ — Resolved

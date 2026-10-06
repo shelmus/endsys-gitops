@@ -24,6 +24,7 @@ resources:
   - ./manatable
   - ./matrix
   - ./n8n
+  - ./netbird
   - ./network
   - ./obsidian-livesync
   - ./pelican
