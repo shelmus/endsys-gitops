@@ -12,6 +12,7 @@ resources:
   - ./firecrawl
   - ./flux-system
   - ./forgejo
+  - ./forgejo-runner
   - ./garage
   - ./gatus
   - ./home-assistant
