@@ -24,6 +24,11 @@ envoy:
        enabled: true
 gatewayAPI:
   enabled: true
+  # Advertise h2 + http/1.1 via ALPN on Gateway listeners. Required for gRPC
+  # over TLS-terminated listeners (NetBird management/signal). Also turns on
+  # appProtocol handling (chart: enable-gateway-api-app-protocol), which pins
+  # every non-gRPC, non-`kubernetes.io/h2c` backend to HTTP/1.1 upstream.
+  enableAlpn: true
 hubble:
   enabled: false
 ipam:
