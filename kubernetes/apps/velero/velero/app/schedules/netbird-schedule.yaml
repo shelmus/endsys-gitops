@@ -1,0 +1,29 @@
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: netbird-daily
+  namespace: velero
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/component: backup-schedule
+    app.kubernetes.io/part-of: netbird
+spec:
+  # 02:35 UTC: free slot between forgejo (02:30) and romm (02:45).
+  # Covers the server data PVC (app-template names it `netbird`) and namespace objects. Postgres (peers, policies, IdP) is
+  # covered by CNPG/Barman Cloud, not by this schedule.
+  schedule: "35 2 * * *"
+  template:
+    includedNamespaces:
+      - netbird
+    includedResources:
+      - '*'
+    defaultVolumesToFsBackup: true
+    storageLocation: default
+    ttl: 720h0m0s
+    includeClusterResources: true
+    metadata:
+      labels:
+        app.kubernetes.io/name: netbird
+        backup-type: scheduled
+  useOwnerReferencesInBackup: false

@@ -1,0 +1,220 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: netbird
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      server:
+        # Combined server keeps relay/signal state in memory: single replica, never two at once.
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            fsGroup: 65532
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile: { type: RuntimeDefault }
+        containers:
+          app:
+            image:
+              repository: netbirdio/netbird-server
+              tag: 0.80.0
+            args: ["--config", "/etc/netbird/config.yaml"]
+            probes:
+              # Not /health on :9000 (it dials the public relay URL, see config comment).
+              # OIDC discovery is served by the same listener as gRPC/API/relay.
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /oauth2/.well-known/openid-configuration
+                    port: &port 8080
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+                  failureThreshold: 6
+              readiness: *probes
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+
+      dashboard:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 0
+            seccompProfile: { type: RuntimeDefault }
+        containers:
+          app:
+            image:
+              # -rootless: nginx on 8080 as uid 10001. Entrypoint writes the env into the
+              # web root at start, so the root filesystem stays writable.
+              repository: netbirdio/dashboard
+              tag: v2.94.0-rootless
+            env:
+              NETBIRD_MGMT_API_ENDPOINT: https://netbird.${SECRET_DOMAIN}
+              NETBIRD_MGMT_GRPC_API_ENDPOINT: https://netbird.${SECRET_DOMAIN}
+              AUTH_AUDIENCE: netbird-dashboard
+              AUTH_CLIENT_ID: netbird-dashboard
+              AUTH_CLIENT_SECRET: ""
+              AUTH_AUTHORITY: https://netbird.${SECRET_DOMAIN}/oauth2
+              USE_AUTH0: "false"
+              AUTH_SUPPORTED_SCOPES: openid profile email groups
+              AUTH_REDIRECT_URI: /nb-auth
+              AUTH_SILENT_REDIRECT_URI: /nb-silent-auth
+              NGINX_SSL_PORT: "443"
+              LETSENCRYPT_DOMAIN: none
+            probes:
+              liveness: &dashProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &dashPort 8080
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+              readiness: *dashProbes
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+
+      ddns:
+        # Owns the DNS-only A record netbird.${SECRET_DOMAIN} -> home WAN IP. external-dns never
+        # touches it (it only edits records carrying its TXT owner marker).
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            seccompProfile: { type: RuntimeDefault }
+        containers:
+          app:
+            image:
+              repository: favonia/cloudflare-ddns
+              tag: 1.17.1
+            env:
+              DOMAINS: netbird.${SECRET_DOMAIN}
+              PROXIED: "false"
+              IP6_PROVIDER: none
+              TZ: America/New_York
+            envFrom:
+              - secretRef:
+                  name: netbird-ddns
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 5m
+                memory: 16Mi
+              limits:
+                memory: 64Mi
+
+    service:
+      server:
+        controller: server
+        ports:
+          http:
+            port: 80
+            targetPort: *port
+          metrics:
+            port: 9090
+      # Same pod port as `server`, on purpose: GRPCRoute needs an h2c upstream cluster while
+      # REST/WebSocket/relay stay HTTP/1.1. Cilium builds one Envoy cluster per Service port,
+      # so the two must not share a Service (mirrors upstream's two Traefik services).
+      server-grpc:
+        controller: server
+        ports:
+          grpc:
+            port: 80
+            targetPort: *port
+            appProtocol: kubernetes.io/h2c
+      stun:
+        controller: server
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: "10.127.0.55"
+        # Cluster, not Local: Cilium L2 announcements are incompatible with Local (they may announce
+        # on a node without the pod and drop traffic; Cilium 1.20 docs). bpf-lb-mode=dsr keeps the
+        # client source IP, which STUN needs to report the right mapped address.
+        externalTrafficPolicy: Cluster
+        ports:
+          stun:
+            port: 3478
+            protocol: UDP
+      dashboard:
+        controller: dashboard
+        ports:
+          http:
+            port: 80
+            targetPort: *dashPort
+
+    serviceMonitor:
+      server:
+        serviceName: netbird-server
+        endpoints:
+          - port: metrics
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+
+    persistence:
+      config:
+        type: secret
+        name: netbird-server-config
+        advancedMounts:
+          server:
+            app:
+              - path: /etc/netbird/config.yaml
+                subPath: config.yaml
+                readOnly: true
+      data:
+        # GeoLite DBs and server-local state; peers/accounts/IdP live in Postgres.
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: longhorn
+        advancedMounts:
+          server:
+            app:
+              - path: /var/lib/netbird
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          server:
+            app:
+              - path: /tmp

@@ -1,0 +1,86 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/external-secrets.io/externalsecret_v1.json
+# Garage S3 key for netbird's CNPG backups (bucket cnpg-netbird, read+write, this bucket only).
+# Created by scripts/netbird-secrets.sh. Required Bitwarden secrets:
+#   - netbird-cnpg-s3-access-key
+#   - netbird-cnpg-s3-secret-key
+# (The read-only pair netbird-cnpg-s3-ro-* is for restore drills and is not mounted here.)
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: netbird-cnpg-s3
+  labels:
+    app.kubernetes.io/name: netbird
+    app.kubernetes.io/instance: netbird
+    app.kubernetes.io/component: backup-storage-credentials
+    app.kubernetes.io/part-of: netbird
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: bitwarden-secretsmanager
+  target:
+    name: netbird-cnpg-s3
+    creationPolicy: Owner
+    deletionPolicy: Retain
+    template:
+      engineVersion: v2
+      data:
+        ACCESS_KEY_ID: "{{ .accessKey }}"
+        ACCESS_SECRET_KEY: "{{ .secretKey }}"
+        REGION: garage
+  data:
+    - secretKey: accessKey
+      remoteRef:
+        key: netbird-cnpg-s3-access-key
+    - secretKey: secretKey
+      remoteRef:
+        key: netbird-cnpg-s3-secret-key
+---
+# Barman Cloud object store for netbird-postgres: continuous WAL archiving + daily base backups
+# to Garage (bucket cnpg-netbird on Lyris NFS). Plugin: cnpg-system/plugin-barman-cloud.
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: netbird-objectstore
+spec:
+  retentionPolicy: "30d"
+  configuration:
+    destinationPath: s3://cnpg-netbird/
+    endpointURL: http://garage.garage.svc:3900
+    s3Credentials:
+      accessKeyId:
+        name: netbird-cnpg-s3
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: netbird-cnpg-s3
+        key: ACCESS_SECRET_KEY
+      region:
+        name: netbird-cnpg-s3
+        key: REGION
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  instanceSidecarConfiguration:
+    env:
+      # Recommended by the plugin docs for S3-compatible stores (newer boto3 checksum defaults).
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: when_required
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: when_required
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: netbird-postgres-daily
+spec:
+  # CNPG cron has a seconds field: 03:25 UTC (larder 03:15, forgejo 03:20), after Velero's window.
+  schedule: "0 25 3 * * *"
+  immediate: true
+  backupOwnerReference: self
+  cluster:
+    name: netbird-postgres
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

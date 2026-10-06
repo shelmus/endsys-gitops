@@ -20,3 +20,4 @@ resources:
   - ./schedules/hindsight-schedule.yaml
   - ./schedules/larder-schedule.yaml
   - ./schedules/forgejo-schedule.yaml
+  - ./schedules/netbird-schedule.yaml

@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://github.com/datreeio/CRDs-catalog/raw/refs/heads/main/gateway.networking.k8s.io/gateway_v1.json
+# Dedicated gateway for self-hosted NetBird. Own LB IP so the WAN TCP 443 forward reaches
+# NetBird only, never the internal/external app gateways. No external-dns annotation on purpose:
+# the DNS-only record is owned by the DDNS updater in the netbird namespace.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: netbird
+spec:
+  gatewayClassName: cilium
+  addresses:
+    - type: IPAddress
+      value: "10.127.0.54"
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "netbird.${SECRET_DOMAIN}"
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: netbird
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: ${SECRET_DOMAIN/./-}-production-tls
