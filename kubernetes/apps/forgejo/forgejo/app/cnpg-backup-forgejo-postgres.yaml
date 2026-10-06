@@ -1,0 +1,85 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/external-secrets.io/externalsecret_v1.json
+# Garage S3 key for forgejo's CNPG backups (bucket cnpg-forgejo, read+write, this bucket only).
+# Created by scripts/forgejo-garage-keys.sh. Required Bitwarden secrets:
+#   - forgejo-cnpg-s3-access-key
+#   - forgejo-cnpg-s3-secret-key
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: forgejo-cnpg-s3
+  labels:
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: forgejo
+    app.kubernetes.io/component: backup-storage-credentials
+    app.kubernetes.io/part-of: forgejo
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: bitwarden-secretsmanager
+  target:
+    name: forgejo-cnpg-s3
+    creationPolicy: Owner
+    deletionPolicy: Retain
+    template:
+      engineVersion: v2
+      data:
+        ACCESS_KEY_ID: "{{ .accessKey }}"
+        ACCESS_SECRET_KEY: "{{ .secretKey }}"
+        REGION: garage
+  data:
+    - secretKey: accessKey
+      remoteRef:
+        key: forgejo-cnpg-s3-access-key
+    - secretKey: secretKey
+      remoteRef:
+        key: forgejo-cnpg-s3-secret-key
+---
+# Barman Cloud object store for forgejo-postgres: continuous WAL archiving + daily base backups
+# to Garage (bucket cnpg-forgejo on Lyris NFS). Plugin: cnpg-system/plugin-barman-cloud.
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: forgejo-objectstore
+spec:
+  retentionPolicy: "30d"
+  configuration:
+    destinationPath: s3://cnpg-forgejo/
+    endpointURL: http://garage.garage.svc:3900
+    s3Credentials:
+      accessKeyId:
+        name: forgejo-cnpg-s3
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: forgejo-cnpg-s3
+        key: ACCESS_SECRET_KEY
+      region:
+        name: forgejo-cnpg-s3
+        key: REGION
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  instanceSidecarConfiguration:
+    env:
+      # Recommended by the plugin docs for S3-compatible stores (newer boto3 checksum defaults).
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: when_required
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: when_required
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: forgejo-postgres-daily
+spec:
+  # CNPG cron has a seconds field: 03:20 UTC (larder holds 03:15), after Velero's 02:00-02:50 window.
+  schedule: "0 20 3 * * *"
+  immediate: true
+  backupOwnerReference: self
+  cluster:
+    name: forgejo-postgres
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

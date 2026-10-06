@@ -95,6 +95,15 @@ spec:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
             - "[STATUS] < 400"
+        - name: forgejo
+          enabled: true
+          group: external
+          url: https://code.endsys.cloud/api/healthz
+          interval: 1m
+          client:
+            dns-resolver: tcp://1.1.1.1:53
+          conditions:
+            - "[STATUS] == 200"
         # Matrix
         - name: matrix-chat
           enabled: true

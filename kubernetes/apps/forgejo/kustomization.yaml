@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: forgejo
+components:
+  - ../../components/common
+resources:
+  - ./forgejo/ks.yaml
+patches:
+  # Pod Security: Forgejo (rootless) and CNPG both satisfy baseline; warn/audit on restricted.
+  - target:
+      kind: Namespace
+    patch: |
+      - op: add
+        path: /metadata/labels
+        value:
+          pod-security.kubernetes.io/enforce: baseline
+          pod-security.kubernetes.io/warn: restricted
+          pod-security.kubernetes.io/audit: restricted

@@ -28,3 +28,4 @@ resources:
   - ./pajikos.yaml
   - ./firecrawl.yaml
   - ./hindsight.yaml
+  - ./forgejo.yaml

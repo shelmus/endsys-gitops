@@ -1,0 +1,158 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: forgejo
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: forgejo
+      version: 17.2.0
+      sourceRef:
+        kind: HelmRepository
+        name: forgejo
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    # Chart default image is code.forgejo.org/forgejo/forgejo:<appVersion> (15.0.9 LTS), rootless.
+    image:
+      rootless: true
+    replicaCount: 1
+    strategy:
+      type: Recreate
+    podSecurityContext:
+      fsGroup: 1000
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        memory: 2Gi
+    # The chart's `helm test` pod uses busybox:latest; Flux never runs it, so don't render it.
+    test:
+      enabled: false
+
+    service:
+      http:
+        type: ClusterIP
+        port: 3000
+      ssh:
+        # Dedicated LB IP for git@git.endsys.cloud; Pi-hole record via external-dns (service source).
+        # cloudflare-dns ignores Service annotations, so this hostname never leaves the LAN.
+        type: LoadBalancer
+        port: 22
+        externalTrafficPolicy: Cluster
+        annotations:
+          lbipam.cilium.io/ips: "10.127.0.53"
+          external-dns.alpha.kubernetes.io/hostname: "git.${SECRET_DOMAIN}"
+
+    persistence:
+      enabled: true
+      create: true
+      claimName: forgejo-data
+      size: 20Gi
+      storageClass: longhorn
+      accessModes: ["ReadWriteOnce"]
+
+    gitea:
+      admin:
+        existingSecret: forgejo-admin
+        passwordMode: initialOnlyNoReset
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+      oauth:
+        - name: pocketid
+          provider: openidConnect
+          existingSecret: forgejo-oauth
+          autoDiscoverUrl: https://auth.${SECRET_DOMAIN}/.well-known/openid-configuration
+          scopes: "openid profile email groups"
+      # Secret-bearing app.ini keys come in as FORGEJO__<SECTION>__<KEY> env vars, never in gitea.config.
+      additionalConfigFromEnvs:
+        - name: FORGEJO__DATABASE__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: forgejo-postgres-app
+              key: password
+        - name: FORGEJO__STORAGE__MINIO_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: forgejo-s3
+              key: MINIO_ACCESS_KEY_ID
+        - name: FORGEJO__STORAGE__MINIO_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: forgejo-s3
+              key: MINIO_SECRET_ACCESS_KEY
+      config:
+        APP_NAME: "endsys code"
+        RUN_MODE: prod
+        server:
+          DOMAIN: code.${SECRET_DOMAIN}
+          ROOT_URL: https://code.${SECRET_DOMAIN}/
+          SSH_DOMAIN: git.${SECRET_DOMAIN}
+          SSH_PORT: 22
+          SSH_LISTEN_PORT: 2222
+          START_SSH_SERVER: true
+          LFS_START_SERVER: true
+          OFFLINE_MODE: true
+        database:
+          DB_TYPE: postgres
+          HOST: forgejo-postgres-rw.forgejo.svc.cluster.local:5432
+          NAME: forgejo
+          USER: forgejo
+          SSL_MODE: require
+        storage:
+          # All blob subsystems (lfs/, packages/, attachments/, avatars/, repo-archive/,
+          # actions_log/, actions_artifacts/) go to Garage bucket `forgejo`.
+          STORAGE_TYPE: minio
+          MINIO_ENDPOINT: garage.garage.svc:3900
+          MINIO_BUCKET: forgejo
+          MINIO_LOCATION: garage
+          MINIO_USE_SSL: false
+          MINIO_BUCKET_LOOKUP: path
+        repository:
+          DEFAULT_BRANCH: main
+          DEFAULT_PRIVATE: private
+        service:
+          DISABLE_REGISTRATION: false
+          ALLOW_ONLY_EXTERNAL_REGISTRATION: true
+          SHOW_REGISTRATION_BUTTON: false
+          REQUIRE_SIGNIN_VIEW: false
+          DEFAULT_KEEP_EMAIL_PRIVATE: true
+          ENABLE_NOTIFY_MAIL: false
+        oauth2_client:
+          ENABLE_AUTO_REGISTRATION: true
+          USERNAME: preferred_username
+          ACCOUNT_LINKING: auto
+          UPDATE_AVATAR: true
+        openid:
+          ENABLE_OPENID_SIGNIN: false
+          ENABLE_OPENID_SIGNUP: false
+        actions:
+          ENABLED: true
+          DEFAULT_ACTIONS_URL: https://data.forgejo.org
+        packages:
+          ENABLED: true
+        metrics:
+          ENABLED: true
+        cache:
+          ADAPTER: memory
+        session:
+          PROVIDER: db
+        log:
+          LEVEL: Info
