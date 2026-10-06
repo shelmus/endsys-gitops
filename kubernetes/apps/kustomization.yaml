@@ -11,6 +11,7 @@ resources:
   - ./external-services
   - ./firecrawl
   - ./flux-system
+  - ./forgejo
   - ./garage
   - ./gatus
   - ./home-assistant
