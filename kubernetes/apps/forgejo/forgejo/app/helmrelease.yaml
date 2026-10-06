@@ -137,7 +137,8 @@ spec:
           ENABLE_NOTIFY_MAIL: false
         oauth2_client:
           ENABLE_AUTO_REGISTRATION: true
-          USERNAME: preferred_username
+          # Forgejo 15 accepts userid|nickname|email; `nickname` maps to the preferred_username claim.
+          USERNAME: nickname
           ACCOUNT_LINKING: auto
           UPDATE_AVATAR: true
         openid:
