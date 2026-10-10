@@ -49,15 +49,15 @@ image: jez500/pricebuddy:latest
 
 ---
 
-### 13. CNPG Clusters Without WAL Archiving
+### 13. CNPG Clusters Without WAL Archiving — In Progress
 
-**Location**: All 7 CNPG `Cluster` CRs (coder, hindsight, immich, larder, matrix-mas, matrix-synapse, romm)
+**Location**: 6 of 7 CNPG `Cluster` CRs (coder, hindsight, immich, matrix-mas, matrix-synapse, romm). larder is done (#372, drilled 2026-09-29). Live status: `scripts/cnpg-backup-scaffold.py --audit`.
 
 **Issue**: No `spec.plugins`, no `ScheduledBackup`, and no WAL archiving. Velero copies `pgdata` while Postgres is live.
 
 **Risk**: No point-in-time recovery. A restore depends on an inconsistent daily file copy.
 
-**Recommended Fix**: Barman Cloud plugin (`plugin-barman-cloud`) with one Garage bucket and key per cluster. Pilot on larder, then roll out one cluster per change, running a restore test for each.
+**Fix**: apply the [CNPG Backup Standard](database/cnpg-backup-standard.md) to each remaining cluster, one per change, with a restore drill each. New clusters must meet the standard from day one.
 
 ---
 
@@ -218,6 +218,6 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 | TD-010 | VolSync not consistent | Medium | Superseded |
 | TD-011 | SOPS still widely used | Low | Open |
 | TD-012 | Firecrawl chart limitations (bundled deps, image tags, no Postgres persistence) | Low | Open |
-| TD-013 | CNPG without WAL archiving | High | Open |
+| TD-013 | CNPG without WAL archiving | High | In progress (1/7) |
 | TD-014 | Garage metadata unprotected | High | Open |
 | TD-016 | PriceBuddy MySQL hook ineffective | Medium | Open |
