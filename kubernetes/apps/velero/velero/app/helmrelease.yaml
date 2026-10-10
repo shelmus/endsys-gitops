@@ -40,6 +40,12 @@ spec:
           - mountPath: /target
             name: plugins
     configuration:
+      # Keep 1 finished kopia-maintain pod per repo (default 3) so completed
+      # pods don't pile up on kube1 (14 repos x 3 = 42 pods).
+      repositoryMaintenanceJob:
+        repositoryConfigData:
+          global:
+            keepLatestMaintenanceJobs: 1
       backupStorageLocation:
         - name: default
           provider: aws
