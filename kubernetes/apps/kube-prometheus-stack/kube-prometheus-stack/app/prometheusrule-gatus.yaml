@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+# Turns Gatus checks into alerts. Metric: gatus_results_endpoint_success
+# (labels key, group, name, type), 1 = passing. TLS-type checks are alerted by
+# TlsEndpointCheckFailing in prometheusrule-certificates.yaml and excluded here.
+# Groups in the Gatus config: external, internal, games, infrastructure.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gatus-alerts
+  labels:
+    app.kubernetes.io/name: kube-prometheus-stack
+    app.kubernetes.io/component: alerting
+spec:
+  groups:
+    - name: gatus-endpoints
+      rules:
+        - alert: EndpointDownCritical
+          expr: gatus_results_endpoint_success{type!="TLS", group=~"infrastructure|games"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.group }}/{{ $labels.name }} is down"
+            description: "Gatus check {{ $labels.group }}/{{ $labels.name }} has been failing for 5 minutes. See status.endsys.cloud."
+
+        - alert: EndpointDown
+          expr: gatus_results_endpoint_success{type!="TLS", group=~"external|internal"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.group }}/{{ $labels.name }} is down"
+            description: "Gatus check {{ $labels.group }}/{{ $labels.name }} has been failing for 10 minutes. See status.endsys.cloud."

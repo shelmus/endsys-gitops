@@ -1,0 +1,191 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+# Node, cluster-control-plane and monitoring-pipeline alerts. Added 2026-10-11
+# because defaultRules.create is false: nothing alerted on a node going down,
+# a disk filling, or a scrape target disappearing.
+#
+# node_exporter jobs: "node-exporter" (Talos nodes, chart DaemonSet), "pihole"
+# and "yggdrasil" (external-services ServiceMonitors). "gameserver" (Lyris) has
+# its own tuned rules in prometheusrule-gameserver.yaml and is excluded from
+# the generic CPU/memory/disk rules here to avoid duplicate pages.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: node-alerts
+  labels:
+    app.kubernetes.io/name: kube-prometheus-stack
+    app.kubernetes.io/component: alerting
+spec:
+  groups:
+    - name: node-health
+      rules:
+        - alert: NodeExporterDown
+          expr: up{job=~"node-exporter|pihole"} == 0
+          for: 3m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Host {{ $labels.instance }} is unreachable"
+            description: "Prometheus cannot scrape node_exporter on {{ $labels.instance }} (job {{ $labels.job }}) for 3 minutes. The host or its exporter is down."
+
+        - alert: WorkstationDown
+          expr: up{job="yggdrasil"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "yggdrasil is unreachable"
+            description: "node_exporter on yggdrasil ({{ $labels.instance }}) has not answered for 10 minutes. It is a workstation, so this may be a reboot or sleep."
+
+        - alert: KubeNodeNotReady
+          expr: kube_node_status_condition{condition="Ready", status="true"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Kubernetes node {{ $labels.node }} is NotReady"
+            description: "Node {{ $labels.node }} has reported NotReady for 5 minutes."
+
+        - alert: NodeHighCPU
+          expr: |
+            100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle", job=~"node-exporter|pihole|yggdrasil"}[5m])) * 100) > 90
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CPU above 90% on {{ $labels.instance }}"
+            description: "CPU usage on {{ $labels.instance }} has been {{ $value | humanize }}% for 15 minutes."
+
+        - alert: NodeHighMemory
+          expr: |
+            (node_memory_MemAvailable_bytes{job=~"node-exporter|pihole|yggdrasil"}
+              / node_memory_MemTotal_bytes{job=~"node-exporter|pihole|yggdrasil"}) * 100 < 10
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Less than 10% memory available on {{ $labels.instance }}"
+            description: "{{ $labels.instance }} has had {{ $value | humanize }}% memory available for 10 minutes."
+
+        - alert: NodeFilesystemFillingUp
+          expr: |
+            (
+              node_filesystem_avail_bytes{job=~"node-exporter|pihole|yggdrasil", fstype!~"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs|devtmpfs"}
+                / node_filesystem_size_bytes{job=~"node-exporter|pihole|yggdrasil"} * 100 < 40
+              and
+              predict_linear(node_filesystem_avail_bytes{job=~"node-exporter|pihole|yggdrasil", fstype!~"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs|devtmpfs"}[6h], 24 * 3600) < 0
+              and
+              node_filesystem_readonly{job=~"node-exporter|pihole|yggdrasil"} == 0
+            )
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.mountpoint }} on {{ $labels.instance }} will fill within 24h"
+            description: "At the current rate {{ $labels.mountpoint }} on {{ $labels.instance }} runs out of space within 24 hours ({{ $value | humanize }}% free now)."
+
+        - alert: NodeFilesystemAlmostFull
+          expr: |
+            (
+              node_filesystem_avail_bytes{job=~"node-exporter|pihole|yggdrasil", fstype!~"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs|devtmpfs"}
+                / node_filesystem_size_bytes{job=~"node-exporter|pihole|yggdrasil"} * 100 < 10
+              and
+              node_filesystem_readonly{job=~"node-exporter|pihole|yggdrasil"} == 0
+            )
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.mountpoint }} on {{ $labels.instance }} is over 90% full"
+            description: "{{ $labels.mountpoint }} on {{ $labels.instance }} has {{ $value | humanize }}% free space."
+
+        - alert: NodeFilesystemInodesLow
+          expr: |
+            node_filesystem_files_free{job=~"node-exporter|pihole|yggdrasil", fstype!~"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs|devtmpfs"}
+              / node_filesystem_files{job=~"node-exporter|pihole|yggdrasil"} * 100 < 10
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Inodes below 10% on {{ $labels.mountpoint }} ({{ $labels.instance }})"
+            description: "{{ $labels.mountpoint }} on {{ $labels.instance }} has {{ $value | humanize }}% of inodes free."
+
+    - name: cluster-control-plane
+      rules:
+        - alert: KubeletDown
+          expr: up{job="kubelet", metrics_path="/metrics"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Kubelet on {{ $labels.node }} is not being scraped"
+            description: "Prometheus cannot scrape the kubelet on {{ $labels.node }} for 5 minutes."
+
+        - alert: KubeAPIServerDown
+          expr: up{job="apiserver"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Kubernetes API server {{ $labels.instance }} is down"
+            description: "Prometheus cannot scrape the API server at {{ $labels.instance }} for 5 minutes."
+
+        - alert: KubeAPIServerErrors
+          expr: |
+            sum(rate(apiserver_request_total{job="apiserver", code=~"5.."}[5m]))
+              / sum(rate(apiserver_request_total{job="apiserver"}[5m])) * 100 > 3
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Kubernetes API server 5xx rate above 3%"
+            description: "{{ $value | humanize }}% of API server requests returned 5xx over the last 5 minutes."
+
+        - alert: PodCrashLooping
+          expr: kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"} == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} is crash-looping"
+            description: "Container {{ $labels.container }} in {{ $labels.namespace }}/{{ $labels.pod }} has been in CrashLoopBackOff for 10 minutes."
+
+        - alert: PodOOMKilled
+          expr: |
+            increase(kube_pod_container_status_restarts_total[30m]) > 0
+            and on (namespace, pod, container)
+            kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} == 1
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} was OOM-killed"
+            description: "Container {{ $labels.container }} in {{ $labels.namespace }}/{{ $labels.pod }} restarted after being OOM-killed in the last 30 minutes."
+
+    - name: monitoring-pipeline
+      rules:
+        - alert: TargetDown
+          expr: up{job!~"node-exporter|pihole|yggdrasil|gameserver"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Scrape target {{ $labels.job }} / {{ $labels.instance }} is down"
+            description: "Prometheus has failed to scrape {{ $labels.job }} at {{ $labels.instance }} (namespace {{ $labels.namespace }}) for 10 minutes."
+
+        - alert: AlertmanagerNotificationsFailing
+          expr: sum by (integration) (increase(alertmanager_notifications_failed_total[15m])) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Alertmanager failed to deliver {{ $labels.integration }} notifications"
+            description: "Alertmanager had failed {{ $labels.integration }} deliveries in the last 15 minutes. Discord may not be receiving alerts; check the webhook."
+
+        - alert: PrometheusRuleEvaluationFailing
+          expr: increase(prometheus_rule_evaluation_failures_total[10m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Prometheus rule evaluation is failing"
+            description: "Prometheus {{ $labels.pod }} had rule evaluation failures in the last 10 minutes; some alerts may not be firing."

@@ -65,18 +65,35 @@ spec:
             - receiver: discord
               matchers:
                 - severity=~"warning|critical"
+        # A host-level failure suppresses that host's own resource warnings,
+        # and a full disk suppresses the earlier "will fill" warning.
+        inhibit_rules:
+          - source_matchers:
+              - alertname="NodeExporterDown"
+            target_matchers:
+              - alertname=~"NodeHighCPU|NodeHighMemory|NodeFilesystem.*"
+            equal: ['instance']
+          - source_matchers:
+              - alertname="NodeFilesystemAlmostFull"
+            target_matchers:
+              - alertname="NodeFilesystemFillingUp"
+            equal: ['instance', 'mountpoint']
         receivers:
           # discord must stay receivers[0]: valuesFrom above injects the webhook
           # URL at receivers[0].discord_configs[0].webhook_url.
           - name: discord
             discord_configs:
               - send_resolved: true
-                title: '{{ if eq .Status "firing" }}🔴{{ else }}🟢{{ end }} {{ .GroupLabels.alertname }}'
+                # @here only while a critical alert is firing, so criticals
+                # notify in the shared channel and resolutions stay quiet.
+                content: '{{ if and (eq .Status "firing") (eq .CommonLabels.severity "critical") }}@here{{ end }}'
+                title: '{{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity "critical" }}🔴{{ else }}🟠{{ end }}{{ else }}🟢{{ end }} {{ .GroupLabels.alertname }}'
                 message: |
                   {{ range .Alerts }}
-                  **{{ .Labels.alertname }}** ({{ .Labels.severity }})
+                  **{{ .Labels.alertname }}** ({{ .Labels.severity }}){{ if .Labels.instance }} on `{{ .Labels.instance }}`{{ end }}
                   {{ .Annotations.description }}
                   {{ end }}
+                  [Grafana](https://grafana.endsys.cloud) · [Alertmanager](https://alertmanager.endsys.cloud) · [Status](https://status.endsys.cloud)
           - name: "null"
       route:
         main:

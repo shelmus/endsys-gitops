@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: pihole
+subsets:
+  - addresses:
+      - ip: 10.127.0.3
+    ports:
+      - name: node-exporter
+        port: 9100

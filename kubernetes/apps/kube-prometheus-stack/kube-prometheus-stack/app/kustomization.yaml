@@ -10,6 +10,8 @@ resources:
   - ./prometheusrule-storage.yaml
   - ./prometheusrule-backups.yaml
   - ./prometheusrule-certificates.yaml
+  - ./prometheusrule-nodes.yaml
+  - ./prometheusrule-gatus.yaml
   - ./podmonitor-cnpg.yaml
   - ./prometheusrule-gameserver.yaml
   - ./grafana-dashboard-gameserver.yaml

@@ -8,3 +8,5 @@ components:
 resources:
   - ./octopi/ks.yaml
   - ./gameserver/ks.yaml
+  - ./pihole/ks.yaml
+  - ./yggdrasil/ks.yaml
