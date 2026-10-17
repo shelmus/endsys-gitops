@@ -78,7 +78,7 @@ spec:
               # -rootless: nginx on 8080 as uid 10001. Entrypoint writes the env into the
               # web root at start, so the root filesystem stays writable.
               repository: netbirdio/dashboard
-              tag: v2.94.0-rootless
+              tag: v2.95.0-rootless
             env:
               NETBIRD_MGMT_API_ENDPOINT: https://netbird.${SECRET_DOMAIN}
               NETBIRD_MGMT_GRPC_API_ENDPOINT: https://netbird.${SECRET_DOMAIN}
