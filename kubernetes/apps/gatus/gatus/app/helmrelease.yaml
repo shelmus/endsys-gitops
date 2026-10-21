@@ -49,6 +49,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] == 200"
         - name: flux-webhook
           enabled: true
@@ -58,6 +59,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] == 404"
         - name: immich
           enabled: true
@@ -67,6 +69,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: pocket-id
           enabled: true
@@ -76,6 +79,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: coder
           enabled: true
@@ -85,6 +89,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: obsidian-livesync
           enabled: true
@@ -94,6 +99,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: forgejo
           enabled: true
@@ -103,6 +109,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] == 200"
         # Matrix
         - name: matrix-chat
@@ -113,6 +120,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: matrix-synapse
           enabled: true
@@ -122,6 +130,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: matrix-admin
           enabled: true
@@ -131,6 +140,7 @@ spec:
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         # Internal apps (private LAN)
         - name: pelican
@@ -139,6 +149,7 @@ spec:
           url: https://pelican.endsys.cloud/up
           interval: 1m
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] == 200"
         - name: grafana
           enabled: true
@@ -146,6 +157,7 @@ spec:
           url: https://grafana.endsys.cloud
           interval: 1m
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: prometheus
           enabled: true
@@ -153,6 +165,7 @@ spec:
           url: https://prometheus.endsys.cloud
           interval: 1m
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: alertmanager
           enabled: true
@@ -160,6 +173,7 @@ spec:
           url: https://alertmanager.endsys.cloud
           interval: 1m
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: n8n
           enabled: true
@@ -167,6 +181,7 @@ spec:
           url: https://n8n.endsys.cloud
           interval: 1m
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: pricebuddy
           enabled: true
@@ -174,6 +189,7 @@ spec:
           url: https://pricebuddy.endsys.cloud
           interval: 1m
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: larder
           enabled: true
@@ -181,6 +197,7 @@ spec:
           url: https://larder.endsys.cloud/healthz
           interval: 1m
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] == 200"
         - name: longhorn
           enabled: true
@@ -188,6 +205,7 @@ spec:
           url: https://lh.endsys.cloud
           interval: 1m
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         - name: octopi
           enabled: true
@@ -195,6 +213,7 @@ spec:
           url: https://octopi.endsys.cloud
           interval: 1m
           conditions:
+            - "[CONNECTED] == true"
             - "[STATUS] < 400"
         # Host TLS outside the cluster. The Lyris Wings cert is issued by
         # certbot on the host (dns-cloudflare), not cert-manager, so this probe
