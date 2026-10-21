@@ -27,6 +27,7 @@
 | File | Purpose |
 |------|---------|
 | `.context/database/cnpg.md` | CloudNativePG cluster patterns and configuration |
+| `.context/database/cnpg-backup-standard.md` | **Required for every Postgres cluster**: backups, alerts, restore drill, scripts |
 | `.context/cache/dragonfly.md` | Dragonfly (Redis-compatible) cache patterns |
 
 ### Backup & Restore
