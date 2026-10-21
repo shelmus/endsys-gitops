@@ -1,0 +1,47 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/externaldns.k8s.io/dnsendpoint_v1alpha1.json
+#
+# LAN-only names for hosts Kubernetes can't discover. Published to the UniFi
+# gateway by unifi-dns-infra only. The label keeps them out of public DNS:
+# cloudflare-dns runs with --label-filter=dns.endsys.cloud/provider!=unifi.
+# Moved from endsys-ansible inventory/host_vars/pihole/dns.yml; vault (.5)
+# and whitemage (.6) were dropped as stale (Sean, 2026-10-21).
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: infrastructure-hosts
+  labels:
+    dns.endsys.cloud/provider: unifi
+spec:
+  endpoints:
+    - dnsName: "gateway.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.1"]
+    - dnsName: "pihole.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.3"]
+      # Remove when Pi-hole is powered off (plan phase 5).
+    - dnsName: "yggdrasil.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.4"]
+    - dnsName: "lyris.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.7"]
+    - dnsName: "kubernetes.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.40"]
+    - dnsName: "kube1.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.41"]
+    - dnsName: "kube2.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.42"]
+    - dnsName: "kube3.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.43"]
+    - dnsName: "internal-gateway.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.51"]
+    - dnsName: "external-gateway.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.127.0.52"]
