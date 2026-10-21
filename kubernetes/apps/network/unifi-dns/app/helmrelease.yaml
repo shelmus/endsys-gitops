@@ -77,7 +77,15 @@ spec:
     txtOwnerId: endsys-unifi
     txtPrefix: k8s.endsys-unifi.%{record_type}-
     sources: ["gateway-httproute", "service"]
-    domainFilters: ["${SECRET_DOMAIN}"]
+    # Subdomains only. UniFi rejects a CNAME at the zone apex
+    # (api.dns.policy.validation.cname-alias-overlap), and the webhook aborts
+    # the whole batch on the first failed write, which strands every TXT
+    # ownership record queued behind it. The apex (matrix well-known on the
+    # external Gateway) keeps resolving through the gateway's FORWARD_DOMAIN
+    # policy to k8s-gateway. A regex filter replaces domainFilters entirely
+    # (external-dns ignores --domain-filter when a regex is set).
+    extraArgs:
+      - '--regex-domain-filter=^.+\.${SECRET_DOMAIN}\z'
     serviceMonitor:
       enabled: true
     podAnnotations:
