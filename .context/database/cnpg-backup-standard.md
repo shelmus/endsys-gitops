@@ -78,6 +78,8 @@ Base-backup age uses `barman_cloud_cloudnative_pg_io_last_available_backup_times
 | Cluster | Keys | Manifests | First backup | Drill |
 |---|---|---|---|---|
 | larder-postgres | yes | #372 | 2026-09-29 18:50 UTC | 2026-09-29: 20/20 tables, rows identical, healthy in 75-90 s |
+| forgejo-postgres | yes | `ffc09ba` (built with the scaffold) | 2026-10-06 15:48 UTC | not recorded |
+| netbird-postgres | yes | `cnpg-backup-netbird-postgres.yaml` (built with the scaffold) | 2026-10-06 20:31 UTC | not recorded |
 | immich-postgres | — | — | — | — |
 | romm-postgres | — | — | — | — |
 | matrix-synapse-postgres | — | — | — | — |
