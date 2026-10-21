@@ -38,6 +38,24 @@ spec:
   # which keys ports on (port, protocol), and keeps them from regressing again.
   driftDetection:
     mode: enabled
+  # Pin both node ports. The chart only renders nodePort for type NodePort, so
+  # the dns-tcp entry arrived without one; drift correction then sent the
+  # API server's dry-run placeholder (32769, outside 30000-32767) and every
+  # patch was rejected. dns-udp keeps its allocated 30503; dns-tcp gets 30053.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              version: v1
+              kind: Service
+              name: k8s-gateway
+            patch: |
+              - op: add
+                path: /spec/ports/0/nodePort
+                value: 30503
+              - op: add
+                path: /spec/ports/1/nodePort
+                value: 30053
   values:
     fullnameOverride: k8s-gateway
     domain: "${SECRET_DOMAIN}"
