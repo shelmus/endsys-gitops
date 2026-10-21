@@ -10,4 +10,5 @@ resources:
   - ./cloudflare-tunnel/ks.yaml
   - ./k8s-gateway/ks.yaml
   - ./pihole-dns/ks.yaml
+  - ./unifi-dns/ks.yaml
   - ./echo/ks.yaml

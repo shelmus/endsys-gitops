@@ -1,0 +1,84 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+#
+# Publishes every HTTPRoute and annotated Service into the UniFi gateway's
+# local DNS (Endor, 10.127.0.1) through external-dns-unifi-webhook.
+# Replaces pihole-dns once Pi-hole is retired; both run in parallel until then
+# (vault Plan/2026-10-21_113823-pihole-decommission-unifi-external-dns-plan.md).
+#
+# No `crd` source on purpose: the cloudflare-tunnel DNSEndpoint publishes
+# external.${SECRET_DOMAIN} as a CNAME to the tunnel. Reading it here would
+# replace the LAN A record for `external` (UniFi allows one CNAME per name and
+# evicts the other record) and send every external app name out to Cloudflare.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app unifi-dns
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: external-dns
+      version: 1.23.0
+      sourceRef:
+        kind: HelmRepository
+        name: external-dns
+        namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    fullnameOverride: *app
+    provider:
+      name: webhook
+      webhook:
+        image:
+          repository: ghcr.io/home-operations/external-dns-unifi-webhook
+          tag: 0.10.13@sha256:211a3c951fc94386b14190a99239caa9c8e4b036b35259180979c5df4bd90cdd
+        env:
+          - name: UNIFI_HOST
+            value: https://10.127.0.1
+          - name: UNIFI_SITE
+            value: default
+          # Bound each controller request so a stalled gateway fails fast and
+          # retries instead of blowing external-dns's webhook timeout.
+          - name: UNIFI_REQUEST_TIMEOUT
+            value: 5s
+          - name: UNIFI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: &secret unifi-dns-secret
+                key: UNIFI_API_KEY
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http-webhook
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: http-webhook
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+    # See cloudflare-dns: pin the pre-v0.22 annotation prefix so the Gateways'
+    # external-dns.alpha.kubernetes.io/target annotations are honoured.
+    annotationPrefix: external-dns.alpha.kubernetes.io/
+    triggerLoopOnEvent: true
+    # sync + TXT registry: deletes only records this owner created, so the
+    # hand-made FORWARD_DOMAIN policy and anything else in UniFi is left alone.
+    policy: sync
+    registry: txt
+    txtOwnerId: endsys-unifi
+    txtPrefix: k8s.endsys-unifi.%{record_type}-
+    sources: ["gateway-httproute", "service"]
+    domainFilters: ["${SECRET_DOMAIN}"]
+    serviceMonitor:
+      enabled: true
+    podAnnotations:
+      secret.reloader.stakater.com/reload: *secret
