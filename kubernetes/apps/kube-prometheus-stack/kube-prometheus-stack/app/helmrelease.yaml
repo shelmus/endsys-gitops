@@ -41,7 +41,7 @@ spec:
             tag: 1.37.0
           kubectl:
             # renovate: datasource=docker depName=registry.k8s.io/kubectl
-            tag: v1.34.0
+            tag: v1.37.1
     defaultRules:
       create: false
     alertmanager:
