@@ -1,6 +1,9 @@
 machine:
   network:
     disableSearchDomain: true
+    # The UniFi gateway is the primary resolver (Pi-hole decommission, phase 3).
+    # Pi-hole stays second as a fallback only until it is powered off (phase 5);
+    # remove it then. Live nodes were patched with `talosctl patch mc` (no reboot).
     nameservers:
-      - 10.127.0.3
       - 10.127.0.1
+      - 10.127.0.3
