@@ -1,0 +1,83 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+#
+# Second UniFi instance that reads ONLY DNSEndpoints labelled
+# dns.endsys.cloud/provider=unifi (the infrastructure hosts). It's separate
+# from unifi-dns because --label-filter applies to every source; one instance
+# can't read all HTTPRoutes and also skip the cloudflare-tunnel DNSEndpoint.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app unifi-dns-infra
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: external-dns
+      version: 1.23.0
+      sourceRef:
+        kind: HelmRepository
+        name: external-dns
+        namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    fullnameOverride: *app
+    provider:
+      name: webhook
+      webhook:
+        image:
+          repository: ghcr.io/home-operations/external-dns-unifi-webhook
+          tag: 0.10.13@sha256:211a3c951fc94386b14190a99239caa9c8e4b036b35259180979c5df4bd90cdd
+        env:
+          - name: UNIFI_HOST
+            value: https://10.127.0.1
+          - name: UNIFI_SITE
+            value: default
+          # Bound each controller request so a stalled gateway fails fast and
+          # retries instead of blowing external-dns's webhook timeout.
+          - name: UNIFI_REQUEST_TIMEOUT
+            value: 5s
+          - name: UNIFI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: &secret unifi-dns-secret
+                key: UNIFI_API_KEY
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http-webhook
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: http-webhook
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+    # See cloudflare-dns: pin the pre-v0.22 annotation prefix so the Gateways'
+    # external-dns.alpha.kubernetes.io/target annotations are honoured.
+    annotationPrefix: external-dns.alpha.kubernetes.io/
+    triggerLoopOnEvent: true
+    # sync + TXT registry: deletes only records this owner created, so the
+    # hand-made FORWARD_DOMAIN policy and anything else in UniFi is left alone.
+    policy: sync
+    registry: txt
+    txtOwnerId: endsys-unifi-infra
+    txtPrefix: k8s.endsys-unifi-infra.%{record_type}-
+    sources: ["crd"]
+    extraArgs:
+      - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+      - --crd-source-kind=DNSEndpoint
+      - --label-filter=dns.endsys.cloud/provider=unifi
+    domainFilters: ["${SECRET_DOMAIN}"]
+    serviceMonitor:
+      enabled: true
+    podAnnotations:
+      secret.reloader.stakater.com/reload: *secret
