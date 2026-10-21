@@ -30,6 +30,14 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+  # Helm's 3-way merge patch keys Service ports on `port` and container ports
+  # on `containerPort`, so the 53/TCP and 1053/TCP entries `useTcp` added in
+  # #309 collided with the existing UDP ones and never reached the live objects
+  # (Service stayed UDP-only; Cilium dropped every TCP query as "Service backend
+  # not found"). Drift correction server-side-applies the rendered manifest,
+  # which keys ports on (port, protocol), and keeps them from regressing again.
+  driftDetection:
+    mode: enabled
   values:
     fullnameOverride: k8s-gateway
     domain: "${SECRET_DOMAIN}"
