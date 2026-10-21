@@ -2,10 +2,8 @@
 spegel:
   containerdSock: /run/containerd/containerd.sock
   containerdRegistryConfigPath: /etc/cri/conf.d/hosts
-service:
-  registry:
-    hostPort: 29999
+# Chart 0.8.0 dropped the hostPort: containerd now mirrors through the
+# spegel-registry NodePort (chart default 30020, trafficDistribution
+# PreferSameNode). The chart-managed Grafana dashboard was also removed upstream.
 serviceMonitor:
-  enabled: true
-grafanaDashboard:
   enabled: true
