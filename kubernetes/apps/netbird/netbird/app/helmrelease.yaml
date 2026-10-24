@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: netbirdio/netbird-server
-              tag: 0.81.3
+              tag: 0.81.4
             args: ["--config", "/etc/netbird/config.yaml"]
             probes:
               # Not /health on :9000 (it dials the public relay URL, see config comment).
