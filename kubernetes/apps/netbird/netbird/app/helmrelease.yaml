@@ -126,7 +126,7 @@ spec:
           app:
             image:
               repository: favonia/cloudflare-ddns
-              tag: 1.17.1
+              tag: 1.18.0
             env:
               DOMAINS: netbird.${SECRET_DOMAIN}
               PROXIED: "false"
