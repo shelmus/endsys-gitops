@@ -36,7 +36,7 @@ spec:
       env:
         HINDSIGHT_API_LLM_PROVIDER: "ollama"
         HINDSIGHT_API_LLM_BASE_URL: "http://10.127.0.4:11434/v1"
-        HINDSIGHT_API_LLM_MODEL: "gemma4:e4b"
+        HINDSIGHT_API_LLM_MODEL: "gemma4:12b"
         HINDSIGHT_API_LLM_MAX_CONCURRENT: "1"
         HINDSIGHT_API_ENABLE_OBSERVATIONS: "false"
         HINDSIGHT_API_VECTOR_EXTENSION: "pgvector"
