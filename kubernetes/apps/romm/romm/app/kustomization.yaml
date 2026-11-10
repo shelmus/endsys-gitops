@@ -11,3 +11,4 @@ resources:
   - ./library-pv.yaml
   - ./library-pvc.yaml
   - ./postgres-cluster.yaml
+  - ./cnpg-backup-romm-postgres.yaml

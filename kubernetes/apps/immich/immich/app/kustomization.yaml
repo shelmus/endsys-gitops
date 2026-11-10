@@ -8,5 +8,6 @@ resources:
   - ./library-pv.yaml
   - ./library-pvc.yaml
   - ./postgres-cluster.yaml
+  - ./cnpg-backup-immich-postgres.yaml
   - ./dragonfly.yaml
   - ./externalsecret.yaml

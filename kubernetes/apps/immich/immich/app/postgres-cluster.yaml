@@ -18,3 +18,9 @@ spec:
         - CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;
   storage:
     size: 20Gi
+  # WAL archiving + base backups via the Barman Cloud plugin (see cnpg-backup-immich-postgres.yaml).
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: immich-objectstore

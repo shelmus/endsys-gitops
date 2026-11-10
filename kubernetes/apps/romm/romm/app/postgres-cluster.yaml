@@ -11,3 +11,9 @@ spec:
       owner: romm
   storage:
     size: 10Gi
+  # WAL archiving + base backups via the Barman Cloud plugin (see cnpg-backup-romm-postgres.yaml).
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: romm-objectstore

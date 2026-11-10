@@ -18,6 +18,8 @@ spec:
       namespace: external-secrets
     - name: longhorn
       namespace: longhorn-system
+    - name: plugin-barman-cloud
+      namespace: cnpg-system
   interval: 1h
   path: ./kubernetes/apps/romm/romm/app
   postBuild:
