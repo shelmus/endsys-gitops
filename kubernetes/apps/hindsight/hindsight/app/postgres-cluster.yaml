@@ -5,6 +5,9 @@ metadata:
   name: hindsight-postgres
 spec:
   instances: 1
+  # Single instance: a PDB with minAvailable 1 blocks every node drain
+  # (Talos upgrades needed --legacy). Re-enable when instances > 1.
+  enablePDB: false
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16.9-0.4.3
   bootstrap:
     initdb:
