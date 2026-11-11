@@ -5,9 +5,18 @@ metadata:
   name: romm-postgres
 spec:
   instances: 1
+  # Single instance: a PDB with minAvailable 1 blocks every node drain
+  # (Talos upgrades needed --legacy). Re-enable when instances > 1.
+  enablePDB: false
   bootstrap:
     initdb:
       database: romm
       owner: romm
   storage:
     size: 10Gi
+  # WAL archiving + base backups via the Barman Cloud plugin (see cnpg-backup-romm-postgres.yaml).
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: romm-objectstore

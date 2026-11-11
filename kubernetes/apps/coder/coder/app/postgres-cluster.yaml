@@ -5,9 +5,18 @@ metadata:
   name: coder-postgres
 spec:
   instances: 1
+  # Single instance: a PDB with minAvailable 1 blocks every node drain
+  # (Talos upgrades needed --legacy). Re-enable when instances > 1.
+  enablePDB: false
   bootstrap:
     initdb:
       database: coder
       owner: coder
   storage:
     size: 10Gi
+  # WAL archiving + base backups via the Barman Cloud plugin (see cnpg-backup-coder-postgres.yaml).
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: coder-objectstore

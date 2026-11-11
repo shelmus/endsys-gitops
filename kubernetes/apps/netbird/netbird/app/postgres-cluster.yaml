@@ -6,6 +6,9 @@ metadata:
   name: netbird-postgres
 spec:
   instances: 1
+  # Single instance: a PDB with minAvailable 1 blocks every node drain
+  # (Talos upgrades needed --legacy). Re-enable when instances > 1.
+  enablePDB: false
   imageName: ghcr.io/cloudnative-pg/postgresql:16.9
   bootstrap:
     initdb:

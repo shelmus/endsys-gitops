@@ -16,6 +16,8 @@ spec:
       namespace: cnpg-system
     - name: external-secrets-stores
       namespace: external-secrets
+    - name: plugin-barman-cloud
+      namespace: cnpg-system
   interval: 1h
   path: ./kubernetes/apps/immich/immich/app
   postBuild:
