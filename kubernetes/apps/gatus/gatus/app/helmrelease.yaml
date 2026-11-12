@@ -94,13 +94,14 @@ spec:
         - name: obsidian-livesync
           enabled: true
           group: external
-          url: https://obsidian-livesync.endsys.cloud
+          url: https://obsidian-livesync.endsys.cloud/_up
           interval: 1m
           client:
             dns-resolver: tcp://1.1.1.1:53
           conditions:
+            # CouchDB answers 401 to unauthenticated requests; 401 means it is up.
             - "[CONNECTED] == true"
-            - "[STATUS] < 400"
+            - "[STATUS] == 401"
         - name: forgejo
           enabled: true
           group: external
@@ -125,7 +126,7 @@ spec:
         - name: matrix-synapse
           enabled: true
           group: external
-          url: https://matrix.endsys.cloud
+          url: https://matrix.endsys.cloud/_matrix/client/versions
           interval: 1m
           client:
             dns-resolver: tcp://1.1.1.1:53
@@ -183,14 +184,6 @@ spec:
           conditions:
             - "[CONNECTED] == true"
             - "[STATUS] < 400"
-        - name: pricebuddy
-          enabled: true
-          group: internal
-          url: https://pricebuddy.endsys.cloud
-          interval: 1m
-          conditions:
-            - "[CONNECTED] == true"
-            - "[STATUS] < 400"
         - name: larder
           enabled: true
           group: internal
@@ -203,14 +196,6 @@ spec:
           enabled: true
           group: internal
           url: https://lh.endsys.cloud
-          interval: 1m
-          conditions:
-            - "[CONNECTED] == true"
-            - "[STATUS] < 400"
-        - name: octopi
-          enabled: true
-          group: internal
-          url: https://octopi.endsys.cloud
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
@@ -230,21 +215,28 @@ spec:
         - name: minecraft-vanilla
           enabled: true
           group: games
-          url: tcp://games.endsys.cloud:25567
+          url: tcp://lyris.endsys.cloud:25567
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
         - name: minecraft-creative
           enabled: true
           group: games
-          url: tcp://games.endsys.cloud:25565
+          url: tcp://lyris.endsys.cloud:25565
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
         - name: vault-hunters
           enabled: true
           group: games
-          url: tcp://games.endsys.cloud:25566
+          url: tcp://lyris.endsys.cloud:25566
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+        - name: createair
+          enabled: true
+          group: games
+          url: tcp://lyris.endsys.cloud:25568
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
