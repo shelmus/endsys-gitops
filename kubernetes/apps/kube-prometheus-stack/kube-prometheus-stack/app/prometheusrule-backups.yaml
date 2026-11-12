@@ -95,3 +95,30 @@ spec:
           annotations:
             summary: "{{ $labels.namespace }}/{{ $labels.pod }} base backup failed"
             description: "The most recent Barman Cloud base backup attempt for {{ $labels.namespace }}/{{ $labels.pod }} failed after the last successful one. Inspect: kubectl -n {{ $labels.namespace }} get backups.postgresql.cnpg.io"
+
+        # The two rules above are silent for a cluster that has never had a
+        # successful backup: both timestamps are 0. A first backup that fails
+        # before reaching the plugin (the "requested plugin is not available"
+        # race on the first restart) never sets last_failed either.
+        - alert: CNPGNeverBackedUp
+          expr: barman_cloud_cloudnative_pg_io_last_available_backup_timestamp == 0
+          for: 26h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} has never had a successful base backup"
+            description: "Barman Cloud is configured for {{ $labels.namespace }}/{{ $labels.pod }}, but no base backup has ever completed (26h after it started reporting). Inspect: kubectl -n {{ $labels.namespace }} get backups.postgresql.cnpg.io"
+
+        # A CNPG instance with no Barman Cloud plugin at all exports no
+        # barman_cloud_* series, so none of the rules above can see it.
+        - alert: CNPGBackupNotConfigured
+          expr: |
+            cnpg_collector_up
+              unless on (namespace, pod)
+            barman_cloud_cloudnative_pg_io_last_available_backup_timestamp
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} has no Barman Cloud backups configured"
+            description: "{{ $labels.namespace }}/{{ $labels.pod }} is a CNPG instance without the Barman Cloud plugin, so it has no base backups or WAL archive. See .context/database/cnpg-backup-standard.md and scripts/cnpg-backup-scaffold.py."
