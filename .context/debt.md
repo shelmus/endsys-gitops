@@ -155,7 +155,6 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 
 **Risk**:
 - Immich library not replicated (relies on NFS)
-- Pricebuddy data not backed up via VolSync
 - No consistent backup strategy across apps
 
 **Recommended Fix**: Add VolSync ReplicationSource for all stateful PVCs.
@@ -195,7 +194,6 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 - `kubernetes/apps/network/cloudflare-tunnel/app/secret.sops.yaml`
 - `kubernetes/apps/network/pihole-dns/app/secret.sops.yaml`
 - `kubernetes/apps/longhorn-system/longhorn-system/app/secret.sops.yaml`
-- `kubernetes/apps/pricebuddy/pricebuddy/app/secret.sops.yaml`
 - `kubernetes/apps/default/otterwiki/app/secret.sops.yaml`
 - `kubernetes/apps/external-secrets/external-secrets/stores/secret.sops.yaml`
 
@@ -208,16 +206,16 @@ Migration to External Secrets should focus on app-specific secrets, not cluster-
 
 | ID | Issue | Priority | Status |
 |----|-------|----------|--------|
-| TD-002 | Pricebuddy latest tag (Pelican resolved) | High | Partial |
+| TD-002 | Pricebuddy latest tag (Pelican resolved) | High | **Resolved** (app removed 2026-11) |
 | TD-003 | Single-instance CNPG | Medium | Open |
 | TD-004 | Limited Velero schedules (taxsale-monitor remaining) | Medium | Partial |
 | TD-005 | Manual Immich PV | Medium | Open |
 | TD-006 | Velero SOPS secret | Low | **Resolved** |
 | TD-007 | n8n HTTPRoute missing | Low | Open |
-| TD-008 | Pricebuddy init workaround | Low | Open |
+| TD-008 | Pricebuddy init workaround | Low | **Resolved** (app removed 2026-11) |
 | TD-010 | VolSync not consistent | Medium | Superseded |
 | TD-011 | SOPS still widely used | Low | Open |
 | TD-012 | Firecrawl chart limitations (bundled deps, image tags, no Postgres persistence) | Low | Open |
 | TD-013 | CNPG without WAL archiving | High | In progress (3/9) |
 | TD-014 | Garage metadata unprotected | High | Open |
-| TD-016 | PriceBuddy MySQL hook ineffective | Medium | Open |
+| TD-016 | PriceBuddy MySQL hook ineffective | Medium | **Resolved** (app removed 2026-11) |
