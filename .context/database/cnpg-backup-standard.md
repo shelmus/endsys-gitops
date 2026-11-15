@@ -54,7 +54,7 @@ Why one key pair per cluster: a leaked key, or a compromised app namespace, can 
    - `select archived_count, failed_count from pg_stat_archiver` on the primary: archived is rising and failed is not;
    - the ObjectStore `status.serverRecoveryWindow.<cluster>.firstRecoverabilityPoint` is set;
    - `garage bucket info cnpg-<base>` shows objects > 0.
-7. **Restore drill.** `scripts/cnpg-restore-drill.py <ns> <cluster>` restores the newest backup into `<cluster>-restore-test` with the read-only key, with `archive_mode` off and no plugin, so it cannot write to the bucket. It compares the table list and per-table row counts with production, then deletes the namespace. Record the result (date, recovery point, tables/rows, time to healthy) in the backup plan note and the database's section below.
+7. **Restore drill.** `scripts/cnpg-restore-drill.py <ns> <cluster>` (admin kubeconfig; it fails after 3 min if the read-only key is missing from Bitwarden) restores the newest backup into `<cluster>-restore-test` with the read-only key, with `archive_mode` off and no plugin, so it cannot write to the bucket. It compares the table list and per-table row counts with production, then deletes the namespace. Record the result (date, recovery point, tables/rows, time to healthy) in the backup plan note and the database's section below.
 8. **Only after a passing drill:** exclude that cluster's `pgdata` from Velero (plan step 2f), so Velero stops taking inconsistent live copies.
 
 ## Restoring for real
@@ -80,9 +80,9 @@ Base-backup age uses `barman_cloud_cloudnative_pg_io_last_available_backup_times
 | larder-postgres | yes | #372 | 2026-09-29 18:50 UTC | 2026-09-29: 20/20 tables, rows identical, healthy in 75-90 s |
 | forgejo-postgres | yes | `ffc09ba` (built with the scaffold) | 2026-10-06 15:48 UTC | not recorded |
 | netbird-postgres | yes | `cnpg-backup-netbird-postgres.yaml` (built with the scaffold) | 2026-10-06 20:31 UTC | not recorded |
-| immich-postgres | — | — | — | — |
-| romm-postgres | — | — | — | — |
-| matrix-synapse-postgres | — | — | — | — |
-| matrix-mas-postgres | — | — | — | — |
-| hindsight-postgres | — | — | — | — |
-| coder-postgres | — | — | — | — |
+| immich-postgres | yes | #472 | 2026-11-12 03:40 UTC | not recorded |
+| romm-postgres | yes | #472 | 2026-11-12 03:55 UTC | not recorded |
+| matrix-synapse-postgres | yes | #472 | 2026-11-11 (first run after the #472 merge) | not recorded |
+| matrix-mas-postgres | yes | #472 | 2026-11-11 (first run after the #472 merge) | not recorded |
+| hindsight-postgres | yes | #472 | 2026-11-12 03:35 UTC | not recorded |
+| coder-postgres | yes | #472 | 2026-11-12 03:30 UTC | not recorded |

@@ -74,6 +74,7 @@ def main():
     rw = ostore.get("status", {}).get("serverRecoveryWindow", {}).get(cluster, {})
     if not rw.get("lastSuccessfulBackupTime"):
         sys.exit(f"{store} reports no successful base backup for {cluster} yet")
+    primary = src.get("status", {}).get("currentPrimary") or f"{cluster}-1"
     initdb = spec.get("bootstrap", {}).get("initdb", {})
     db, owner = initdb.get("database", "app"), initdb.get("owner", "app")
 
@@ -127,6 +128,20 @@ def main():
     t0 = time.time()
     k("apply", "-f", "-", input=manifest)
     try:
+        # Fail fast on a missing read-only key instead of waiting out the 20 min restore timeout.
+        es = f"{base}-cnpg-s3-ro"
+        for _ in range(12):   # up to 3 min
+            ready = k("-n", rns, "get", "externalsecrets.external-secrets.io", es, "-o",
+                      'jsonpath={.status.conditions[?(@.type=="Ready")].status}', check=False).strip()
+            if ready == "True":
+                break
+            time.sleep(15)
+        else:
+            msg = k("-n", rns, "get", "externalsecrets.external-secrets.io", es, "-o",
+                    'jsonpath={.status.conditions[?(@.type=="Ready")].message}', check=False).strip()
+            print(f"FAIL      ExternalSecret {es} not Ready after 3 min: {msg or 'no status'}")
+            print(f"          check Bitwarden for {base}-cnpg-s3-ro-access-key and {base}-cnpg-s3-ro-secret-key")
+            sys.exit(2)
         phase = ""
         for _ in range(80):   # up to 20 min
             phase = k("-n", rns, "get", "clusters.postgresql.cnpg.io", f"{cluster}-restore",
@@ -141,7 +156,7 @@ def main():
             sys.exit(2)
         print(f"restored  healthy in {took}s")
 
-        prod = counts(ns, f"{cluster}-1", db)
+        prod = counts(ns, primary, db)
         rest = counts(rns, f"{cluster}-restore-1", db)
         diff = {t: (prod.get(t, "MISSING"), rest.get(t, "MISSING"))
                 for t in sorted(set(prod) | set(rest)) if prod.get(t) != rest.get(t)}
