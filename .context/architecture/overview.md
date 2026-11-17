@@ -73,7 +73,6 @@ System design and infrastructure patterns for the endsys-gitops cluster.
 | Gatus | gatus | Uptime monitoring | - |
 | kube-prometheus-stack | kube-prometheus-stack | Metrics, alerting, dashboards | - |
 | Pelican | pelican | Game server panel | - |
-| Otterwiki | default | Wiki | SQLite |
 | Garage | garage | Object storage (S3) | - |
 | Cloudflare Tunnel | network | Public ingress via Cloudflare | - |
 | Cloudflare DNS | network | External DNS (Cloudflare) | - |
@@ -160,7 +159,6 @@ flux-system (bootstrap)
 | kube-prometheus-stack | HTTP | prometheus-community.github.io/helm-charts | Monitoring |
 | longhorn | HTTP | charts.longhorn.io | Longhorn storage |
 | n8n | HTTP | community-charts.github.io/helm-charts | n8n |
-| otterwiki | HTTP | charts.otterwiki.com | Otterwiki |
 | garage | Git | git.deuxfleurs.fr/Deuxfleurs/garage (tag v1.3.1, path script/helm/garage) | Garage |
 | twin | HTTP | twin.github.io/helm-charts | Gatus |
 | vmware-tanzu | HTTP | vmware-tanzu.github.io/helm-charts | Velero |

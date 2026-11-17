@@ -147,9 +147,9 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 
 ### 10. ~~VolSync Not Consistently Deployed~~ — Superseded
 
-**Status**: Superseded by Velero. Its only user, otterwiki, is disabled. Remove VolSync when otterwiki is retired.
+**Status**: Superseded by Velero. Its only user, otterwiki, was removed (2026-11-17). Remove the VolSync operator when convenient.
 
-**Location**: Only `kubernetes/apps/default/otterwiki/app/volsync-backup.yaml`
+**Location**: No remaining consumers in this repo
 
 **Issue**: VolSync backup only configured for otterwiki, not other stateful apps.
 
@@ -194,7 +194,6 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 - `kubernetes/apps/network/cloudflare-tunnel/app/secret.sops.yaml`
 - `kubernetes/apps/network/pihole-dns/app/secret.sops.yaml`
 - `kubernetes/apps/longhorn-system/longhorn-system/app/secret.sops.yaml`
-- `kubernetes/apps/default/otterwiki/app/secret.sops.yaml`
 - `kubernetes/apps/external-secrets/external-secrets/stores/secret.sops.yaml`
 
 **Note**: Some SOPS usage is intentional (cluster-secrets for variable substitution).

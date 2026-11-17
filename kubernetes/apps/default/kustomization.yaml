@@ -6,4 +6,3 @@ namespace: default
 components:
   - ../../components/common
 resources: []
-  # - ./otterwiki/ks.yaml
