@@ -33,6 +33,11 @@ spec:
         username: hindsight
 
     api:
+      # The model-cache PVC is ReadWriteOnce. The chart's default RollingUpdate starts
+      # the new pod while the old one still holds the volume, so the upgrade times out
+      # at "Waiting for detach". Recreate frees the volume first (chart >= 1.2).
+      strategy:
+        type: Recreate
       env:
         HINDSIGHT_API_LLM_PROVIDER: "ollama"
         HINDSIGHT_API_LLM_BASE_URL: "http://10.127.0.4:11434/v1"
