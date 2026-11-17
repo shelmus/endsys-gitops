@@ -4,9 +4,10 @@
 # Phase 4b). Standalone panel image: Wings stays on lyris, so the -aio image
 # (bundled Wings on :2022) must NOT be used here.
 #
-# No HTTPRoute yet, on purpose: a fresh panel sits at the OOBE "register" step,
-# and the first visitor becomes admin. The Pelican import (4b.3/4b.4) runs via
-# kubectl exec against this pod; the route lands in a follow-up PR after it.
+# Route gpanel.${SECRET_DOMAIN}, internal gateway only. Merge it only AFTER the
+# Pelican import (plan 4b.4): until then the panel sits at the OOBE "register"
+# step and its first visitor would become admin. (games.${SECRET_DOMAIN} is the
+# public game-server address, a hand-made Cloudflare A record to the WAN IP.)
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -169,3 +170,15 @@ spec:
           valkey:
             app:
               - path: /data
+
+    route:
+      app:
+        hostnames: ["gpanel.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
