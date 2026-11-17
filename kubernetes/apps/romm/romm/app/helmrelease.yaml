@@ -12,10 +12,15 @@ spec:
   install:
     remediation:
       retries: -1
+  # RomM 5.4 rewrites and backfills the roms table on first start (upstream:
+  # allow 15-20 min, do not restart). A rollback would put the 4.x binary on a
+  # migrated database, so an upgrade failure must stop, not remediate.
+  timeout: 40m
   upgrade:
-    cleanupOnFail: true
+    cleanupOnFail: false
     remediation:
-      retries: 3
+      retries: 0
+      remediateLastFailure: false
   values:
     controllers:
       romm:
@@ -29,7 +34,7 @@ spec:
           app:
             image:
               repository: rommapp/romm
-              tag: 4.9.2
+              tag: 5.4.0
             env:
               TZ: America/New_York
               ROMM_BASE_URL: https://romm.${SECRET_DOMAIN}
@@ -65,7 +70,8 @@ spec:
                     port: &port 8080
                   periodSeconds: 10
                   timeoutSeconds: 5
-                  failureThreshold: 30
+                  # 30 min: covers the 5.4 first-start migrations.
+                  failureThreshold: 180
               liveness:
                 enabled: true
                 custom: true

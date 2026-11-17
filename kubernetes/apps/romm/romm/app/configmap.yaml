@@ -5,6 +5,13 @@ metadata:
   name: romm-config
 data:
   config.yml: |
+    # RomM 5.3+ refuses to start without an explicit layout. The library on
+    # Lyris (/vault/games -> /romm/library) is roms/<platform>/<game>, i.e.
+    # the old "structure A" (romm deployment ledger, 2026-07-14).
+    filesystem:
+      structure:
+        default: "roms/{platform}/{game}"
+        firmware: "bios/{platform}"
     system:
       platforms:
         "Nintendo Gameboy": gb
