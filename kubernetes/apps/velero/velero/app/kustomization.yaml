@@ -6,7 +6,6 @@ resources:
   - ./helmrelease.yaml
   - ./externalsecret.yaml
   # Backup schedules for applications
-  - ./schedules/pricebuddy-schedule.yaml
   - ./schedules/n8n-schedule.yaml
   - ./schedules/immich-schedule.yaml
   - ./schedules/romm-schedule.yaml

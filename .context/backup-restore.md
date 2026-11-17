@@ -37,7 +37,6 @@ Current schedules:
 
 | Schedule | Namespace | Cron | Retention |
 |----------|-----------|------|-----------|
-| `pricebuddy-daily` | pricebuddy | `0 2 * * *` (2 AM UTC) | 30 days |
 | `n8n-daily` | n8n | `0 2 * * *` (2 AM UTC) | 30 days |
 | `immich-daily` | immich | `0 2 * * *` (2 AM UTC) | 30 days |
 | `gatus-daily` | gatus | `0 2 * * *` (2 AM UTC) | 30 days |
@@ -129,13 +128,13 @@ Then add it to `kubernetes/apps/velero/velero/app/kustomization.yaml`:
 resources:
   - ./helmrelease.yaml
   - ./secret.sops.yaml
-  - ./schedules/pricebuddy-schedule.yaml
+  - ./schedules/n8n-schedule.yaml
   - ./schedules/pelican-schedule.yaml       # <-- add
 ```
 
 ### App with Database Hooks
 
-If the app has an in-pod database (like pricebuddy's MySQL), add pre/post hooks to ensure consistency. See `schedules/pricebuddy-schedule.yaml` for a full example with `FLUSH TABLES WITH READ LOCK`.
+If the app has an in-pod database, a Velero volume copy is not consistent on its own. Run a logical dump (`mysqldump --single-transaction`, `pg_dump`) as a pre-hook into a backed-up path. Don't use `FLUSH TABLES WITH READ LOCK` in a backgrounded hook: the removed pricebuddy schedule did, and the lock was released before the copy (TD-016).
 
 Apps using CNPG are not made consistent by Velero. Postgres recovers from WAL only when WAL is archived, and no archiving is configured here. Until it is, treat a Velero copy of `pgdata` as a best-effort live copy, and take a `pg_dump` before risky migrations (Option C below).
 

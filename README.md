@@ -69,7 +69,6 @@ Exposure is derived from active `HTTPRoute` resources and Helm chart route confi
 | obsidian-livesync | obsidian-livesync | external | Obsidian synchronization |
 | pelican | pelican | internal | Game server panel |
 | pocket-id | pocket-id | external | OIDC identity provider |
-| pricebuddy | pricebuddy | internal | Price tracking |
 | romm | romm | internal | ROM management |
 | taxsale-monitor | taxsale-monitor | — | Tax-sale monitoring |
 | velero | velero | — | Cluster backup and restore |

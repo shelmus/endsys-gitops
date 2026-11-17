@@ -29,7 +29,6 @@ resources:
   - ./obsidian-livesync
   - ./pelican
   - ./pocket-id
-  - ./pricebuddy
   - ./romm
   - ./taxsale-monitor
   - ./velero

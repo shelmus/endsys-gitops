@@ -73,7 +73,6 @@ System design and infrastructure patterns for the endsys-gitops cluster.
 | Gatus | gatus | Uptime monitoring | - |
 | kube-prometheus-stack | kube-prometheus-stack | Metrics, alerting, dashboards | - |
 | Pelican | pelican | Game server panel | - |
-| Pricebuddy | pricebuddy | Price tracking | MySQL (embedded) |
 | Otterwiki | default | Wiki | SQLite |
 | Garage | garage | Object storage (S3) | - |
 | Cloudflare Tunnel | network | Public ingress via Cloudflare | - |
@@ -104,7 +103,6 @@ flux-system (bootstrap)
             ├── kube-prometheus-stack (depends on: external-secrets-stores)
             ├── gatus
             ├── pelican
-            ├── pricebuddy
             └── ...
 ```
 
