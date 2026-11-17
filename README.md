@@ -73,7 +73,6 @@ Exposure is derived from active `HTTPRoute` resources and Helm chart route confi
 | taxsale-monitor | taxsale-monitor | — | Tax-sale monitoring |
 | velero | velero | — | Cluster backup and restore |
 
-**Dormant:** `default/otterwiki` is commented out in its namespace Kustomization and is not part of the active catalog. Its route manifest targets the internal gateway.
 
 ## How changes ship
 

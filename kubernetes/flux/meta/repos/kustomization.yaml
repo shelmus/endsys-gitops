@@ -9,7 +9,6 @@ resources:
   - ./piraeus.yaml
   - ./kube-prometheus-stack.yaml
   - ./n8n.yaml
-  - ./otterwiki.yaml
   - ./twin.yaml
   - ./longhorn.yaml
   - ./backube.yaml
