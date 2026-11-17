@@ -20,3 +20,4 @@ resources:
   - ./schedules/larder-schedule.yaml
   - ./schedules/forgejo-schedule.yaml
   - ./schedules/netbird-schedule.yaml
+  - ./schedules/calagopus-schedule.yaml

@@ -8,6 +8,8 @@
 # Usage:
 #   scripts/cnpg-backup-keys.sh                 # every CNPG cluster in the live cluster
 #   scripts/cnpg-backup-keys.sh romm-postgres   # one or more named clusters
+#   scripts/cnpg-backup-keys.sh new-postgres    # a cluster declared in this repo but not deployed yet
+#                                               # (new app: run on its PR branch BEFORE merging)
 #   scripts/cnpg-backup-keys.sh --dry-run       # show what would be created, change nothing
 #
 # Idempotent: existing buckets and keys are left alone, never recreated or re-printed.
@@ -20,7 +22,7 @@ declare -a WANT=()
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY_RUN=1 ;;
-    -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,17p' "$0"; exit 0 ;;
     *) WANT+=("$a") ;;
   esac
 done
@@ -33,6 +35,21 @@ exists_key() { g key info "$1" >/dev/null 2>&1; }
 mapfile -t CLUSTERS < <(kubectl get clusters.postgresql.cnpg.io -A \
   -o jsonpath='{range .items[*]}{.metadata.namespace} {.metadata.name}{"\n"}{end}')
 [ "${#CLUSTERS[@]}" -gt 0 ] || { echo "No CNPG clusters found (check KUBECONFIG)"; exit 1; }
+
+# A named cluster that isn't deployed yet (a new app's PR, keys needed BEFORE
+# merging) is accepted only if a postgres-cluster.yaml in this repo declares it,
+# so a typo can't create a stray bucket.
+REPO_APPS="$(cd "$(dirname "$0")/.." && pwd)/kubernetes/apps"
+for w in "${WANT[@]}"; do
+  live=0
+  for line in "${CLUSTERS[@]}"; do [ "${line#* }" = "$w" ] && live=1; done
+  [ $live = 1 ] && continue
+  decl=$(grep -rlx --include=postgres-cluster.yaml "  name: ${w}" "$REPO_APPS" 2>/dev/null | head -1 || true)
+  [ -n "$decl" ] || { echo "Cluster '${w}' is neither live nor declared in kubernetes/apps/*/postgres-cluster.yaml"; exit 1; }
+  ns=$(basename "$(dirname "$(dirname "$(dirname "$decl")")")")
+  echo "Note: ${w} is not deployed yet; using its declaration in ${decl#"$REPO_APPS"/} (namespace ${ns})"
+  CLUSTERS+=("${ns} ${w}")
+done
 
 declare -a PRINTED=()
 for line in "${CLUSTERS[@]}"; do
