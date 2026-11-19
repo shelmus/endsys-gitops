@@ -54,7 +54,7 @@ Not scheduled: `taxsale-monitor`. It is a CronJob, and file-system backup only c
 
 ### What the Backups Do Not Cover Yet
 
-- **Postgres is point-in-time only where the [CNPG Backup Standard](database/cnpg-backup-standard.md) is applied** (larder so far; status table there). For the others, a Velero file copy of a running CNPG `pgdata` volume is a live copy taken while Postgres writes. It is not captured at one instant, so it may not start cleanly (TD-013).
+- **Postgres is point-in-time only where the [CNPG Backup Standard](database/cnpg-backup-standard.md) is applied** (all 10 live CNPG clusters had base backups and WAL archiving on 2026-11-19; only larder has a recorded restore drill. Status table there). For the others, a Velero file copy of a running CNPG `pgdata` volume is a live copy taken while Postgres writes. It is not captured at one instant, so it may not start cleanly (TD-013).
 - **Garage metadata lives in the cluster.** Garage's data blocks are on NFS, but its LMDB metadata is on the Longhorn volume `meta-garage-0`. Without the metadata, the blocks on NFS are unreadable (TD-014).
 - **No restore has been recorded.** A backup counts only after one restore test succeeds.
 

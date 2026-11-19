@@ -80,9 +80,12 @@ Base-backup age uses `barman_cloud_cloudnative_pg_io_last_available_backup_times
 | larder-postgres | yes | #372 | 2026-09-29 18:50 UTC | 2026-09-29: 20/20 tables, rows identical, healthy in 75-90 s |
 | forgejo-postgres | yes | `ffc09ba` (built with the scaffold) | 2026-10-06 15:48 UTC | not recorded |
 | netbird-postgres | yes | `cnpg-backup-netbird-postgres.yaml` (built with the scaffold) | 2026-10-06 20:31 UTC | not recorded |
-| immich-postgres | — | — | — | — |
-| romm-postgres | — | — | — | — |
-| matrix-synapse-postgres | — | — | — | — |
-| matrix-mas-postgres | — | — | — | — |
-| hindsight-postgres | — | — | — | — |
-| coder-postgres | — | — | — | — |
+| immich-postgres | yes | `cnpg-backup-immich-postgres.yaml` (built with the scaffold; PR #472) | 2026-11-12 03:40 UTC | not recorded |
+| romm-postgres | yes | `cnpg-backup-romm-postgres.yaml` (built with the scaffold; PR #472) | 2026-11-12 03:55 UTC | not recorded |
+| matrix-synapse-postgres | yes | `cnpg-backup-matrix-synapse-postgres.yaml` (built with the scaffold; PR #472) | 2026-11-11 23:53 UTC | not recorded |
+| matrix-mas-postgres | yes | `cnpg-backup-matrix-mas-postgres.yaml` (built with the scaffold; PR #472) | 2026-11-11 23:53 UTC | not recorded |
+| hindsight-postgres | yes | `cnpg-backup-hindsight-postgres.yaml` (built with the scaffold; PR #472) | 2026-11-12 03:35 UTC | not recorded |
+| coder-postgres | yes | `cnpg-backup-coder-postgres.yaml` (built with the scaffold; PR #472) | 2026-11-12 03:30 UTC | not recorded |
+| calagopus-postgres | yes | `cnpg-backup-calagopus-postgres.yaml` (built with the scaffold; PR #482) | 2026-11-17 22:19 UTC | not recorded |
+
+Read back from the live cluster on 2026-11-19: all 10 clusters are healthy, each has at least one completed plugin `Backup`, and the first-backup times above are the earliest completed ones. The coder, hindsight, immich and romm first runs on 2026-11-11 23:49 UTC hit the plugin race ("requested plugin is not available"), so their first completed backup is the 2026-11-12 scheduled one. Drills are still outstanding for every cluster except larder; record each one here when it passes.
