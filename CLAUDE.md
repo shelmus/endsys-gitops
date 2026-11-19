@@ -146,6 +146,7 @@ Dependency chain: `flux-system` → `cluster-meta` → `cluster-apps` → `{ inf
 |---------|-----|---------|
 | `internal` | 10.127.0.51 | Private LAN access |
 | `external` | 10.127.0.52 | Public via Cloudflare Tunnel |
+| `family` | 10.127.0.56 | Family-facing apps (Immich), no routes attached yet |
 
 ## Templates
 

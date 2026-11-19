@@ -38,6 +38,9 @@ Both gateways use Cilium's Gateway API implementation with TLS certificates from
 |---------|-----|---------|---------------|
 | `internal` | 10.127.0.51 | Private LAN access | All namespaces (HTTPS), Same namespace (HTTP) |
 | `external` | 10.127.0.52 | Public via Cloudflare | All namespaces (HTTPS), Same namespace (HTTP) |
+| `family` | 10.127.0.56 | Family-facing apps (Immich); no routes attached yet (plan 5.2) | Namespace `immich` only (HTTPS) |
+
+The Cilium LB-IPAM pool covers `10.127.0.50`-`10.127.0.69` only. In use: .50 k8s-gateway, .51 internal, .52 external, .53 forgejo-ssh, .54 netbird, .55 netbird-stun, .56 family.
 
 Both listen on `*.${SECRET_DOMAIN}` (ports 80 and 443) with TLS certificates referenced from the cert-manager-issued wildcard secret.
 

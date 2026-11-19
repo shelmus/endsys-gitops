@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://github.com/datreeio/CRDs-catalog/raw/refs/heads/main/gateway.networking.k8s.io/gateway_v1.json
+# Gateway for family-facing apps (Immich, plan Phase 5). Own LB IP so a WAN
+# forward or a family-only DNS record reaches Immich only, never the internal/
+# external app gateways. No HTTPRoute is attached yet: moving Immich off the
+# external gateway is plan step 5.2 and is a separate change. No external-dns
+# annotation on purpose: the record for this gateway is added with that route.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: family
+spec:
+  gatewayClassName: cilium
+  addresses:
+    - type: IPAddress
+      value: "10.127.0.56"
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "immich.${SECRET_DOMAIN}"
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: immich
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: ${SECRET_DOMAIN/./-}-production-tls
