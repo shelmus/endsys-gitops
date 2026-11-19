@@ -153,9 +153,11 @@ spec:
             - "[CONNECTED] == true"
             - "[STATUS] == 200"
         # Calagopus (replaces pelican, plan Phase 4b). /api/settings is public
-        # and answers even before login. TODO after the import: add a
-        # [BODY].oobe_step condition once its post-setup value is read live
-        # (it is "register" on a fresh panel).
+        # and answers even before login. oobe_step is "register" on a fresh
+        # panel (first visitor becomes admin) and null once set up. Gatus
+        # cannot resolve a JSON null, so "== null" and "== pat(*)" are wrong
+        # here and "!= null" always passes; "!= register" is the form that
+        # passes on null/absent and fails on "register" (tested on v5.34.0).
         - name: calagopus
           enabled: true
           group: internal
@@ -164,6 +166,7 @@ spec:
           conditions:
             - "[CONNECTED] == true"
             - "[STATUS] == 200"
+            - "[BODY].oobe_step != register"
         - name: grafana
           enabled: true
           group: internal
