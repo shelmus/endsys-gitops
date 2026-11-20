@@ -98,7 +98,7 @@ image: jez500/pricebuddy:latest
 
 ---
 
-### 17. UniFi DHCP Pool Overlaps the Cilium LB-IPAM Pool
+### 17. UniFi DHCP Pool Overlaps the Cilium LB-IPAM Pool (fix proposed: pool narrowed to .50–.79)
 
 **Location**: `kubernetes/apps/kube-system/cilium/app/networks.yaml` (CiliumLoadBalancerIPPool) vs. UniFi LAN DHCP range
 
@@ -109,6 +109,8 @@ image: jez500/pricebuddy:latest
 - Checking "is this IP free" requires UniFi client/lease lookups (done for `.54`/`.55` on 2026-10-06 for NetBird).
 
 **Recommended Fix**: Narrow the LB-IPAM pool to a block outside DHCP (e.g. `.40–.99`) once the existing pinned IPs are confirmed inside it. Candidate for the planned infrastructure remodel.
+
+**Update 2026-11-20**: the pool is narrowed to `10.127.0.50`–`10.127.0.79` in this change (registry address plan). Pinned IPs in use, read from the cluster: `.50` k8s-gateway, `.51` internal, `.52` external, `.53` forgejo-ssh, `.54` netbird gateway, `.55` netbird-stun; all inside the block. Resolved once merged and Flux reconciles.
 
 ---
 
