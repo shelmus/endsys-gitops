@@ -36,7 +36,6 @@ Exposure is derived from active `HTTPRoute` resources and Helm chart route confi
 | cert-manager | cert-manager | — | TLS certificate management |
 | cnpg-system | cnpg-operator | — | PostgreSQL operator |
 | coder | coder | external | Development environments |
-| external-services | octopi | internal | — |
 | external-services | gameserver | — | Game server monitoring target |
 | external-secrets | external-secrets | — | Bitwarden secret synchronization |
 | firecrawl | firecrawl | internal | Web crawling service |

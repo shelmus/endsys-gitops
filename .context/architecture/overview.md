@@ -139,7 +139,6 @@ flux-system (bootstrap)
 |--------|------|-----|
 | `10.127.0.7` | `/vault/immich` | Immich library |
 | `10.127.0.7` | `/vault/k8s` | Garage object-storage data volume |
-| `10.127.0.214` | `/srv/nfs/kube` | Default `nfs-csi` StorageClass (dynamic provisioning) |
 
 ## Helm Repositories
 

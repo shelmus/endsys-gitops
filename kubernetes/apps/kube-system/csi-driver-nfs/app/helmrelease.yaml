@@ -27,7 +27,9 @@ spec:
     controller:
       replicas: 1
     storageClass:
-      create: true
+      # The nfs-csi class pointed at the retired homeassistant-pi (10.127.0.214).
+      # No PV or PVC used it (checked 2026-11-20); Helm removes the unused class.
+      create: false
       name: nfs-csi
       parameters:
         server: 10.127.0.214
