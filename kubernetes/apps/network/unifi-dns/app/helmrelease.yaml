@@ -3,7 +3,7 @@
 #
 # Publishes every HTTPRoute and annotated Service into the UniFi gateway's
 # local DNS (Endor, 10.127.0.1) through external-dns-unifi-webhook.
-# Replaces pihole-dns once Pi-hole is retired; both run in parallel until then
+# Replaced pihole-dns when Pi-hole was retired (2026-11-20).
 # (vault Plan/2026-10-21_113823-pihole-decommission-unifi-external-dns-plan.md).
 #
 # No `crd` source on purpose: the cloudflare-tunnel DNSEndpoint publishes

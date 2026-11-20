@@ -76,7 +76,6 @@ System design and infrastructure patterns for the endsys-gitops cluster.
 | Garage | garage | Object storage (S3) | - |
 | Cloudflare Tunnel | network | Public ingress via Cloudflare | - |
 | Cloudflare DNS | network | External DNS (Cloudflare) | - |
-| Pi-hole DNS | network | External DNS (Pi-hole) | - |
 | k8s-gateway | network | Internal DNS for *.endsys.cloud | - |
 | Echo | network | HTTP echo test server | - |
 

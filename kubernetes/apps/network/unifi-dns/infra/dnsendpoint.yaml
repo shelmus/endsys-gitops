@@ -17,10 +17,6 @@ spec:
     - dnsName: "gateway.${SECRET_DOMAIN}"
       recordType: A
       targets: ["10.127.0.1"]
-    - dnsName: "pihole.${SECRET_DOMAIN}"
-      recordType: A
-      targets: ["10.127.0.3"]
-      # Remove when Pi-hole is powered off (plan phase 5).
     - dnsName: "yggdrasil.${SECRET_DOMAIN}"
       recordType: A
       targets: ["10.127.0.4"]

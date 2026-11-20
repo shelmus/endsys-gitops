@@ -64,7 +64,6 @@ Exposure is derived from active `HTTPRoute` resources and Helm chart route confi
 | network | cloudflare-dns | — | Public DNS records |
 | network | cloudflare-tunnel | — | Public ingress tunnel |
 | network | k8s-gateway | — | In-cluster DNS for routed services |
-| network | pihole-dns | — | Local DNS records |
 | network | echo | external | HTTP connectivity test service |
 | obsidian-livesync | obsidian-livesync | external | Obsidian synchronization |
 | pelican | pelican | internal | Game server panel |

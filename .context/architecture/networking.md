@@ -65,12 +65,12 @@ Three external-dns instances manage DNS records for different providers:
           ┌────────────┘      │      └────────────┐
           ▼                   ▼                    ▼
 ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
-│  cloudflare-dns  │ │   pihole-dns     │ │   k8s-gateway    │
+│  cloudflare-dns  │ │    unifi-dns     │ │   k8s-gateway    │
 │  (external-dns)  │ │  (external-dns)  │ │  (CoreDNS-based) │
 └────────┬─────────┘ └────────┬─────────┘ └────────┬─────────┘
          │                    │                     │
          ▼                    ▼                     ▼
-    Cloudflare API      Pi-hole API           In-cluster DNS
+    Cloudflare API      UniFi gateway         In-cluster DNS
    (public records)   (local records)       (*.endsys.cloud)
 ```
 
@@ -87,18 +87,15 @@ Three external-dns instances manage DNS records for different providers:
 
 Creates public DNS records for apps exposed via the `external` gateway.
 
-### pihole-dns
+### unifi-dns
 
-**Location**: `kubernetes/apps/network/pihole-dns/`
+**Location**: `kubernetes/apps/network/unifi-dns/`
 
-- **Chart**: external-dns v1.20.0
-- **Provider**: Pi-hole (API v6)
-- **Pi-hole server**: `http://10.127.0.3`
-- **Sources**: gateway-httproute, service
-- **Policy**: `upsert-only` (never deletes manually-created records)
-- **Registry**: `noop` (Pi-hole doesn't support TXT ownership records)
+- **Provider**: UniFi gateway local DNS (external-dns UniFi webhook)
+- **Sources**: gateway-httproute, service (no `crd`, so the Cloudflare `external` CNAME is not evicted)
+- **Registry**: TXT ownership records
 
-Creates local DNS records on the network Pi-hole for internal resolution.
+Creates local DNS records on the UniFi gateway (10.127.0.1) for internal resolution. It replaced `pihole-dns` when Pi-hole was retired (2026-11-20).
 
 ### k8s-gateway
 
@@ -153,12 +150,12 @@ Manages TLS certificates for both gateways.
 
 1. Create an HTTPRoute with `parentRefs` pointing to the `external` gateway
 2. Cloudflare DNS will automatically create a DNS record
-3. Pi-hole DNS will automatically create a local record
+3. unifi-dns will automatically create a local record
 4. Traffic will flow: Internet → Cloudflare → Tunnel → external Gateway → your app
 
 ## Adding an Internally-Accessible App
 
 1. Create an HTTPRoute with `parentRefs` pointing to the `internal` gateway
-2. Pi-hole DNS will automatically create a local record
+2. unifi-dns will automatically create a local record
 3. k8s-gateway provides in-cluster DNS resolution
 4. Only accessible from the local network
