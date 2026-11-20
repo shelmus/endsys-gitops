@@ -194,7 +194,6 @@ command: ['sh', '-c', 'until nc -z pricebuddy-database 3306; do sleep 1; done']
 - `kubernetes/apps/cert-manager/cert-manager/app/secret.sops.yaml`
 - `kubernetes/apps/network/cloudflare-dns/app/secret.sops.yaml`
 - `kubernetes/apps/network/cloudflare-tunnel/app/secret.sops.yaml`
-- `kubernetes/apps/network/pihole-dns/app/secret.sops.yaml`
 - `kubernetes/apps/longhorn-system/longhorn-system/app/secret.sops.yaml`
 - `kubernetes/apps/external-secrets/external-secrets/stores/secret.sops.yaml`
 

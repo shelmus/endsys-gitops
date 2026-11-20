@@ -50,7 +50,7 @@ spec:
         type: ClusterIP
         port: 3000
       ssh:
-        # Dedicated LB IP for git@git.endsys.cloud; Pi-hole record via external-dns (service source).
+        # Dedicated LB IP for git@git.endsys.cloud; UniFi DNS record via external-dns (service source).
         # cloudflare-dns ignores Service annotations, so this hostname never leaves the LAN.
         type: LoadBalancer
         port: 22
