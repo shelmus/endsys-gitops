@@ -60,6 +60,9 @@ spec:
               trusted_proxies:
                 - 10.0.0.0/8
                 - 172.16.0.0/12
+        # Since chart 26.11.2 additional config goes through Helm tpl; the
+        # MAS Jinja claim templates are escaped as Go raw strings so they
+        # render literally.
         upstream-oauth.yaml:
           config: |
             upstream_oauth2:
@@ -74,13 +77,13 @@ spec:
                   claims_imports:
                     localpart:
                       action: require
-                      template: "{{ user.preferred_username }}"
+                      template: "{{ `{{ user.preferred_username }}` }}"
                     displayname:
                       action: suggest
-                      template: "{{ user.name }}"
+                      template: "{{ `{{ user.name }}` }}"
                     email:
                       action: suggest
-                      template: "{{ user.email }}"
+                      template: "{{ `{{ user.email }}` }}"
                       set_email_verification: always
 
     # --- Element Web ---
